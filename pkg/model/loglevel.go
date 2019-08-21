@@ -19,12 +19,14 @@ import (
 	"github.com/jhump/protoreflect/dynamic"
 )
 
-func GetEnumValue(val *dynamic.Message, name string) string {
-	return val.FindFieldDescriptorByName(name).GetEnumType().
-		FindValueByNumber(val.GetFieldByName(name).(int32)).GetName()
+type LogLevel struct {
+	ComponentName string
+	PackageName   string
+	Level         string
 }
 
-func SetEnumValue(msg *dynamic.Message, name string, value string) {
-	eValue := msg.FindFieldDescriptorByName(name).GetEnumType().FindValueByName(value)
-	msg.SetFieldByName(name, eValue.GetNumber())
+func (logLevel *LogLevel) PopulateFrom(val *dynamic.Message) {
+	logLevel.ComponentName = val.GetFieldByName("component_name").(string)
+	logLevel.PackageName = val.GetFieldByName("package_name").(string)
+	logLevel.Level = GetEnumValue(val, "level") //val.GetFieldByName("level").(string)
 }
