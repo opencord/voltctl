@@ -126,6 +126,21 @@ var functionMap = map[string]map[string]string{
 		"v1": "voltha.VolthaGlobalService/ListDeviceGroups",
 		"v2": "voltha.VolthaService/ListDeviceGroups",
 	},
+	"get-goroutine-count": {
+		"v2": "afrouter.Configuration.GetGoroutineCount",
+	},
+	"affinity-update-log-level": {
+		"v2": "afrouter.Configuration.UpdateLogLevel",
+	},
+	"affinity-get-log-levels": {
+		"v2": "afrouter.Configuration.GetLogLevels",
+	},
+	"update-log-level": {
+		"v2": "voltha.VolthaService/UpdateLogLevel",
+	},
+	"get-log-levels": {
+		"v2": "voltha.VolthaService/GetLogLevels",
+	},
 }
 
 func GetMethod(name string) (grpcurl.DescriptorSource, string, error) {
