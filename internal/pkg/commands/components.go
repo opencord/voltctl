@@ -17,9 +17,9 @@ package commands
 
 import (
 	"fmt"
-	"github.com/ciena/voltctl/pkg/format"
-	"github.com/ciena/voltctl/pkg/model"
 	flags "github.com/jessevdk/go-flags"
+	"github.com/opencord/voltctl/pkg/format"
+	"github.com/opencord/voltctl/pkg/model"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
