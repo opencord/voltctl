@@ -16,8 +16,8 @@
 package main
 
 import (
-	"github.com/ciena/voltctl/internal/pkg/commands"
 	flags "github.com/jessevdk/go-flags"
+	"github.com/opencord/voltctl/internal/pkg/commands"
 	"os"
 	"path"
 )
