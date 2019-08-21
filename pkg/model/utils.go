@@ -23,3 +23,8 @@ func GetEnumValue(val *dynamic.Message, name string) string {
 	return val.FindFieldDescriptorByName(name).GetEnumType().
 		FindValueByNumber(val.GetFieldByName(name).(int32)).GetName()
 }
+
+func SetEnumValue(msg *dynamic.Message, name string, value string) {
+	eValue := msg.FindFieldDescriptorByName(name).GetEnumType().FindValueByName(value)
+	msg.SetFieldByName(name, eValue.GetNumber())
+}
