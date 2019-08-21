@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4d925247_b513712a",
+        "filename": "Makefile",
+        "patchSetId": 5
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1000016
+      },
+      "writtenOn": "2019-08-21T23:16:33Z",
+      "side": 1,
+      "message": "Fixed all.",
+      "parentUuid": "d9fe35cd_1539d9d1",
+      "range": {
+        "startLine": 13,
+        "startChar": 20,
+        "endLine": 13,
+        "endChar": 24
+      },
+      "revId": "4a64292b78c346920d5badf02634515b9553aaf9",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6c36fcaa_e1cfc1af",
         "filename": "Makefile",
         "patchSetId": 5
