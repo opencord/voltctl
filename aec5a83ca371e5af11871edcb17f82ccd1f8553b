@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "8bd5eb69_6c38587b",
+        "filename": "internal/pkg/commands/voltha_v1_pb.go",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000016
+      },
+      "writtenOn": "2019-08-21T23:24:19Z",
+      "side": 1,
+      "message": "fixed all.",
+      "parentUuid": "ae6b30d7_a6ef5a61",
+      "revId": "aec5a83ca371e5af11871edcb17f82ccd1f8553b",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ebc04a71_02c40749",
         "filename": "internal/pkg/commands/voltha_v1_pb.go",
         "patchSetId": 6
