@@ -18,11 +18,11 @@ package commands
 import (
 	"context"
 	"fmt"
-	"github.com/ciena/voltctl/pkg/format"
-	"github.com/ciena/voltctl/pkg/model"
 	"github.com/fullstorydev/grpcurl"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/jhump/protoreflect/dynamic"
+	"github.com/opencord/voltctl/pkg/format"
+	"github.com/opencord/voltctl/pkg/model"
 	"strings"
 )
 

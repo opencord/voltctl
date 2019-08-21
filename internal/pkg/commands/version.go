@@ -18,11 +18,11 @@ package commands
 import (
 	"context"
 	"encoding/json"
-	"github.com/ciena/voltctl/internal/pkg/cli/version"
-	"github.com/ciena/voltctl/pkg/format"
 	"github.com/fullstorydev/grpcurl"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/jhump/protoreflect/dynamic"
+	"github.com/opencord/voltctl/internal/pkg/cli/version"
+	"github.com/opencord/voltctl/pkg/format"
 	"strings"
 )
 

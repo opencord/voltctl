@@ -18,9 +18,9 @@ package commands
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/ciena/voltctl/pkg/filter"
-	"github.com/ciena/voltctl/pkg/format"
-	"github.com/ciena/voltctl/pkg/order"
+	"github.com/opencord/voltctl/pkg/filter"
+	"github.com/opencord/voltctl/pkg/format"
+	"github.com/opencord/voltctl/pkg/order"
 	"google.golang.org/grpc"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
