@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "13f9ee60_1a72db55",
+        "filename": "Makefile",
+        "patchSetId": 6
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2019-08-21T23:17:58Z",
+      "side": 1,
+      "message": "nit, the other files lead with a * even on an empty line.",
+      "range": {
+        "startLine": 14,
+        "startChar": 10,
+        "endLine": 14,
+        "endChar": 12
+      },
+      "revId": "aec5a83ca371e5af11871edcb17f82ccd1f8553b",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ae6b30d7_a6ef5a61",
+        "filename": "internal/pkg/commands/voltha_v1_pb.go",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2019-08-21T23:17:58Z",
+      "side": 1,
+      "message": "correct indent",
+      "revId": "aec5a83ca371e5af11871edcb17f82ccd1f8553b",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebc04a71_02c40749",
+        "filename": "internal/pkg/commands/voltha_v1_pb.go",
+        "patchSetId": 6
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2019-08-21T23:17:58Z",
+      "side": 1,
+      "message": "nit, the other files lead with a * even on an empty line.",
+      "revId": "aec5a83ca371e5af11871edcb17f82ccd1f8553b",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a62073aa_4af57bdf",
+        "filename": "internal/pkg/commands/voltha_v2_pb.go",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2019-08-21T23:17:58Z",
+      "side": 1,
+      "message": "this isn\u0027t indented correctly",
+      "revId": "aec5a83ca371e5af11871edcb17f82ccd1f8553b",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}
