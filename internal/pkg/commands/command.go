@@ -52,11 +52,12 @@ type TlsConfigSpec struct {
 }
 
 type GlobalConfigSpec struct {
-	ApiVersion string         `yaml:"apiVersion"`
-	Server     string         `yaml:"server"`
-	Tls        TlsConfigSpec  `yaml:"tls"`
-	Grpc       GrpcConfigSpec `yaml:"grpc"`
-	K8sConfig  string         `yaml:"-"`
+	ApiVersion     string         `yaml:"apiVersion"`
+	Server         string         `yaml:"server"`
+	AffinityServer string         `yaml:"affinityServer"`
+	Tls            TlsConfigSpec  `yaml:"tls"`
+	Grpc           GrpcConfigSpec `yaml:"grpc"`
+	K8sConfig      string         `yaml:"-"`
 }
 
 var (
@@ -72,8 +73,9 @@ var (
 	CharReplacer = strings.NewReplacer("\\t", "\t", "\\n", "\n")
 
 	GlobalConfig = GlobalConfigSpec{
-		ApiVersion: "v1",
-		Server:     "localhost",
+		ApiVersion:     "v1",
+		Server:         "localhost",
+		AffinityServer: "localhost",
 		Tls: TlsConfigSpec{
 			UseTls: false,
 		},
@@ -83,16 +85,17 @@ var (
 	}
 
 	GlobalOptions struct {
-		Config     string `short:"c" long:"config" env:"VOLTCONFIG" value-name:"FILE" default:"" description:"Location of client config file"`
-		Server     string `short:"s" long:"server" default:"" value-name:"SERVER:PORT" description:"IP/Host and port of VOLTHA"`
-		ApiVersion string `short:"a" long:"apiversion" description:"API version" value-name:"VERSION" choice:"v1" choice:"v2"`
-		Debug      bool   `short:"d" long:"debug" description:"Enable debug mode"`
-		UseTLS     bool   `long:"tls" description:"Use TLS"`
-		CACert     string `long:"tlscacert" value-name:"CA_CERT_FILE" description:"Trust certs signed only by this CA"`
-		Cert       string `long:"tlscert" value-name:"CERT_FILE" description:"Path to TLS vertificate file"`
-		Key        string `long:"tlskey" value-name:"KEY_FILE" description:"Path to TLS key file"`
-		Verify     bool   `long:"tlsverify" description:"Use TLS and verify the remote"`
-		K8sConfig  string `short:"8" long:"k8sconfig" env:"KUBECONFIG" value-name:"FILE" default:"" description:"Location of Kubernetes config file"`
+		Config         string `short:"c" long:"config" env:"VOLTCONFIG" value-name:"FILE" default:"" description:"Location of client config file"`
+		Server         string `short:"s" long:"server" default:"" value-name:"SERVER:PORT" description:"IP/Host and port of VOLTHA"`
+		AffinityServer string `short:"A" long:"affinityserver" default:"" value-name:"SERVER:PORT" description:"IP/Host and port of VOLTHA Affinity Server API"`
+		ApiVersion     string `short:"a" long:"apiversion" description:"API version" value-name:"VERSION" choice:"v1" choice:"v2"`
+		Debug          bool   `short:"d" long:"debug" description:"Enable debug mode"`
+		UseTLS         bool   `long:"tls" description:"Use TLS"`
+		CACert         string `long:"tlscacert" value-name:"CA_CERT_FILE" description:"Trust certs signed only by this CA"`
+		Cert           string `long:"tlscert" value-name:"CERT_FILE" description:"Path to TLS vertificate file"`
+		Key            string `long:"tlskey" value-name:"KEY_FILE" description:"Path to TLS key file"`
+		Verify         bool   `long:"tlsverify" description:"Use TLS and verify the remote"`
+		K8sConfig      string `short:"8" long:"k8sconfig" env:"KUBECONFIG" value-name:"FILE" default:"" description:"Location of Kubernetes config file"`
 	}
 )
 
@@ -145,8 +148,9 @@ type CommandResult struct {
 }
 
 type config struct {
-	ApiVersion string `yaml:"apiVersion"`
-	Server     string `yaml:"server"`
+	ApiVersion     string `yaml:"apiVersion"`
+	Server         string `yaml:"server"`
+	AffinityServer string `yaml:"affinityServer"`
 }
 
 func ProcessGlobalOptions() {
@@ -175,6 +179,9 @@ func ProcessGlobalOptions() {
 	if GlobalOptions.Server != "" {
 		GlobalConfig.Server = GlobalOptions.Server
 	}
+	if GlobalOptions.AffinityServer != "" {
+		GlobalConfig.AffinityServer = GlobalOptions.AffinityServer
+	}
 	if GlobalOptions.ApiVersion != "" {
 		GlobalConfig.ApiVersion = GlobalOptions.ApiVersion
 	}
@@ -194,6 +201,11 @@ func ProcessGlobalOptions() {
 func NewConnection() (*grpc.ClientConn, error) {
 	ProcessGlobalOptions()
 	return grpc.Dial(GlobalConfig.Server, grpc.WithInsecure())
+}
+
+func NewAffinityConnection() (*grpc.ClientConn, error) {
+	ProcessGlobalOptions()
+	return grpc.Dial(GlobalConfig.AffinityServer, grpc.WithInsecure())
 }
 
 func GenerateOutput(result *CommandResult) {
