@@ -54,6 +54,7 @@ type TlsConfigSpec struct {
 type GlobalConfigSpec struct {
 	ApiVersion string         `yaml:"apiVersion"`
 	Server     string         `yaml:"server"`
+	ApiServer  string         `yaml:"apiServer"`
 	Tls        TlsConfigSpec  `yaml:"tls"`
 	Grpc       GrpcConfigSpec `yaml:"grpc"`
 	K8sConfig  string         `yaml:"-"`
@@ -74,6 +75,7 @@ var (
 	GlobalConfig = GlobalConfigSpec{
 		ApiVersion: "v1",
 		Server:     "localhost",
+		ApiServer:  "",
 		Tls: TlsConfigSpec{
 			UseTls: false,
 		},
@@ -85,6 +87,7 @@ var (
 	GlobalOptions struct {
 		Config     string `short:"c" long:"config" env:"VOLTCONFIG" value-name:"FILE" default:"" description:"Location of client config file"`
 		Server     string `short:"s" long:"server" default:"" value-name:"SERVER:PORT" description:"IP/Host and port of VOLTHA"`
+		ApiServer  string `short:"A" long:"apiserver" default:"" value-name:"SERVER:PORT" description:"IP/Host and port of VOLTHA Api-Server API"`
 		ApiVersion string `short:"a" long:"apiversion" description:"API version" value-name:"VERSION" choice:"v1" choice:"v2"`
 		Debug      bool   `short:"d" long:"debug" description:"Enable debug mode"`
 		UseTLS     bool   `long:"tls" description:"Use TLS"`
@@ -147,6 +150,7 @@ type CommandResult struct {
 type config struct {
 	ApiVersion string `yaml:"apiVersion"`
 	Server     string `yaml:"server"`
+	ApiServer  string `yaml:"apiServer"`
 }
 
 func ProcessGlobalOptions() {
@@ -175,6 +179,9 @@ func ProcessGlobalOptions() {
 	if GlobalOptions.Server != "" {
 		GlobalConfig.Server = GlobalOptions.Server
 	}
+	if GlobalOptions.ApiServer != "" {
+		GlobalConfig.ApiServer = GlobalOptions.ApiServer
+	}
 	if GlobalOptions.ApiVersion != "" {
 		GlobalConfig.ApiVersion = GlobalOptions.ApiVersion
 	}
@@ -194,6 +201,14 @@ func ProcessGlobalOptions() {
 func NewConnection() (*grpc.ClientConn, error) {
 	ProcessGlobalOptions()
 	return grpc.Dial(GlobalConfig.Server, grpc.WithInsecure())
+}
+
+func NewApiServerConnection() (*grpc.ClientConn, error) {
+	ProcessGlobalOptions()
+	if GlobalConfig.ApiServer == "" {
+		return nil, fmt.Errorf("Please set Api Server endpoint (-A or --apiserver)")
+	}
+	return grpc.Dial(GlobalConfig.ApiServer, grpc.WithInsecure())
 }
 
 func GenerateOutput(result *CommandResult) {
