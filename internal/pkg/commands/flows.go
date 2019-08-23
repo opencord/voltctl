@@ -66,7 +66,9 @@ var (
 		"PushVlanId":             130,
 		"Output":                 1000,
 		"GotoTable":              1010,
+		"WriteMetadata":          1015,
 		"ClearActions":           1020,
+		"MeterId":                1030,
 	}
 )
 

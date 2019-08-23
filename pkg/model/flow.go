@@ -52,7 +52,9 @@ const (
 	FLOW_FIELD_PUSH_VLAN_ID
 	FLOW_FIELD_OUTPUT
 	FLOW_FIELD_GOTO_TABLE
+	FLOW_FIELD_WRITE_METADATA
 	FLOW_FIELD_CLEAR_ACTIONS
+	FLOW_FIELD_METER
 	FLOW_FIELD_TUNNEL_ID
 	FLOW_FIELD_VLAN_PCP
 
@@ -93,7 +95,9 @@ var (
 		FLOW_FIELD_PUSH_VLAN_ID,
 		FLOW_FIELD_OUTPUT,
 		FLOW_FIELD_GOTO_TABLE,
+		FLOW_FIELD_WRITE_METADATA,
 		FLOW_FIELD_CLEAR_ACTIONS,
+		FLOW_FIELD_METER,
 		FLOW_FIELD_TUNNEL_ID,
 		FLOW_FIELD_VLAN_PCP,
 	}
@@ -182,8 +186,12 @@ func (f FlowFieldFlag) String() string {
 		return "Output"
 	case FLOW_FIELD_GOTO_TABLE:
 		return "GotoTable"
+	case FLOW_FIELD_WRITE_METADATA:
+		return "WriteMetadata"
 	case FLOW_FIELD_CLEAR_ACTIONS:
 		return "ClearActions"
+	case FLOW_FIELD_METER:
+		return "MeterId"
 	case FLOW_FIELD_TUNNEL_ID:
 		return "TunnelId"
 	case FLOW_FIELD_VLAN_PCP:
@@ -228,7 +236,9 @@ type Flow struct {
 	PushVlanId             string `json:"pushvlanid,omitempty"`
 	Output                 string `json:"output,omitempty"`
 	GotoTable              string `json:"gototable,omitempty"`
+	WriteMetadata          string `json:"writemetadata,omitempty"`
 	ClearActions           string `json:"clear,omitempty"`
+	MeterId                string `json:"meter,omitempty"`
 	TunnelId               string `json:"tunnelid,omitempty"`
 	VlanPcp                string `json:"vlanpcp,omitempty"`
 
@@ -360,6 +370,16 @@ func (f *Flow) PopulateFrom(val *dynamic.Message) {
 			f.Set(FLOW_FIELD_GOTO_TABLE)
 			goto_table := inst.GetFieldByName("goto_table").(*dynamic.Message)
 			f.GotoTable = fmt.Sprintf("%d", goto_table.GetFieldByName("table_id").(uint32))
+		case 2: // WRITE_METADATA
+			f.Set(FLOW_FIELD_WRITE_METADATA)
+			meta := inst.GetFieldByName("write_metadata").(*dynamic.Message)
+			val := meta.GetFieldByName("metadata").(uint64)
+			mask := meta.GetFieldByName("metadata_mask").(uint64)
+			if mask != 0 {
+				f.WriteMetadata = fmt.Sprintf("0x%016x/0x%016x", val, mask)
+			} else {
+				f.WriteMetadata = fmt.Sprintf("0x%016x", val)
+			}
 		case 4: // APPLY_ACTIONS
 			actions := inst.GetFieldByName("actions").(*dynamic.Message)
 			for _, action := range actions.GetFieldByName("actions").([]interface{}) {
@@ -438,6 +458,10 @@ func (f *Flow) PopulateFrom(val *dynamic.Message) {
 			// Following current CLI, just assigning empty list
 			f.Set(FLOW_FIELD_CLEAR_ACTIONS)
 			f.ClearActions = "[]"
+		case 6: // METER
+			meter := inst.GetFieldByName("meter").(*dynamic.Message)
+			f.Set(FLOW_FIELD_METER)
+			f.MeterId = fmt.Sprintf("%d", meter.GetFieldByName("meter_id").(uint32))
 		default: // Unsupported
 			/*
 			 * For unsupported match types put them into an

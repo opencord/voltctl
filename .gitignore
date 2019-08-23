@@ -1,4 +1,5 @@
 .*.swp
+tests
 /voltctl
 voltctl.cp
 release
