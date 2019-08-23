@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c7d11ae_a2127019",
+        "filename": "internal/pkg/commands/loglevel.go",
+        "patchSetId": 12
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 1000011
+      },
+      "writtenOn": "2019-08-23T15:08:10Z",
+      "side": 1,
+      "message": "LogLevel not declared by package model (typecheck)",
+      "revId": "0bf7b58d372c32987bfe19ec794bdaea4fbcdfcf",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}
