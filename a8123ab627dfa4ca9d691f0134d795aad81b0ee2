@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f9ff14a_ef8612a0",
+        "filename": "internal/pkg/commands/apiserver.go",
+        "patchSetId": 14
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1000016
+      },
+      "writtenOn": "2019-08-28T17:39:08Z",
+      "side": 1,
+      "message": "@dbainbri Should I drop this entire file and the `api-server` top-level command? This was originally my proof-of-concept for talking to api-server, not my specific intent to expose `GetGoroutineCount` to operations. On the other hand, assuming api-server is to be kept, I do think filling this out with options to list `affinity` mappings and such may be useful from a diagnostic perspective.",
+      "range": {
+        "startLine": 28,
+        "startChar": 3,
+        "endLine": 28,
+        "endChar": 65
+      },
+      "revId": "a8123ab627dfa4ca9d691f0134d795aad81b0ee2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}
