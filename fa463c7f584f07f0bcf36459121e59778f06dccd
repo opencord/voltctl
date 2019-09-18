@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "40ee4322_e867eb57",
+        "filename": "internal/pkg/commands/apiserver.go",
+        "patchSetId": 17
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2019-09-18T14:27:40Z",
+      "side": 1,
+      "message": "is this an experiment? it seems unrelated to logging? did you mean to include this?",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 2
+      },
+      "revId": "fa463c7f584f07f0bcf36459121e59778f06dccd",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c382bc8e_fb9a3677",
+        "filename": "internal/pkg/commands/loglevel.go",
+        "patchSetId": 17
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2019-09-18T14:27:40Z",
+      "side": 1,
+      "message": "could this be done once outside the loop?",
+      "range": {
+        "startLine": 215,
+        "startChar": 0,
+        "endLine": 222,
+        "endChar": 4
+      },
+      "revId": "fa463c7f584f07f0bcf36459121e59778f06dccd",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "62a23bff_ea048e29",
+        "filename": "internal/pkg/commands/loglevel.go",
+        "patchSetId": 17
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2019-09-18T14:27:40Z",
+      "side": 1,
+      "message": "this exists on the first unknown component. is it better to handle this like docker rm with a list of containers. if one doesn\u0027t exists the others are still deleted and an error is displayed for the one?",
+      "range": {
+        "startLine": 283,
+        "startChar": 0,
+        "endLine": 285,
+        "endChar": 3
+      },
+      "revId": "fa463c7f584f07f0bcf36459121e59778f06dccd",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}
