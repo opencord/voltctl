@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43f6e1f8_84680fc5",
+        "filename": "internal/pkg/commands/loglevel.go",
+        "patchSetId": 20
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2019-09-19T18:16:21Z",
+      "side": 1,
+      "message": "From a code consistancy point of view, block comments are\n/*\n * This is a comment\n * and more\n */\n\nsee ./pkg/model/flow.go\n\nAssume same comment for all block comments",
+      "range": {
+        "startLine": 89,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 2
+      },
+      "revId": "a40f5e4ba56a9983c53bccb7916522d8ac1dc7da",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}
