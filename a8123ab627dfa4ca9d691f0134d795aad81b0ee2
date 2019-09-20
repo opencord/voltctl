@@ -22,6 +22,30 @@
       "revId": "a8123ab627dfa4ca9d691f0134d795aad81b0ee2",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9990765b_acf19719",
+        "filename": "internal/pkg/commands/apiserver.go",
+        "patchSetId": 14
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2019-09-20T14:56:15Z",
+      "side": 1,
+      "message": "I would say at the very least this belongs in a separate commit. We might want to revisit it as well as there may be significant changes coming with respect to the affinity router.",
+      "parentUuid": "6f9ff14a_ef8612a0",
+      "range": {
+        "startLine": 28,
+        "startChar": 3,
+        "endLine": 28,
+        "endChar": 65
+      },
+      "revId": "a8123ab627dfa4ca9d691f0134d795aad81b0ee2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }
