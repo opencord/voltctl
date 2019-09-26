@@ -72,7 +72,7 @@ var (
 	CharReplacer = strings.NewReplacer("\\t", "\t", "\\n", "\n")
 
 	GlobalConfig = GlobalConfigSpec{
-		ApiVersion: "v1",
+		ApiVersion: "v2",
 		Server:     "localhost",
 		Tls: TlsConfigSpec{
 			UseTls: false,
@@ -83,8 +83,9 @@ var (
 	}
 
 	GlobalOptions struct {
-		Config     string `short:"c" long:"config" env:"VOLTCONFIG" value-name:"FILE" default:"" description:"Location of client config file"`
-		Server     string `short:"s" long:"server" default:"" value-name:"SERVER:PORT" description:"IP/Host and port of VOLTHA"`
+		Config string `short:"c" long:"config" env:"VOLTCONFIG" value-name:"FILE" default:"" description:"Location of client config file"`
+		Server string `short:"s" long:"server" default:"" value-name:"SERVER:PORT" description:"IP/Host and port of VOLTHA"`
+		// Do not set the default for the API version here, else it will override the value read in the config
 		ApiVersion string `short:"a" long:"apiversion" description:"API version" value-name:"VERSION" choice:"v1" choice:"v2"`
 		Debug      bool   `short:"d" long:"debug" description:"Enable debug mode"`
 		UseTLS     bool   `long:"tls" description:"Use TLS"`

@@ -7,6 +7,14 @@ $(warning "***** Your GOPATH environment variable may not be set correctly. Your
 endif
 
 help:
+	@echo "dependencies - update dependencies if a vendor directory does not exist"
+	@echo "release      - build binaries using cross compliing for the support architectures"
+	@echo "build        - build the binary as a local executable"
+	@echo "install      - build and install the binary into \$$GOPATH/bin"
+	@echo "run          - runs voltctl using the command specified as \$$CMD"
+	@echo "lint         - run static code analysis, requires \$$GOPATH to be set correctly"
+	@echo "test         - run unity tests, requires \$$GOPATH to be set correctly"
+	@echo "clean        - remove temporary and generated files"
 
 internal/pkg/commands/voltha_v1_pb.go: assets/protosets/voltha_v1.pb
 	@echo "/*" > $@
