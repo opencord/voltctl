@@ -1,19 +1,10 @@
-ifeq ($(GOPATH),)
-$(error "***** Please set your GOPATH environment variable")
-endif
-
-ifneq ($(GOPATH)/src/github.com/opencord/voltctl,$(shell pwd))
-$(warning "***** Your GOPATH environment variable may not be set correctly. Your current directory should be $$GOPATH/src/github.com/opencord/voltctl")
-endif
-
 help:
-	@echo "dependencies - update dependencies if a vendor directory does not exist"
 	@echo "release      - build binaries using cross compliing for the support architectures"
 	@echo "build        - build the binary as a local executable"
 	@echo "install      - build and install the binary into \$$GOPATH/bin"
 	@echo "run          - runs voltctl using the command specified as \$$CMD"
-	@echo "lint         - run static code analysis, requires \$$GOPATH to be set correctly"
-	@echo "test         - run unity tests, requires \$$GOPATH to be set correctly"
+	@echo "lint         - run static code analysis"
+	@echo "test         - run unity tests"
 	@echo "clean        - remove temporary and generated files"
 
 internal/pkg/commands/voltha_v1_pb.go: assets/protosets/voltha_v1.pb
@@ -64,7 +55,7 @@ internal/pkg/commands/voltha_v2_pb.go: assets/protosets/voltha_v2.pb
 
 encode-protosets: internal/pkg/commands/voltha_v1_pb.go internal/pkg/commands/voltha_v2_pb.go
 
-VERSION=$(shell cat $(GOPATH)/src/github.com/opencord/voltctl/VERSION)
+VERSION=$(shell cat ./VERSION)
 GITCOMMIT=$(shell git rev-parse HEAD)
 ifeq ($(shell git ls-files --others --modified --exclude-standard 2>/dev/null | wc -l | sed -e 's/ //g'),0)
 GITDIRTY=false
@@ -102,44 +93,53 @@ rel_ver   = $(word 2, $(subst -, ,$(notdir $@)))
 rel_os    = $(word 3, $(subst -, ,$(notdir $@)))
 rel_arch  = $(word 4, $(subst -, ,$(notdir $@)))
 
-dependencies:
-	[ -d "vendor" ] || dep ensure
-
-$(RELEASE_BINS): dependencies
+$(RELEASE_BINS):
 	mkdir -p $(RELEASE_DIR)
-	GOPATH=$(GOPATH) GOOS=$(rel_os) GOARCH=$(rel_arch) \
-	       go build -v $(LDFLAGS) -o "$@" cmd/voltctl/voltctl.go
+	GOOS=$(rel_os) GOARCH=$(rel_arch) \
+	       go build -mod=vendor -v $(LDFLAGS) -o "$@" cmd/voltctl/voltctl.go
 
 release: $(RELEASE_BINS)
 
-build: dependencies
-	GOPATH=$(GOPATH) \
-	       go build $(LDFLAGS) \
-	       cmd/voltctl/voltctl.go
+build:
+	go build -mod=vendor $(LDFLAGS) cmd/voltctl/voltctl.go
 
-install: dependencies
-	GOPATH=$(GOPATH) GOBIN=$(GOPATH)/bin  go install $(LDFLAGS) \
-	       cmd/voltctl/voltctl.go
+install:
+	go install -mod=vendor $(LDFLAGS) cmd/voltctl/voltctl.go
 
-run: dependencies
-	GOPATH=$(GOPATH) go run $(LDFLAGS) github.com/opencord/voltctl/cmd/voltctl $(CMD)
+run:
+	go run -mod=vendor $(LDFLAGS) cmd/voltctl/voltctl.go $(CMD)
 
-lint: dependencies
-	GOPATH=$(GOPATH) find $(GOPATH)/src/github.com/opencord/voltctl -name "*.go" -not -path '$(GOPATH)/src/github.com/opencord/voltctl/vendor/*' | xargs gofmt -l
-	GOPATH=$(GOPATH) go vet ./...
-	dep check
+lint-style:
+ifeq (,$(shell which gofmt))
+	go get -u github.com/golang/go/src/cmd/gofmt
+endif
+	@echo -n "Running style check ... "
+	@gofmt_out="$$(gofmt -l $$(find . -name '*.go' -not -path './vendor/*'))" ;\
+	if [ ! -z "$$gofmt_out" ]; then \
+	  echo "$$gofmt_out" ;\
+	  echo "Style check failed on one or more files ^, run 'go fmt' to fix." ;\
+	  exit 1 ;\
+        fi
+	@echo "OK"
 
-test: dependencies
+lint-sanity:
+	@echo -n "Running sanity check ... "
+	@go vet ./...
+	@echo "OK"
+
+lint: lint-style lint-sanity
+
+test:
 	@mkdir -p ./tests/results
 	@set +e; \
-	GOPATH=$(GOPATH) go test -v -coverprofile ./tests/results/go-test-coverage.out -covermode count  ./... 2>&1 | tee ./tests/results/go-test-results.out ;\
+	go test -mod=vendor -v -coverprofile ./tests/results/go-test-coverage.out -covermode count  ./... 2>&1 | tee ./tests/results/go-test-results.out ;\
 	RETURN=$$? ;\
 	go-junit-report < ./tests/results/go-test-results.out > ./tests/results/go-test-results.xml ;\
 	gocover-cobertura < ./tests/results/go-test-coverage.out > ./tests/results/go-test-coverage.xml ;\
 	exit $$RETURN
 
 view-coverage:
-	GOPATH=$(GOPATH) go tool cover -html ./tests/results/go-test-coverage.out
+	go tool cover -html ./tests/results/go-test-coverage.out
 
 clean:
 	rm -rf voltctl voltctl.cp release
