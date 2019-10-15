@@ -22,6 +22,7 @@ import (
 	"github.com/jhump/protoreflect/dynamic"
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltctl/pkg/model"
+	"log"
 )
 
 const (
@@ -39,7 +40,9 @@ type AdapterOpts struct {
 var adapterOpts = AdapterOpts{}
 
 func RegisterAdapterCommands(parent *flags.Parser) {
-	parent.AddCommand("adapter", "adapter commands", "Commands to query and manipulate VOLTHA adapters", &adapterOpts)
+	if _, err := parent.AddCommand("adapter", "adapter commands", "Commands to query and manipulate VOLTHA adapters", &adapterOpts); err != nil {
+		log.Fatalf("Unexpected error while attempting to register adapter commands : %s", err)
+	}
 }
 
 func (options *AdapterList) Execute(args []string) error {

@@ -4,3 +4,4 @@ tests
 voltctl.cp
 release
 *.log
+sca-report

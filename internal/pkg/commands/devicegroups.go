@@ -22,6 +22,7 @@ import (
 	"github.com/jhump/protoreflect/dynamic"
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltctl/pkg/model"
+	"log"
 )
 
 const (
@@ -39,8 +40,10 @@ type DeviceGroupOpts struct {
 var deviceGroupOpts = DeviceGroupOpts{}
 
 func RegisterDeviceGroupCommands(parser *flags.Parser) {
-	parser.AddCommand("devicegroup", "device group commands", "Commands to query and manipulate VOLTHA device groups",
-		&deviceGroupOpts)
+	if _, err := parser.AddCommand("devicegroup", "device group commands", "Commands to query and manipulate VOLTHA device groups",
+		&deviceGroupOpts); err != nil {
+		log.Fatalf("Unexpected error while attempting to register device group commands : %s", err)
+	}
 }
 
 func (options *DeviceGroupList) Execute(args []string) error {

@@ -23,7 +23,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
-	"os"
+	"log"
 )
 
 const (
@@ -43,7 +43,9 @@ type ComponentOpts struct {
 var componentOpts = ComponentOpts{}
 
 func RegisterComponentCommands(parser *flags.Parser) {
-	parser.AddCommand("component", "component instance commands", "Commands to query and manipulate VOLTHA component instances", &componentOpts)
+	if _, err := parser.AddCommand("component", "component instance commands", "Commands to query and manipulate VOLTHA component instances", &componentOpts); err != nil {
+		log.Fatalf("Unexpected error while attempting to register component commands : %s", err)
+	}
 }
 
 func (options *ComponentList) Execute(args []string) error {
@@ -99,11 +101,4 @@ func (options *ComponentList) Execute(args []string) error {
 
 	GenerateOutput(&result)
 	return nil
-}
-
-func homeDir() string {
-	if h := os.Getenv("HOME"); h != "" {
-		return h
-	}
-	return os.Getenv("USERPROFILE") // windows
 }

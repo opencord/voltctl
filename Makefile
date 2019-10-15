@@ -3,8 +3,13 @@ help:
 	@echo "build        - build the binary as a local executable"
 	@echo "install      - build and install the binary into \$$GOPATH/bin"
 	@echo "run          - runs voltctl using the command specified as \$$CMD"
+	@echo "lint-style   - Verify code is properly gofmt-ed"
+	@echo "lint-sanity  - Verify that 'go vet' doesn't report any issues"
+	@echo "lint-mod     - Verify the integrity of the 'mod' files"
 	@echo "lint         - run static code analysis"
+	@echo "sca          - Runs various SCA through golangci-lint tool"
 	@echo "test         - run unity tests"
+	@echo "check        - runs targets that should be run before a commit"
 	@echo "clean        - remove temporary and generated files"
 
 internal/pkg/commands/voltha_v1_pb.go: assets/protosets/voltha_v1.pb
@@ -54,6 +59,8 @@ internal/pkg/commands/voltha_v2_pb.go: assets/protosets/voltha_v2.pb
 	@go fmt $@
 
 encode-protosets: internal/pkg/commands/voltha_v1_pb.go internal/pkg/commands/voltha_v2_pb.go
+
+SHELL=bash -e -o pipefail
 
 VERSION=$(shell cat ./VERSION)
 GITCOMMIT=$(shell git rev-parse HEAD)
@@ -132,7 +139,23 @@ lint-sanity:
 	@go vet -mod=vendor ./...
 	@echo "OK"
 
-lint: lint-style lint-sanity
+lint-mod:
+	@echo -n "Running dependency check ... "
+	@echo -n $(shell go mod verify)
+	@echo " ... OK"
+
+lint: lint-style lint-sanity lint-mod
+
+GOLANGCI_LINT_OUT_FORMAT ?= junit-xml
+GOLANGCI_LINT_TOOL:=$(shell which golangci-lint)
+sca:
+ifeq (,$(GOLANGCI_LINT_TOOL))
+	@echo "Please install golangci-lint tool to run sca"
+	exit 1
+endif
+	@rm -rf ./sca-report
+	@mkdir -p ./sca-report
+	$(GOLANGCI_LINT_TOOL) run --out-format $(GOLANGCI_LINT_OUT_FORMAT) ./... 2>&1 | tee ./sca-report/sca-report.xml
 
 test:
 	@mkdir -p ./tests/results
@@ -146,5 +169,7 @@ test:
 view-coverage:
 	go tool cover -html ./tests/results/go-test-coverage.out
 
+check: lint sca test
+
 clean:
-	rm -rf voltctl voltctl.cp release
+	rm -rf voltctl voltctl.cp release sca-report

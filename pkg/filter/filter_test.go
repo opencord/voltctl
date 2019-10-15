@@ -219,7 +219,9 @@ func TestREFilter(t *testing.T) {
 		},
 	}
 
-	f.Process(data)
+	if _, err = f.Process(data); err != nil {
+		t.Errorf("Error processing data")
+	}
 }
 
 func TestBadRE(t *testing.T) {

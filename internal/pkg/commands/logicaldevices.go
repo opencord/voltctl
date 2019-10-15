@@ -23,6 +23,7 @@ import (
 	"github.com/jhump/protoreflect/dynamic"
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltctl/pkg/model"
+	"log"
 	"strings"
 )
 
@@ -72,7 +73,9 @@ type LogicalDeviceOpts struct {
 var logicalDeviceOpts = LogicalDeviceOpts{}
 
 func RegisterLogicalDeviceCommands(parser *flags.Parser) {
-	parser.AddCommand("logicaldevice", "logical device commands", "Commands to query and manipulate VOLTHA logical devices", &logicalDeviceOpts)
+	if _, err := parser.AddCommand("logicaldevice", "logical device commands", "Commands to query and manipulate VOLTHA logical devices", &logicalDeviceOpts); err != nil {
+		log.Fatalf("Unexpected error while attempting to register logical device commands : %s", err)
+	}
 }
 
 func (i *LogicalDeviceId) Complete(match string) []flags.Completion {

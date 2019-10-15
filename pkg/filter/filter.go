@@ -64,7 +64,7 @@ type FilterTerm struct {
 
 type Filter map[string]FilterTerm
 
-var termRE = regexp.MustCompile("^\\s*([a-zA-Z_][.a-zA-Z0-9_]*)\\s*(~|<=|>=|<|>|!=|=)\\s*(.+)\\s*$")
+var termRE = regexp.MustCompile(`^\s*([a-zA-Z_][.a-zA-Z0-9_]*)\s*(~|<=|>=|<|>|!=|=)\s*(.+)\s*$`)
 
 // Parse parses a comma separated list of filter terms
 func Parse(spec string) (Filter, error) {

@@ -23,6 +23,7 @@ import (
 	"github.com/jhump/protoreflect/dynamic"
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltctl/pkg/model"
+	"log"
 	"strings"
 )
 
@@ -113,7 +114,9 @@ type DeviceOpts struct {
 var deviceOpts = DeviceOpts{}
 
 func RegisterDeviceCommands(parser *flags.Parser) {
-	parser.AddCommand("device", "device commands", "Commands to query and manipulate VOLTHA devices", &deviceOpts)
+	if _, err := parser.AddCommand("device", "device commands", "Commands to query and manipulate VOLTHA devices", &deviceOpts); err != nil {
+		log.Fatalf("Unexpected error while attempting to register device commands : %s", err)
+	}
 }
 
 func (i *DeviceId) Complete(match string) []flags.Completion {

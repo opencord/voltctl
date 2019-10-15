@@ -40,8 +40,6 @@ type FlowOpts struct {
 }
 
 var (
-	flowOpts = FlowOpts{}
-
 	// Used to sort the table colums in a consistent order
 	SORT_ORDER = map[string]uint16{
 		"Id":                     0,
@@ -102,29 +100,6 @@ func buildOutputFormat(fieldset model.FlowFieldFlag, ignore model.FlowFieldFlag)
 		b.WriteString("}}")
 	}
 	return b.String()
-}
-
-func toVlanId(vid uint32) string {
-	if vid == 0 {
-		return "untagged"
-	} else if vid&0x1000 > 0 {
-		return fmt.Sprintf("%d", vid-4096)
-	}
-	return fmt.Sprintf("%d", vid)
-}
-
-func appendInt32(base string, val int32) string {
-	if len(base) > 0 {
-		return fmt.Sprintf("%s,%d", base, val)
-	}
-	return fmt.Sprintf("%d", val)
-}
-
-func appendUint32(base string, val uint32) string {
-	if len(base) > 0 {
-		return fmt.Sprintf("%s,%d", base, val)
-	}
-	return fmt.Sprintf("%d", val)
 }
 
 func (options *FlowList) Execute(args []string) error {

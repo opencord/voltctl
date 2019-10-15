@@ -19,6 +19,7 @@ import (
 	"fmt"
 	flags "github.com/jessevdk/go-flags"
 	"gopkg.in/yaml.v2"
+	"log"
 )
 
 const copyrightNotice = `
@@ -42,7 +43,9 @@ type ConfigOptions struct {
 }
 
 func RegisterConfigCommands(parent *flags.Parser) {
-	parent.AddCommand("config", "generate voltctl configuration", "Commands to generate voltctl configuration", &ConfigOptions{})
+	if _, err := parent.AddCommand("config", "generate voltctl configuration", "Commands to generate voltctl configuration", &ConfigOptions{}); err != nil {
+		log.Fatalf("Unexpected error while attempting to register config commands : %s", err)
+	}
 }
 
 func (options *ConfigOptions) Execute(args []string) error {

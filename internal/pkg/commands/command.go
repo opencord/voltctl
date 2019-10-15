@@ -145,11 +145,6 @@ type CommandResult struct {
 	Data      interface{}
 }
 
-type config struct {
-	ApiVersion string `yaml:"apiVersion"`
-	Server     string `yaml:"server"`
-}
-
 func ProcessGlobalOptions() {
 	if len(GlobalOptions.Config) == 0 {
 		home, err := os.UserHomeDir()
@@ -222,7 +217,9 @@ func GenerateOutput(result *CommandResult) {
 		}
 		if result.OutputAs == OUTPUT_TABLE {
 			tableFormat := format.Format(result.Format)
-			tableFormat.Execute(os.Stdout, true, result.NameLimit, data)
+			if err := tableFormat.Execute(os.Stdout, true, result.NameLimit, data); err != nil {
+				log.Fatalf("Unexpected error while attempting to format results as table : %s", err)
+			}
 		} else if result.OutputAs == OUTPUT_JSON {
 			asJson, err := json.Marshal(&data)
 			if err != nil {

@@ -71,18 +71,30 @@ func (f Format) Execute(writer io.Writer, withHeaders bool, nameLimit int, data 
 				}
 			}
 		}
-		tabWriter.Write([]byte(header))
-		tabWriter.Write([]byte("\n"))
+		if _, err = tabWriter.Write([]byte(header)); err != nil {
+			return err
+		}
+		if _, err = tabWriter.Write([]byte("\n")); err != nil {
+			return err
+		}
 
 		slice := reflect.ValueOf(data)
 		if slice.Kind() == reflect.Slice {
 			for i := 0; i < slice.Len(); i++ {
-				tmpl.Execute(tabWriter, slice.Index(i).Interface())
-				tabWriter.Write([]byte("\n"))
+				if err = tmpl.Execute(tabWriter, slice.Index(i).Interface()); err != nil {
+					return err
+				}
+				if _, err = tabWriter.Write([]byte("\n")); err != nil {
+					return err
+				}
 			}
 		} else {
-			tmpl.Execute(tabWriter, data)
-			tabWriter.Write([]byte("\n"))
+			if err = tmpl.Execute(tabWriter, data); err != nil {
+				return err
+			}
+			if _, err = tabWriter.Write([]byte("\n")); err != nil {
+				return err
+			}
 		}
 		tabWriter.Flush()
 		return nil
@@ -91,12 +103,20 @@ func (f Format) Execute(writer io.Writer, withHeaders bool, nameLimit int, data 
 	slice := reflect.ValueOf(data)
 	if slice.Kind() == reflect.Slice {
 		for i := 0; i < slice.Len(); i++ {
-			tmpl.Execute(writer, slice.Index(i).Interface())
-			writer.Write([]byte("\n"))
+			if err = tmpl.Execute(writer, slice.Index(i).Interface()); err != nil {
+				return err
+			}
+			if _, err = writer.Write([]byte("\n")); err != nil {
+				return err
+			}
 		}
 	} else {
-		tmpl.Execute(writer, data)
-		writer.Write([]byte("\n"))
+		if err = tmpl.Execute(writer, data); err != nil {
+			return err
+		}
+		if _, err = writer.Write([]byte("\n")); err != nil {
+			return err
+		}
 	}
 	return nil
 

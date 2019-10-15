@@ -19,6 +19,7 @@ import (
 	"fmt"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/opencord/voltctl/internal/pkg/completion"
+	"log"
 )
 
 type BashOptions struct{}
@@ -28,7 +29,9 @@ type CompletionOptions struct {
 }
 
 func RegisterCompletionCommands(parent *flags.Parser) {
-	parent.AddCommand("completion", "generate shell compleition", "Commands to generate shell compleition information", &CompletionOptions{})
+	if _, err := parent.AddCommand("completion", "generate shell compleition", "Commands to generate shell compleition information", &CompletionOptions{}); err != nil {
+		log.Fatalf("Unexpected error while attempting to register completion commands : %s", err)
+	}
 }
 
 func (options *BashOptions) Execute(args []string) error {
