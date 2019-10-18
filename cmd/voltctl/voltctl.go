@@ -24,6 +24,32 @@ import (
 
 func main() {
 
+	/*
+	 * When completion is invoked the environment variable GO_FLAG_COMPLETION
+	 * is set. The go-flags library uses this as a key to do completion when
+	 * parsing the arguments. The problem is that when doing compleition the
+	 * library doesn't bother setting the arguments into the structures. As
+	 * such voltctl's configuration options, in partitular VOLTCONFIG, is
+	 * not set and thus connection to voltha servers can not be established
+	 * and completion for device ID etc will not work.
+	 *
+	 * An issue against go-flags has been opened, but as a work around if or
+	 * until it is fixed there is a bit of a hack. Unset the environment var
+	 * parse the global config options, and then continue with normal
+	 * completion.
+	 */
+	compval := os.Getenv("GO_FLAGS_COMPLETION")
+	if len(compval) > 0 {
+		os.Unsetenv("GO_FLAGS_COMPLETION")
+		pp := flags.NewNamedParser(path.Base(os.Args[0]), flags.Default|flags.PassAfterNonOption)
+		_, err := pp.AddGroup("Global Options", "", &commands.GlobalOptions)
+		if err != nil {
+			panic(err)
+		}
+		pp.Parse()
+		os.Setenv("GO_FLAGS_COMPLETION", compval)
+	}
+
 	parser := flags.NewNamedParser(path.Base(os.Args[0]), flags.Default|flags.PassAfterNonOption)
 	_, err := parser.AddGroup("Global Options", "", &commands.GlobalOptions)
 	if err != nil {
@@ -39,7 +65,7 @@ func main() {
 	commands.RegisterComponentCommands(parser)
 	commands.RegisterLogLevelCommands(parser)
 
-	_, err = parser.ParseArgs(os.Args[1:])
+	_, err = parser.Parse()
 	if err != nil {
 		_, ok := err.(*flags.Error)
 		if ok {
