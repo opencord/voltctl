@@ -82,19 +82,27 @@ var (
 		},
 	}
 
+	GlobalCommandOptions = make(map[string]map[string]string)
+
 	GlobalOptions struct {
 		Config string `short:"c" long:"config" env:"VOLTCONFIG" value-name:"FILE" default:"" description:"Location of client config file"`
 		Server string `short:"s" long:"server" default:"" value-name:"SERVER:PORT" description:"IP/Host and port of VOLTHA"`
 		// Do not set the default for the API version here, else it will override the value read in the config
-		ApiVersion string `short:"a" long:"apiversion" description:"API version" value-name:"VERSION" choice:"v1" choice:"v2"`
-		Debug      bool   `short:"d" long:"debug" description:"Enable debug mode"`
-		UseTLS     bool   `long:"tls" description:"Use TLS"`
-		CACert     string `long:"tlscacert" value-name:"CA_CERT_FILE" description:"Trust certs signed only by this CA"`
-		Cert       string `long:"tlscert" value-name:"CERT_FILE" description:"Path to TLS vertificate file"`
-		Key        string `long:"tlskey" value-name:"KEY_FILE" description:"Path to TLS key file"`
-		Verify     bool   `long:"tlsverify" description:"Use TLS and verify the remote"`
-		K8sConfig  string `short:"8" long:"k8sconfig" env:"KUBECONFIG" value-name:"FILE" default:"" description:"Location of Kubernetes config file"`
+		ApiVersion     string `short:"a" long:"apiversion" description:"API version" value-name:"VERSION" choice:"v1" choice:"v2"`
+		Debug          bool   `short:"d" long:"debug" description:"Enable debug mode"`
+		UseTLS         bool   `long:"tls" description:"Use TLS"`
+		CACert         string `long:"tlscacert" value-name:"CA_CERT_FILE" description:"Trust certs signed only by this CA"`
+		Cert           string `long:"tlscert" value-name:"CERT_FILE" description:"Path to TLS vertificate file"`
+		Key            string `long:"tlskey" value-name:"KEY_FILE" description:"Path to TLS key file"`
+		Verify         bool   `long:"tlsverify" description:"Use TLS and verify the remote"`
+		K8sConfig      string `short:"8" long:"k8sconfig" env:"KUBECONFIG" value-name:"FILE" default:"" description:"Location of Kubernetes config file"`
+		CommandOptions string `short:"o" long:"command-options" env:"VOLTCTL_COMMAND_OPTIONS" value-name:"FILE" default:"" description:"Location of command options default configuration file"`
 	}
+
+	Debug = log.New(os.Stdout, "DEBUG: ", 0)
+	Info  = log.New(os.Stdout, "INFO: ", 0)
+	Warn  = log.New(os.Stderr, "WARN: ", 0)
+	Error = log.New(os.Stderr, "ERROR: ", 0)
 )
 
 type OutputOptions struct {
@@ -145,25 +153,34 @@ type CommandResult struct {
 	Data      interface{}
 }
 
+func GetCommandOptionWithDefault(name, option, defaultValue string) string {
+	if cmd, ok := GlobalCommandOptions[name]; ok {
+		if val, ok := cmd[option]; ok {
+			return CharReplacer.Replace(val)
+		}
+	}
+	return defaultValue
+}
+
 func ProcessGlobalOptions() {
 	if len(GlobalOptions.Config) == 0 {
 		home, err := os.UserHomeDir()
 		if err != nil {
-			log.Printf("Unable to discover they users home directory: %s\n", err)
+			Warn.Printf("Unable to discover the user's home directory: %s", err)
 			home = "~"
 		}
 		GlobalOptions.Config = filepath.Join(home, ".volt", "config")
 	}
 
-	info, err := os.Stat(GlobalOptions.Config)
-	if err == nil && !info.IsDir() {
+	if info, err := os.Stat(GlobalOptions.Config); err == nil && !info.IsDir() {
 		configFile, err := ioutil.ReadFile(GlobalOptions.Config)
 		if err != nil {
-			log.Printf("configFile.Get err   #%v ", err)
+			Error.Fatalf("Unable to read the configuration file '%s': %s",
+				GlobalOptions.Config, err.Error())
 		}
-		err = yaml.Unmarshal(configFile, &GlobalConfig)
-		if err != nil {
-			log.Fatalf("Unmarshal: %v", err)
+		if err = yaml.Unmarshal(configFile, &GlobalConfig); err != nil {
+			Error.Fatalf("Unable to parse the configuration file '%s': %s",
+				GlobalOptions.Config, err.Error())
 		}
 	}
 
@@ -180,10 +197,31 @@ func ProcessGlobalOptions() {
 	if len(GlobalOptions.K8sConfig) == 0 {
 		home, err := os.UserHomeDir()
 		if err != nil {
-			log.Printf("Unable to discover the user's home directory: %s\n", err)
+			Warn.Printf("Unable to discover the user's home directory: %s", err)
 			home = "~"
 		}
 		GlobalOptions.K8sConfig = filepath.Join(home, ".kube", "config")
+	}
+
+	if len(GlobalOptions.CommandOptions) == 0 {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			Warn.Printf("Unable to discover the user's home directory: %s", err)
+			home = "~"
+		}
+		GlobalOptions.CommandOptions = filepath.Join(home, ".volt", "command_options")
+	}
+
+	if info, err := os.Stat(GlobalOptions.CommandOptions); err == nil && !info.IsDir() {
+		optionsFile, err := ioutil.ReadFile(GlobalOptions.CommandOptions)
+		if err != nil {
+			Error.Fatalf("Unable to read command options configuration file '%s' : %s",
+				GlobalOptions.CommandOptions, err.Error())
+		}
+		if err = yaml.Unmarshal(optionsFile, &GlobalCommandOptions); err != nil {
+			Error.Fatalf("Unable to parse the command line options configuration file '%s': %s",
+				GlobalOptions.CommandOptions, err.Error())
+		}
 	}
 }
 
@@ -218,7 +256,7 @@ func GenerateOutput(result *CommandResult) {
 		if result.OutputAs == OUTPUT_TABLE {
 			tableFormat := format.Format(result.Format)
 			if err := tableFormat.Execute(os.Stdout, true, result.NameLimit, data); err != nil {
-				log.Fatalf("Unexpected error while attempting to format results as table : %s", err)
+				Error.Fatalf("Unexpected error while attempting to format results as table : %s", err)
 			}
 		} else if result.OutputAs == OUTPUT_JSON {
 			asJson, err := json.Marshal(&data)

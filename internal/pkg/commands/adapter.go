@@ -22,7 +22,6 @@ import (
 	"github.com/jhump/protoreflect/dynamic"
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltctl/pkg/model"
-	"log"
 )
 
 const (
@@ -41,7 +40,7 @@ var adapterOpts = AdapterOpts{}
 
 func RegisterAdapterCommands(parent *flags.Parser) {
 	if _, err := parent.AddCommand("adapter", "adapter commands", "Commands to query and manipulate VOLTHA adapters", &adapterOpts); err != nil {
-		log.Fatalf("Unexpected error while attempting to register adapter commands : %s", err)
+		Error.Fatalf("Unexpected error while attempting to register adapter commands : %s", err)
 	}
 }
 
@@ -81,11 +80,14 @@ func (options *AdapterList) Execute(args []string) error {
 
 	outputFormat := CharReplacer.Replace(options.Format)
 	if outputFormat == "" {
-		outputFormat = DEFAULT_OUTPUT_FORMAT
+		outputFormat = GetCommandOptionWithDefault("adapter-list", "format", DEFAULT_OUTPUT_FORMAT)
 	}
-
 	if options.Quiet {
 		outputFormat = "{{.Id}}"
+	}
+	orderBy := options.OrderBy
+	if orderBy == "" {
+		orderBy = GetCommandOptionWithDefault("adapter-list", "order", "")
 	}
 
 	data := make([]model.Adapter, len(items.([]interface{})))
@@ -96,7 +98,7 @@ func (options *AdapterList) Execute(args []string) error {
 	result := CommandResult{
 		Format:    format.Format(outputFormat),
 		Filter:    options.Filter,
-		OrderBy:   options.OrderBy,
+		OrderBy:   orderBy,
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
 		Data:      data,

@@ -27,7 +27,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
-	"log"
 	"strings"
 )
 
@@ -198,12 +197,12 @@ func BuildKubernetesNameMap() (map[string][]string, map[string]string, error) {
 		case "rw-core":
 			affinity_group, ok := pod.Labels["affinity-group"]
 			if !ok {
-				log.Printf("rwcore %s lacks affinity-group label", pod.Name)
+				Warn.Printf("rwcore %s lacks affinity-group label", pod.Name)
 				continue
 			}
 			affinity_group_core_id, ok := pod.Labels["affinity-group-core-id"]
 			if !ok {
-				log.Printf("rwcore %s lacks affinity-group-core-id label", pod.Name)
+				Warn.Printf("rwcore %s lacks affinity-group-core-id label", pod.Name)
 				continue
 			}
 			arouter_name = "vcore" + affinity_group + ".vcore" + affinity_group + affinity_group_core_id
@@ -315,7 +314,7 @@ func (options *SetLogLevelOpts) Execute(args []string) error {
 
 	outputFormat := CharReplacer.Replace(options.Format)
 	if outputFormat == "" {
-		outputFormat = DEFAULT_SETLOGLEVEL_FORMAT
+		outputFormat = GetCommandOptionWithDefault("loglevel-set", "format", DEFAULT_SETLOGLEVEL_FORMAT)
 	}
 
 	result := CommandResult{
@@ -329,7 +328,7 @@ func (options *SetLogLevelOpts) Execute(args []string) error {
 	return nil
 }
 
-func (options *GetLogLevelsOpts) Execute(args []string) error {
+func (options *GetLogLevelsOpts) getLogLevels(methodName string, args []string) error {
 	if len(options.Args.Component) == 0 {
 		return fmt.Errorf("Please specify at least one component")
 	}
@@ -409,19 +408,27 @@ func (options *GetLogLevelsOpts) Execute(args []string) error {
 
 	outputFormat := CharReplacer.Replace(options.Format)
 	if outputFormat == "" {
-		outputFormat = DEFAULT_LOGLEVELS_FORMAT
+		outputFormat = GetCommandOptionWithDefault(methodName, "format", DEFAULT_LOGLEVELS_FORMAT)
+	}
+	orderBy := options.OrderBy
+	if orderBy == "" {
+		orderBy = GetCommandOptionWithDefault(methodName, "order", "")
 	}
 
 	result := CommandResult{
 		Format:    format.Format(outputFormat),
 		Filter:    options.Filter,
-		OrderBy:   options.OrderBy,
+		OrderBy:   orderBy,
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
 		Data:      data,
 	}
 	GenerateOutput(&result)
 	return nil
+}
+
+func (options *GetLogLevelsOpts) Execute(args []string) error {
+	return options.getLogLevels("loglevel-get", args)
 }
 
 func (options *ListLogLevelsOpts) Execute(args []string) error {
@@ -442,5 +449,5 @@ func (options *ListLogLevelsOpts) Execute(args []string) error {
 	getOptions.ListOutputOptions = options.ListOutputOptions
 	getOptions.Args.Component = podNames
 
-	return getOptions.Execute(args)
+	return getOptions.getLogLevels("loglevel-list", args)
 }

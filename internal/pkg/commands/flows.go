@@ -114,8 +114,8 @@ func (options *FlowList) Execute(args []string) error {
 	defer conn.Close()
 
 	switch options.Method {
-	case "device-flow-list":
-	case "logical-device-flow-list":
+	case "device-flows":
+	case "logical-device-flows":
 	default:
 		panic(fmt.Errorf("Unknown method name: '%s'", options.Method))
 	}
@@ -165,13 +165,18 @@ func (options *FlowList) Execute(args []string) error {
 	if options.Quiet {
 		outputFormat = "{{.Id}}"
 	} else if outputFormat == "" {
-		outputFormat = buildOutputFormat(fieldset, model.FLOW_FIELD_STATS)
+		outputFormat = GetCommandOptionWithDefault(options.Method, "format", buildOutputFormat(fieldset, model.FLOW_FIELD_STATS))
+	}
+
+	orderBy := options.OrderBy
+	if orderBy == "" {
+		orderBy = GetCommandOptionWithDefault(options.Method, "order", "")
 	}
 
 	result := CommandResult{
 		Format:    format.Format(outputFormat),
 		Filter:    options.Filter,
-		OrderBy:   options.OrderBy,
+		OrderBy:   orderBy,
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
 		Data:      data,

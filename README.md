@@ -75,6 +75,15 @@ The output of a command may also be written as `JSON` or `YAML` by using the
 `--outputas` or `-o` command line option. Valid values for this options are
 `table`, `json`, or `yaml`.
 
+## Overriding Default Command Format and Order
+The default format and ordering of commands can be overriden (specified) by
+the command line options, but they can also be set via a configuration file so
+that the overrides don't have to be specified on each invocation. By default
+the file `~/.volt/command_options` is loaded, but the file used can also be
+specified by the environment variable `VOLTCTL_COMMAND_OPTIONS` or via
+the command line arguments. A samle of this file is include in the 
+repository as `voltctl_command_options.config`.
+
 ### Examples
 ```
 voltctl adapter list

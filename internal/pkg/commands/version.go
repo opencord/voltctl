@@ -105,7 +105,7 @@ Cluster:
 func (options *VersionOpts) clientOnlyVersion(args []string) error {
 	outputFormat := CharReplacer.Replace(options.Format)
 	if outputFormat == "" {
-		outputFormat = ClientOnlyFormat
+		outputFormat = GetCommandOptionWithDefault("version", "format", ClientOnlyFormat)
 	}
 	if options.Quiet {
 		outputFormat = "{{.Version}}"
@@ -210,7 +210,7 @@ func (options *VersionOpts) Execute(args []string) error {
 
 	outputFormat := CharReplacer.Replace(options.Format)
 	if outputFormat == "" {
-		outputFormat = DefaultFormat
+		outputFormat = GetCommandOptionWithDefault("version", "format", DefaultFormat)
 	}
 	if options.Quiet {
 		outputFormat = "{{.Client.Version}}"

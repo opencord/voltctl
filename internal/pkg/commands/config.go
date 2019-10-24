@@ -19,7 +19,6 @@ import (
 	"fmt"
 	flags "github.com/jessevdk/go-flags"
 	"gopkg.in/yaml.v2"
-	"log"
 )
 
 const copyrightNotice = `
@@ -39,12 +38,17 @@ const copyrightNotice = `
 #
 `
 
+type CommandOptionsDump struct{}
+
 type ConfigOptions struct {
+	Commands CommandOptionsDump `command:"commands"`
 }
 
 func RegisterConfigCommands(parent *flags.Parser) {
-	if _, err := parent.AddCommand("config", "generate voltctl configuration", "Commands to generate voltctl configuration", &ConfigOptions{}); err != nil {
-		log.Fatalf("Unexpected error while attempting to register config commands : %s", err)
+	if command, err := parent.AddCommand("config", "generate voltctl configuration", "Commands to generate voltctl configuration", &ConfigOptions{}); err != nil {
+		Error.Fatalf("Unexpected error while attempting to register config commands : %s", err)
+	} else {
+		command.SubcommandsOptional = true
 	}
 }
 
@@ -52,6 +56,17 @@ func (options *ConfigOptions) Execute(args []string) error {
 	//GlobalConfig
 	ProcessGlobalOptions()
 	b, err := yaml.Marshal(GlobalConfig)
+	if err != nil {
+		return err
+	}
+	fmt.Println(copyrightNotice)
+	fmt.Println(string(b))
+	return nil
+}
+
+func (commands *CommandOptionsDump) Execute(args []string) error {
+	ProcessGlobalOptions()
+	b, err := yaml.Marshal(GlobalCommandOptions)
 	if err != nil {
 		return err
 	}

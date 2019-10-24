@@ -23,7 +23,6 @@ import (
 	"github.com/jhump/protoreflect/dynamic"
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltctl/pkg/model"
-	"log"
 	"strings"
 )
 
@@ -74,7 +73,7 @@ var logicalDeviceOpts = LogicalDeviceOpts{}
 
 func RegisterLogicalDeviceCommands(parser *flags.Parser) {
 	if _, err := parser.AddCommand("logicaldevice", "logical device commands", "Commands to query and manipulate VOLTHA logical devices", &logicalDeviceOpts); err != nil {
-		log.Fatalf("Unexpected error while attempting to register logical device commands : %s", err)
+		Error.Fatalf("Unexpected error while attempting to register logical device commands : %s", err)
 	}
 }
 
@@ -163,10 +162,14 @@ func (options *LogicalDeviceList) Execute(args []string) error {
 
 	outputFormat := CharReplacer.Replace(options.Format)
 	if outputFormat == "" {
-		outputFormat = DEFAULT_LOGICAL_DEVICE_FORMAT
+		outputFormat = GetCommandOptionWithDefault("logical-device-list", "format", DEFAULT_LOGICAL_DEVICE_FORMAT)
 	}
 	if options.Quiet {
 		outputFormat = "{{.Id}}"
+	}
+	orderBy := options.OrderBy
+	if orderBy == "" {
+		orderBy = GetCommandOptionWithDefault("local-device-list", "order", "")
 	}
 
 	data := make([]model.LogicalDevice, len(items.([]interface{})))
@@ -177,7 +180,7 @@ func (options *LogicalDeviceList) Execute(args []string) error {
 	result := CommandResult{
 		Format:    format.Format(outputFormat),
 		Filter:    options.Filter,
-		OrderBy:   options.OrderBy,
+		OrderBy:   orderBy,
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
 		Data:      data,
@@ -227,10 +230,14 @@ func (options *LogicalDevicePortList) Execute(args []string) error {
 
 	outputFormat := CharReplacer.Replace(options.Format)
 	if outputFormat == "" {
-		outputFormat = DEFAULT_LOGICAL_DEVICE_PORT_FORMAT
+		outputFormat = GetCommandOptionWithDefault("logical-device-ports", "format", DEFAULT_LOGICAL_DEVICE_PORT_FORMAT)
 	}
 	if options.Quiet {
 		outputFormat = "{{.Id}}"
+	}
+	orderBy := options.OrderBy
+	if orderBy == "" {
+		orderBy = GetCommandOptionWithDefault("logical-device-ports", "order", "")
 	}
 
 	data := make([]model.LogicalPort, len(items.([]interface{})))
@@ -241,7 +248,7 @@ func (options *LogicalDevicePortList) Execute(args []string) error {
 	result := CommandResult{
 		Format:    format.Format(outputFormat),
 		Filter:    options.Filter,
-		OrderBy:   options.OrderBy,
+		OrderBy:   orderBy,
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
 		Data:      data,
@@ -255,7 +262,7 @@ func (options *LogicalDeviceFlowList) Execute(args []string) error {
 	fl := &FlowList{}
 	fl.ListOutputOptions = options.ListOutputOptions
 	fl.Args.Id = string(options.Args.Id)
-	fl.Method = "logical-device-flow-list"
+	fl.Method = "logical-device-flows"
 	return fl.Execute(args)
 }
 
@@ -298,7 +305,7 @@ func (options *LogicalDeviceInspect) Execute(args []string) error {
 
 	outputFormat := CharReplacer.Replace(options.Format)
 	if outputFormat == "" {
-		outputFormat = DEFAULT_LOGICAL_DEVICE_INSPECT_FORMAT
+		outputFormat = GetCommandOptionWithDefault("logical-device-inspect", "format", DEFAULT_LOGICAL_DEVICE_INSPECT_FORMAT)
 	}
 	if options.Quiet {
 		outputFormat = "{{.Id}}"

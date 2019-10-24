@@ -102,7 +102,7 @@ var functionMap = map[string]map[string]string{
 		"v1": "voltha.VolthaGlobalService/GetDevice",
 		"v2": "voltha.VolthaService/GetDevice",
 	},
-	"device-flow-list": {
+	"device-flows": {
 		"v1": "voltha.VolthaGlobalService/ListDeviceFlows",
 		"v2": "voltha.VolthaService/ListDeviceFlows",
 	},
@@ -114,7 +114,7 @@ var functionMap = map[string]map[string]string{
 		"v1": "voltha.VolthaGlobalService/ListLogicalDevicePorts",
 		"v2": "voltha.VolthaService/ListLogicalDevicePorts",
 	},
-	"logical-device-flow-list": {
+	"logical-device-flows": {
 		"v1": "voltha.VolthaGlobalService/ListLogicalDeviceFlows",
 		"v2": "voltha.VolthaService/ListLogicalDeviceFlows",
 	},
@@ -122,7 +122,7 @@ var functionMap = map[string]map[string]string{
 		"v1": "voltha.VolthaGlobalService/GetLogicalDevice",
 		"v2": "voltha.VolthaService/GetLogicalDevice",
 	},
-	"devicegroup-list": {
+	"device-group-list": {
 		"v1": "voltha.VolthaGlobalService/ListDeviceGroups",
 		"v2": "voltha.VolthaService/ListDeviceGroups",
 	},

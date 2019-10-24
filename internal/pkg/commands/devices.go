@@ -23,7 +23,6 @@ import (
 	"github.com/jhump/protoreflect/dynamic"
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltctl/pkg/model"
-	"log"
 	"strings"
 )
 
@@ -115,7 +114,7 @@ var deviceOpts = DeviceOpts{}
 
 func RegisterDeviceCommands(parser *flags.Parser) {
 	if _, err := parser.AddCommand("device", "device commands", "Commands to query and manipulate VOLTHA devices", &deviceOpts); err != nil {
-		log.Fatalf("Unexpected error while attempting to register device commands : %s", err)
+		Error.Fatalf("Unexpected error while attempting to register device commands : %s", err)
 	}
 }
 
@@ -204,10 +203,15 @@ func (options *DeviceList) Execute(args []string) error {
 
 	outputFormat := CharReplacer.Replace(options.Format)
 	if outputFormat == "" {
-		outputFormat = DEFAULT_DEVICE_FORMAT
+		outputFormat = GetCommandOptionWithDefault("device-list", "format", DEFAULT_DEVICE_FORMAT)
 	}
 	if options.Quiet {
 		outputFormat = "{{.Id}}"
+	}
+
+	orderBy := options.OrderBy
+	if orderBy == "" {
+		orderBy = GetCommandOptionWithDefault("device-list", "order", "")
 	}
 
 	data := make([]model.Device, len(items.([]interface{})))
@@ -219,7 +223,7 @@ func (options *DeviceList) Execute(args []string) error {
 	result := CommandResult{
 		Format:    format.Format(outputFormat),
 		Filter:    options.Filter,
-		OrderBy:   options.OrderBy,
+		OrderBy:   orderBy,
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
 		Data:      data,
@@ -450,10 +454,15 @@ func (options *DevicePortList) Execute(args []string) error {
 
 	outputFormat := CharReplacer.Replace(options.Format)
 	if outputFormat == "" {
-		outputFormat = DEFAULT_DEVICE_PORTS_FORMAT
+		outputFormat = GetCommandOptionWithDefault("device-ports", "format", DEFAULT_DEVICE_PORTS_FORMAT)
 	}
 	if options.Quiet {
 		outputFormat = "{{.Id}}"
+	}
+
+	orderBy := options.OrderBy
+	if orderBy == "" {
+		orderBy = GetCommandOptionWithDefault("device-ports", "order", "")
 	}
 
 	data := make([]model.DevicePort, len(items.([]interface{})))
@@ -464,7 +473,7 @@ func (options *DevicePortList) Execute(args []string) error {
 	result := CommandResult{
 		Format:    format.Format(outputFormat),
 		Filter:    options.Filter,
-		OrderBy:   options.OrderBy,
+		OrderBy:   orderBy,
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
 		Data:      data,
@@ -478,7 +487,7 @@ func (options *DeviceFlowList) Execute(args []string) error {
 	fl := &FlowList{}
 	fl.ListOutputOptions = options.ListOutputOptions
 	fl.Args.Id = string(options.Args.Id)
-	fl.Method = "device-flow-list"
+	fl.Method = "device-flows"
 	return fl.Execute(args)
 }
 
@@ -521,7 +530,7 @@ func (options *DeviceInspect) Execute(args []string) error {
 
 	outputFormat := CharReplacer.Replace(options.Format)
 	if outputFormat == "" {
-		outputFormat = DEFAULT_DEVICE_INSPECT_FORMAT
+		outputFormat = GetCommandOptionWithDefault("device-inspect", "format", DEFAULT_DEVICE_INSPECT_FORMAT)
 	}
 	if options.Quiet {
 		outputFormat = "{{.Id}}"

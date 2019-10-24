@@ -155,7 +155,7 @@ ifeq (,$(GOLANGCI_LINT_TOOL))
 endif
 	@rm -rf ./sca-report
 	@mkdir -p ./sca-report
-	$(GOLANGCI_LINT_TOOL) run --out-format $(GOLANGCI_LINT_OUT_FORMAT) ./... 2>&1 | tee ./sca-report/sca-report.xml
+	$(GOLANGCI_LINT_TOOL) run --deadline 20m --out-format $(GOLANGCI_LINT_OUT_FORMAT) ./... 2>&1 | tee ./sca-report/sca-report.xml
 
 test:
 	@mkdir -p ./tests/results

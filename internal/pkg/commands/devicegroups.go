@@ -22,7 +22,6 @@ import (
 	"github.com/jhump/protoreflect/dynamic"
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltctl/pkg/model"
-	"log"
 )
 
 const (
@@ -42,7 +41,7 @@ var deviceGroupOpts = DeviceGroupOpts{}
 func RegisterDeviceGroupCommands(parser *flags.Parser) {
 	if _, err := parser.AddCommand("devicegroup", "device group commands", "Commands to query and manipulate VOLTHA device groups",
 		&deviceGroupOpts); err != nil {
-		log.Fatalf("Unexpected error while attempting to register device group commands : %s", err)
+		Error.Fatalf("Unexpected error while attempting to register device group commands : %s", err)
 	}
 }
 
@@ -54,7 +53,7 @@ func (options *DeviceGroupList) Execute(args []string) error {
 	}
 	defer conn.Close()
 
-	descriptor, method, err := GetMethod("devicegroup-list")
+	descriptor, method, err := GetMethod("device-group-list")
 	if err != nil {
 		return err
 	}
@@ -84,10 +83,14 @@ func (options *DeviceGroupList) Execute(args []string) error {
 
 	outputFormat := CharReplacer.Replace(options.Format)
 	if outputFormat == "" {
-		outputFormat = DEFAULT_DEVICE_GROUP_FORMAT
+		outputFormat = GetCommandOptionWithDefault("device-group-list", "format", DEFAULT_DEVICE_GROUP_FORMAT)
 	}
 	if options.Quiet {
 		outputFormat = "{{.Id}}"
+	}
+	orderBy := options.OrderBy
+	if orderBy == "" {
+		orderBy = GetCommandOptionWithDefault("device-group-list", "order", "")
 	}
 
 	data := make([]model.DeviceGroup, len(items.([]interface{})))
@@ -99,7 +102,7 @@ func (options *DeviceGroupList) Execute(args []string) error {
 	result := CommandResult{
 		Format:    format.Format(outputFormat),
 		Filter:    options.Filter,
-		OrderBy:   options.OrderBy,
+		OrderBy:   orderBy,
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
 		Data:      data,

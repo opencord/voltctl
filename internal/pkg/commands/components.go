@@ -23,7 +23,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
-	"log"
 )
 
 const (
@@ -44,7 +43,7 @@ var componentOpts = ComponentOpts{}
 
 func RegisterComponentCommands(parser *flags.Parser) {
 	if _, err := parser.AddCommand("component", "component instance commands", "Commands to query and manipulate VOLTHA component instances", &componentOpts); err != nil {
-		log.Fatalf("Unexpected error while attempting to register component commands : %s", err)
+		Error.Fatalf("Unexpected error while attempting to register component commands : %s", err)
 	}
 }
 
@@ -80,11 +79,16 @@ func (options *ComponentList) Execute(args []string) error {
 
 	outputFormat := CharReplacer.Replace(options.Format)
 	if outputFormat == "" {
-		outputFormat = DEFAULT_COMPONENT_FORMAT
+		outputFormat = GetCommandOptionWithDefault("component-list", "format", DEFAULT_COMPONENT_FORMAT)
 	}
 	if options.Quiet {
 		outputFormat = "{{.Metadata.Name}}"
 	}
+	orderBy := options.OrderBy
+	if orderBy == "" {
+		orderBy = GetCommandOptionWithDefault("component-list", "order", "")
+	}
+
 	data := make([]model.ComponentInstance, len(pods.Items))
 	for i, item := range pods.Items {
 		data[i].PopulateFrom(item)
@@ -93,7 +97,7 @@ func (options *ComponentList) Execute(args []string) error {
 	result := CommandResult{
 		Format:    format.Format(outputFormat),
 		Filter:    options.Filter,
-		OrderBy:   options.OrderBy,
+		OrderBy:   orderBy,
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
 		Data:      data,
