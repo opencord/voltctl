@@ -38,7 +38,7 @@ type SetLogLevelOutput struct {
 
 type SetLogLevelOpts struct {
 	OutputOptions
-	Package string `short:"p" long:"package" description:"Package name to set filter level"`
+	Package string `short:"p" long:"package" description:"Package name to set log level"`
 	Args    struct {
 		Level     string
 		Component []string
@@ -47,7 +47,8 @@ type SetLogLevelOpts struct {
 
 type GetLogLevelsOpts struct {
 	ListOutputOptions
-	Args struct {
+	Package string `short:"p" long:"package" description:"Package name to get log level"`
+	Args    struct {
 		Component []string
 	} `positional-args:"yes" required:"yes"`
 }
@@ -146,7 +147,16 @@ func ValidateComponentNames(kube_to_arouter map[string][]string, names []string)
 	}
 
 	if len(badNames) > 0 {
-		return fmt.Errorf("Unknown components: %s", strings.Join(badNames, ","))
+		allowedNames := make([]string, len(kube_to_arouter))
+		i := 0
+		for k := range kube_to_arouter {
+			allowedNames[i] = k
+			i++
+		}
+
+		return fmt.Errorf("Unknown component(s): %s.\n  (Allowed values for component names: \n    %s)",
+			strings.Join(badNames, ", "),
+			strings.Join(allowedNames, ",\n    "))
 	} else {
 		return nil
 	}
@@ -400,6 +410,11 @@ func (options *GetLogLevelsOpts) getLogLevels(methodName string, args []string) 
 				logLevel := model.LogLevel{}
 				logLevel.PopulateFrom(item.(*dynamic.Message))
 				logLevel.ComponentName = arouter_to_kube[logLevel.ComponentName]
+
+				// If the user asked for only one package, then filter out the unwanted ones
+				if (options.Package != "") && (options.Package != logLevel.PackageName) {
+					continue
+				}
 
 				data = append(data, logLevel)
 			}
