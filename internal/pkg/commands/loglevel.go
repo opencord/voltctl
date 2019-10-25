@@ -38,7 +38,7 @@ type SetLogLevelOutput struct {
 
 type SetLogLevelOpts struct {
 	OutputOptions
-	Package string `short:"p" long:"package" description:"Package name to set filter level"`
+	Package string `short:"p" long:"package" description:"Package name to set log level"`
 	Args    struct {
 		Level     string
 		Component []string
@@ -146,7 +146,16 @@ func ValidateComponentNames(kube_to_arouter map[string][]string, names []string)
 	}
 
 	if len(badNames) > 0 {
-		return fmt.Errorf("Unknown components: %s", strings.Join(badNames, ","))
+		allowedNames := make([]string, len(kube_to_arouter))
+		i := 0
+		for k := range kube_to_arouter {
+			allowedNames[i] = k
+			i++
+		}
+
+		return fmt.Errorf("Unknown component(s): %s.\n  (Allowed values for component names: \n    %s)",
+			strings.Join(badNames, ", "),
+			strings.Join(allowedNames, ",\n    "))
 	} else {
 		return nil
 	}
