@@ -73,7 +73,7 @@ var (
 
 	GlobalConfig = GlobalConfigSpec{
 		ApiVersion: "v2",
-		Server:     "localhost",
+		Server:     "localhost:55555",
 		Tls: TlsConfigSpec{
 			UseTls: false,
 		},
@@ -236,38 +236,38 @@ func GenerateOutput(result *CommandResult) {
 		if result.Filter != "" {
 			f, err := filter.Parse(result.Filter)
 			if err != nil {
-				panic(err)
+				Error.Fatalf("Unable to parse specified output filter '%s': %s", result.Filter, err.Error())
 			}
 			data, err = f.Process(data)
 			if err != nil {
-				panic(err)
+				Error.Fatalf("Unexpected error while filtering command results: %s", err.Error())
 			}
 		}
 		if result.OrderBy != "" {
 			s, err := order.Parse(result.OrderBy)
 			if err != nil {
-				panic(err)
+				Error.Fatalf("Unable to parse specified sort specification '%s': %s", result.OrderBy, err.Error())
 			}
 			data, err = s.Process(data)
 			if err != nil {
-				panic(err)
+				Error.Fatalf("Unexpected error while sorting command result: %s", err.Error())
 			}
 		}
 		if result.OutputAs == OUTPUT_TABLE {
 			tableFormat := format.Format(result.Format)
 			if err := tableFormat.Execute(os.Stdout, true, result.NameLimit, data); err != nil {
-				Error.Fatalf("Unexpected error while attempting to format results as table : %s", err)
+				Error.Fatalf("Unexpected error while attempting to format results as table : %s", err.Error())
 			}
 		} else if result.OutputAs == OUTPUT_JSON {
 			asJson, err := json.Marshal(&data)
 			if err != nil {
-				panic(err)
+				Error.Fatalf("Unexpected error while processing command results to JSON: %s", err.Error())
 			}
 			fmt.Printf("%s", asJson)
 		} else if result.OutputAs == OUTPUT_YAML {
 			asYaml, err := yaml.Marshal(&data)
 			if err != nil {
-				panic(err)
+				Error.Fatalf("Unexpected error while processing command results to YAML: %s", err.Error())
 			}
 			fmt.Printf("%s", asYaml)
 		}
