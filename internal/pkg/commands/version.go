@@ -72,7 +72,7 @@ var versionInfo = VersionOutput{
 func RegisterVersionCommands(parent *flags.Parser) {
 	_, err := parent.AddCommand("version", "display version", "Display client and server version", &versionOpts)
 	if err != nil {
-		panic(err)
+		Error.Fatalf("Unable to register version command: %s", err.Error())
 	}
 }
 

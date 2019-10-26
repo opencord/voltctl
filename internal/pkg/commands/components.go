@@ -61,20 +61,20 @@ func (options *ComponentList) Execute(args []string) error {
 	// use the current context in kubeconfig
 	config, err := clientcmd.BuildConfigFromFlags("", GlobalOptions.K8sConfig)
 	if err != nil {
-		panic(err.Error())
+		Error.Fatalf("Unable to resolve Kubernetes configuration options: %s", err.Error())
 	}
 
 	// create the clientset
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		panic(err.Error())
+		Error.Fatalf("Unable to create client context for Kubernetes API connection: %s", err.Error())
 	}
 
 	pods, err := clientset.CoreV1().Pods("").List(metav1.ListOptions{
 		LabelSelector: "app.kubernetes.io/part-of=voltha",
 	})
 	if err != nil {
-		panic(err.Error())
+		Error.Fatalf("Unexpected error while attempting to query PODs from Kubernetes: %s", err.Error())
 	}
 
 	outputFormat := CharReplacer.Replace(options.Format)

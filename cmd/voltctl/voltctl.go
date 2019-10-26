@@ -41,7 +41,7 @@ func main() {
 	compval := os.Getenv("GO_FLAGS_COMPLETION")
 	if len(compval) > 0 {
 		os.Unsetenv("GO_FLAGS_COMPLETION")
-		pp := flags.NewNamedParser(path.Base(os.Args[0]), flags.Default|flags.PassAfterNonOption)
+		pp := flags.NewNamedParser(path.Base(os.Args[0]), flags.HelpFlag|flags.PassDoubleDash|flags.PassAfterNonOption)
 		if _, err := pp.AddGroup("Global Options", "", &commands.GlobalOptions); err != nil {
 			commands.Error.Fatalf("Unable to set up global options for command completion: %s", err.Error())
 		}
@@ -51,10 +51,10 @@ func main() {
 		os.Setenv("GO_FLAGS_COMPLETION", compval)
 	}
 
-	parser := flags.NewNamedParser(path.Base(os.Args[0]), flags.Default|flags.PassAfterNonOption)
+	parser := flags.NewNamedParser(path.Base(os.Args[0]), flags.HelpFlag|flags.PassDoubleDash|flags.PassAfterNonOption)
 	_, err := parser.AddGroup("Global Options", "", &commands.GlobalOptions)
 	if err != nil {
-		panic(err)
+		commands.Error.Fatalf("Unable to parse global command options: %s", err.Error())
 	}
 	commands.RegisterAdapterCommands(parser)
 	commands.RegisterDeviceCommands(parser)
@@ -75,7 +75,7 @@ func main() {
 				return
 			}
 		} else {
-			panic(err)
+			commands.Error.Fatal(commands.ErrorToString(err))
 		}
 		os.Exit(1)
 	}

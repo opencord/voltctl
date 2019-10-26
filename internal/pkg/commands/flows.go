@@ -117,7 +117,7 @@ func (options *FlowList) Execute(args []string) error {
 	case "device-flows":
 	case "logical-device-flows":
 	default:
-		panic(fmt.Errorf("Unknown method name: '%s'", options.Method))
+		Error.Fatalf("Unknown method name: '%s'", options.Method)
 	}
 
 	descriptor, method, err := GetMethod(options.Method)

@@ -303,10 +303,10 @@ func (options *DeviceDelete) Execute(args []string) error {
 
 		err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
 		if err != nil {
-			fmt.Printf("Error while deleting '%s': %s\n", i, err)
+			Error.Printf("Error while deleting '%s': %s\n", i, err)
 			continue
 		} else if h.Status != nil && h.Status.Err() != nil {
-			fmt.Printf("Error while deleting '%s': %s\n", i, h.Status.Err())
+			Error.Printf("Error while deleting '%s': %s\n", i, ErrorToString(h.Status.Err()))
 			continue
 		}
 		fmt.Printf("%s\n", i)
@@ -336,10 +336,10 @@ func (options *DeviceEnable) Execute(args []string) error {
 
 		err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
 		if err != nil {
-			fmt.Printf("Error while enabling '%s': %s\n", i, err)
+			Error.Printf("Error while enabling '%s': %s\n", i, err)
 			continue
 		} else if h.Status != nil && h.Status.Err() != nil {
-			fmt.Printf("Error while enabling '%s': %s\n", i, h.Status.Err())
+			Error.Printf("Error while enabling '%s': %s\n", i, ErrorToString(h.Status.Err()))
 			continue
 		}
 		fmt.Printf("%s\n", i)
@@ -369,10 +369,10 @@ func (options *DeviceDisable) Execute(args []string) error {
 
 		err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
 		if err != nil {
-			fmt.Printf("Error while disabling '%s': %s\n", i, err)
+			Error.Printf("Error while disabling '%s': %s\n", i, err)
 			continue
 		} else if h.Status != nil && h.Status.Err() != nil {
-			fmt.Printf("Error while disabling '%s': %s\n", i, h.Status.Err())
+			Error.Printf("Error while disabling '%s': %s\n", i, ErrorToString(h.Status.Err()))
 			continue
 		}
 		fmt.Printf("%s\n", i)
@@ -402,10 +402,10 @@ func (options *DeviceReboot) Execute(args []string) error {
 
 		err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
 		if err != nil {
-			fmt.Printf("Error while rebooting '%s': %s\n", i, err)
+			Error.Printf("Error while rebooting '%s': %s\n", i, err)
 			continue
 		} else if h.Status != nil && h.Status.Err() != nil {
-			fmt.Printf("Error while rebooting '%s': %s\n", i, h.Status.Err())
+			Error.Printf("Error while rebooting '%s': %s\n", i, ErrorToString(h.Status.Err()))
 			continue
 		}
 		fmt.Printf("%s\n", i)

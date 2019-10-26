@@ -72,7 +72,7 @@ const (
 func RegisterLogLevelCommands(parent *flags.Parser) {
 	_, err := parent.AddCommand("loglevel", "loglevel commands", "Get and set log levels", &logLevelOpts)
 	if err != nil {
-		panic(err)
+		Error.Fatalf("Unable to register log level commands with voltctl command parser: %s", err.Error())
 	}
 }
 
