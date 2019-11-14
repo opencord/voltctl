@@ -16,6 +16,7 @@
 package main
 
 import (
+	"fmt"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/opencord/voltctl/internal/pkg/commands"
 	"os"
@@ -71,9 +72,13 @@ func main() {
 		_, ok := err.(*flags.Error)
 		if ok {
 			real := err.(*flags.Error)
+			// Send help message to stdout, else to stderr
 			if real.Type == flags.ErrHelp {
-				return
+				parser.WriteHelp(os.Stdout)
+			} else {
+				fmt.Fprintf(os.Stderr, "%s\n", real.Error())
 			}
+			return
 		} else {
 			commands.Error.Fatal(commands.ErrorToString(err))
 		}
