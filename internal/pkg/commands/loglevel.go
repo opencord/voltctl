@@ -204,17 +204,21 @@ func BuildKubernetesNameMap() (map[string][]string, map[string]string, error) {
 			 */
 			arouter_name = "api_server0.api_server01"
 		case "rw-core":
-			affinity_group, ok := pod.Labels["affinity-group"]
-			if !ok {
-				Warn.Printf("rwcore %s lacks affinity-group label", pod.Name)
+			affinity_group, affinity_group_ok := pod.Labels["affinity-group"]
+			affinity_group_core_id, affinity_group_core_ok := pod.Labels["affinity-group-core-id"]
+
+			if affinity_group_ok && affinity_group_core_ok {
+				// api-server is part of the deployment
+				arouter_name = "vcore" + affinity_group + ".vcore" + affinity_group + affinity_group_core_id
+			} else if !affinity_group_ok && !affinity_group_core_ok {
+				// api-server is not part of the deployment. Any name will do since we're talking
+				// directly to the core and not routing through the api-server.
+				arouter_name = app
+			} else {
+				// labeling is inconsistent; something is messed up
+				Warn.Printf("rwcore %s has one of affinity-group-core-id, affinity-group label but not the other", pod.Name)
 				continue
 			}
-			affinity_group_core_id, ok := pod.Labels["affinity-group-core-id"]
-			if !ok {
-				Warn.Printf("rwcore %s lacks affinity-group-core-id label", pod.Name)
-				continue
-			}
-			arouter_name = "vcore" + affinity_group + ".vcore" + affinity_group + affinity_group_core_id
 		case "ro-core":
 			/*
 			 * Assumes a single rocore for now.
