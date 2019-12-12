@@ -132,6 +132,11 @@ func (f Filter) Evaluate(item interface{}) bool {
 			if fmt.Sprintf("%v", field) != v.Value {
 				return false
 			}
+		case NE:
+			// This seems to work for most comparisons
+			if fmt.Sprintf("%v", field) == v.Value {
+				return false
+			}
 		default:
 			// For unsupported operations, always pass
 		}
