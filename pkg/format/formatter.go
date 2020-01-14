@@ -16,9 +16,12 @@
 package format
 
 import (
+	"bytes"
+	"fmt"
 	"io"
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 	"text/tabwriter"
 	"text/template"
@@ -28,6 +31,41 @@ import (
 var nameFinder = regexp.MustCompile(`\.([\._A-Za-z0-9]*)}}`)
 
 type Format string
+
+func TrimAndPad(s string, l int) string {
+	// TODO: support right padding
+	if len(s) > l {
+		s = s[:l]
+	}
+	return s + strings.Repeat(" ", l-len(s))
+}
+
+func GetHeaderString(tmpl *template.Template, nameLimit int) string {
+	var header string
+	for _, n := range tmpl.Tree.Root.Nodes {
+		switch n.Type() {
+		case parse.NodeText:
+			header += n.String()
+		case parse.NodeString:
+			header += n.String()
+		case parse.NodeAction:
+			found := nameFinder.FindStringSubmatch(n.String())
+			if len(found) == 2 {
+				if nameLimit > 0 {
+					parts := strings.Split(found[1], ".")
+					start := len(parts) - nameLimit
+					if start < 0 {
+						start = 0
+					}
+					header += strings.ToUpper(strings.Join(parts[start:], "."))
+				} else {
+					header += strings.ToUpper(found[1])
+				}
+			}
+		}
+	}
+	return header
+}
 
 func (f Format) IsTable() bool {
 	return strings.HasPrefix(string(f), "table")
@@ -48,29 +86,8 @@ func (f Format) Execute(writer io.Writer, withHeaders bool, nameLimit int, data 
 	}
 
 	if f.IsTable() && withHeaders {
-		var header string
-		for _, n := range tmpl.Tree.Root.Nodes {
-			switch n.Type() {
-			case parse.NodeText:
-				header += n.String()
-			case parse.NodeString:
-				header += n.String()
-			case parse.NodeAction:
-				found := nameFinder.FindStringSubmatch(n.String())
-				if len(found) == 2 {
-					if nameLimit > 0 {
-						parts := strings.Split(found[1], ".")
-						start := len(parts) - nameLimit
-						if start < 0 {
-							start = 0
-						}
-						header += strings.ToUpper(strings.Join(parts[start:], "."))
-					} else {
-						header += strings.ToUpper(found[1])
-					}
-				}
-			}
-		}
+		header := GetHeaderString(tmpl, nameLimit)
+
 		if _, err = tabWriter.Write([]byte(header)); err != nil {
 			return err
 		}
@@ -120,4 +137,54 @@ func (f Format) Execute(writer io.Writer, withHeaders bool, nameLimit int, data 
 	}
 	return nil
 
+}
+
+/*
+ * columnWidths: struct that contains column widths
+ * header: If true return the header. If false then evaluate data and return data.
+ * data: Data to evaluate
+ */
+
+func (f Format) ExecuteFixedWidth(columnWidths interface{}, header bool, data interface{}) (string, error) {
+	outputAs := strings.TrimPrefix(string(f), "table")
+	tmpl, err := template.New("output").Parse(string(outputAs))
+	if err != nil {
+		return "", fmt.Errorf("Failed to parse template: %v", err)
+	}
+
+	var buf bytes.Buffer
+	var tabSepOutput string
+
+	if header {
+		tabSepOutput = GetHeaderString(tmpl, 1)
+	} else {
+		err = tmpl.Execute(&buf, data)
+		if err != nil {
+			return "", fmt.Errorf("Failed to execute template: %v", err)
+		}
+		tabSepOutput = buf.String()
+	}
+
+	buf.Reset()
+	err = tmpl.Execute(&buf, columnWidths)
+	if err != nil {
+		return "", fmt.Errorf("Failed to execute template on widths: %v", err)
+	}
+	tabSepWidth := buf.String()
+
+	output := ""
+	outParts := strings.Split(tabSepOutput, "\t")
+	widthParts := strings.Split(tabSepWidth, "\t")
+	for i, outPart := range outParts {
+		width, err := strconv.Atoi(widthParts[i])
+		if err != nil {
+			return "", fmt.Errorf("Failed to parse width %s: %v", widthParts[i], err)
+		}
+		output = output + TrimAndPad(outPart, width) + " "
+	}
+
+	// remove and trailing spaces
+	output = strings.TrimRight(output, " ")
+
+	return output, nil
 }
