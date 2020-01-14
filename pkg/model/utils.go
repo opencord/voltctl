@@ -28,3 +28,11 @@ func SetEnumValue(msg *dynamic.Message, name string, value string) {
 	eValue := msg.FindFieldDescriptorByName(name).GetEnumType().FindValueByName(value)
 	msg.SetFieldByName(name, eValue.GetNumber())
 }
+
+func GetEnumString(msg *dynamic.Message, name string, value int32) string {
+	eValue := msg.FindFieldDescriptorByName(name).GetEnumType().FindValueByNumber(value)
+	if eValue == nil {
+		panic("eValue is nil")
+	}
+	return eValue.GetName()
+}
