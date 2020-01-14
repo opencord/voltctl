@@ -3,6 +3,8 @@ module github.com/opencord/voltctl
 go 1.12
 
 require (
+	github.com/Shopify/sarama v1.25.0
+	github.com/confluentinc/confluent-kafka-go v1.3.0 // indirect
 	github.com/fullstorydev/grpcurl v1.4.0
 	github.com/gogo/protobuf v1.2.1 // indirect
 	github.com/golang/protobuf v1.3.1
