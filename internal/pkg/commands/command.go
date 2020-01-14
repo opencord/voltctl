@@ -54,6 +54,7 @@ type TlsConfigSpec struct {
 type GlobalConfigSpec struct {
 	ApiVersion string         `yaml:"apiVersion"`
 	Server     string         `yaml:"server"`
+	Kafka      string         `yaml:"kafka"`
 	Tls        TlsConfigSpec  `yaml:"tls"`
 	Grpc       GrpcConfigSpec `yaml:"grpc"`
 	K8sConfig  string         `yaml:"-"`
@@ -74,6 +75,7 @@ var (
 	GlobalConfig = GlobalConfigSpec{
 		ApiVersion: "v2",
 		Server:     "localhost:55555",
+		Kafka:      "",
 		Tls: TlsConfigSpec{
 			UseTls: false,
 		},
@@ -87,6 +89,7 @@ var (
 	GlobalOptions struct {
 		Config string `short:"c" long:"config" env:"VOLTCONFIG" value-name:"FILE" default:"" description:"Location of client config file"`
 		Server string `short:"s" long:"server" default:"" value-name:"SERVER:PORT" description:"IP/Host and port of VOLTHA"`
+		Kafka  string `short:"k" long:"kafka" default:"" value-name:"SERVER:PORT" description:"IP/Host and port of Kafka"`
 		// Do not set the default for the API version here, else it will override the value read in the config
 		ApiVersion     string `short:"a" long:"apiversion" description:"API version" value-name:"VERSION" choice:"v1" choice:"v2"`
 		Debug          bool   `short:"d" long:"debug" description:"Enable debug mode"`
@@ -187,6 +190,9 @@ func ProcessGlobalOptions() {
 	// Override from command line
 	if GlobalOptions.Server != "" {
 		GlobalConfig.Server = GlobalOptions.Server
+	}
+	if GlobalOptions.Kafka != "" {
+		GlobalConfig.Kafka = GlobalOptions.Kafka
 	}
 	if GlobalOptions.ApiVersion != "" {
 		GlobalConfig.ApiVersion = GlobalOptions.ApiVersion
