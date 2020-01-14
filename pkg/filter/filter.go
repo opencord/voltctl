@@ -113,6 +113,31 @@ func (f Filter) Process(data interface{}) (interface{}, error) {
 	return result, nil
 }
 
+// returns False if the filter does not match
+// returns true if the filter does match or the operation is unsupported
+func testField(v FilterTerm, field reflect.Value) bool {
+	switch v.Op {
+	case RE:
+		if !v.re.MatchString(fmt.Sprintf("%v", field)) {
+			return false
+		}
+	case EQ:
+		// This seems to work for most comparisons
+		if fmt.Sprintf("%v", field) != v.Value {
+			return false
+		}
+	case NE:
+		// This seems to work for most comparisons
+		if fmt.Sprintf("%v", field) == v.Value {
+			return false
+		}
+	default:
+		// For unsupported operations, always pass
+	}
+
+	return true
+}
+
 func (f Filter) Evaluate(item interface{}) bool {
 	val := reflect.ValueOf(item)
 
@@ -122,23 +147,22 @@ func (f Filter) Evaluate(item interface{}) bool {
 			return false
 		}
 
-		switch v.Op {
-		case RE:
-			if !v.re.MatchString(fmt.Sprintf("%v", field)) {
+		if (field.Kind() == reflect.Slice) || (field.Kind() == reflect.Array) {
+			// For an array, check to see if any item matches
+			someMatch := false
+			for i := 0; i < field.Len(); i++ {
+				arrayElem := field.Index(i)
+				if testField(v, arrayElem) {
+					someMatch = true
+				}
+			}
+			if !someMatch {
 				return false
 			}
-		case EQ:
-			// This seems to work for most comparisons
-			if fmt.Sprintf("%v", field) != v.Value {
+		} else {
+			if !testField(v, field) {
 				return false
 			}
-		case NE:
-			// This seems to work for most comparisons
-			if fmt.Sprintf("%v", field) == v.Value {
-				return false
-			}
-		default:
-			// For unsupported operations, always pass
 		}
 	}
 	return true
