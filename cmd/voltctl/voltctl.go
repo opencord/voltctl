@@ -66,6 +66,7 @@ func main() {
 	commands.RegisterConfigCommands(parser)
 	commands.RegisterComponentCommands(parser)
 	commands.RegisterLogLevelCommands(parser)
+	commands.RegisterEventCommands(parser)
 
 	_, err = parser.Parse()
 	if err != nil {
