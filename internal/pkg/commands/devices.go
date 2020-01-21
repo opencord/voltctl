@@ -23,6 +23,8 @@ import (
 	"github.com/jhump/protoreflect/dynamic"
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltctl/pkg/model"
+	"os"
+	"strconv"
 	"strings"
 )
 
@@ -52,6 +54,8 @@ type DeviceCreate struct {
 }
 
 type DeviceId string
+
+type PortNum uint32
 
 type DeviceDelete struct {
 	Args struct {
@@ -98,6 +102,20 @@ type DeviceInspect struct {
 	} `positional-args:"yes"`
 }
 
+type DevicePortEnable struct {
+	Args struct {
+		Id     DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+		PortId PortNum  `positional-arg-name:"PORT_NUMBER" required:"yes"`
+	} `positional-args:"yes"`
+}
+
+type DevicePortDisable struct {
+	Args struct {
+		Id     DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+		PortId PortNum  `positional-arg-name:"PORT_NUMBER" required:"yes"`
+	} `positional-args:"yes"`
+}
+
 type DeviceOpts struct {
 	List    DeviceList     `command:"list"`
 	Create  DeviceCreate   `command:"create"`
@@ -105,9 +123,13 @@ type DeviceOpts struct {
 	Enable  DeviceEnable   `command:"enable"`
 	Disable DeviceDisable  `command:"disable"`
 	Flows   DeviceFlowList `command:"flows"`
-	Ports   DevicePortList `command:"ports"`
-	Inspect DeviceInspect  `command:"inspect"`
-	Reboot  DeviceReboot   `command:"reboot"`
+	Port    struct {
+		List    DevicePortList    `command:"list"`
+		Enable  DevicePortEnable  `command:"enable"`
+		Disable DevicePortDisable `command:"disable"`
+	} `command:"port"`
+	Inspect DeviceInspect `command:"inspect"`
+	Reboot  DeviceReboot  `command:"reboot"`
 }
 
 var deviceOpts = DeviceOpts{}
@@ -116,6 +138,83 @@ func RegisterDeviceCommands(parser *flags.Parser) {
 	if _, err := parser.AddCommand("device", "device commands", "Commands to query and manipulate VOLTHA devices", &deviceOpts); err != nil {
 		Error.Fatalf("Unexpected error while attempting to register device commands : %s", err)
 	}
+}
+
+func (i *PortNum) Complete(match string) []flags.Completion {
+	conn, err := NewConnection()
+	if err != nil {
+		return nil
+	}
+	defer conn.Close()
+
+	descriptor, method, err := GetMethod("device-ports")
+	if err != nil {
+		return nil
+	}
+
+	/*
+	 * The command line args when completing for PortNum will be a DeviceId
+	 * followed by one or more PortNums. So walk the argument list from the
+	 * end and find the first argument that is enable/disable as those are
+	 * the subcommands that come before the positional arguments. It would
+	 * be nice if this package gave us the list of optional arguments
+	 * already parsed.
+	 */
+	var deviceId string
+found:
+	for i := len(os.Args) - 1; i >= 0; i -= 1 {
+		switch os.Args[i] {
+		case "enable":
+			fallthrough
+		case "disable":
+			if len(os.Args) > i+1 {
+				deviceId = os.Args[i+1]
+			} else {
+				return nil
+			}
+			break found
+		default:
+		}
+	}
+
+	if len(deviceId) == 0 {
+		return nil
+	}
+
+	h := &RpcEventHandler{
+		Fields: map[string]map[string]interface{}{ParamNames[GlobalConfig.ApiVersion]["ID"]: {"id": deviceId}},
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+	err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
+	if err != nil {
+		return nil
+	}
+
+	if h.Status != nil && h.Status.Err() != nil {
+		return nil
+	}
+
+	d, err := dynamic.AsDynamicMessage(h.Response)
+	if err != nil {
+		return nil
+	}
+
+	items, err := d.TryGetFieldByName("items")
+	if err != nil {
+		return nil
+	}
+
+	list := make([]flags.Completion, 0)
+	for _, item := range items.([]interface{}) {
+		val := item.(*dynamic.Message)
+		pn := strconv.FormatUint(uint64(val.GetFieldByName("port_no").(uint32)), 10)
+		if strings.HasPrefix(pn, match) {
+			list = append(list, flags.Completion{Item: pn})
+		}
+	}
+
+	return list
 }
 
 func (i *DeviceId) Complete(match string) []flags.Completion {
@@ -544,5 +643,65 @@ func (options *DeviceInspect) Execute(args []string) error {
 		Data:      device,
 	}
 	GenerateOutput(&result)
+	return nil
+}
+
+/*Device  Port Enable */
+func (options *DevicePortEnable) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	descriptor, method, err := GetMethod("device-port-enable")
+	if err != nil {
+		return err
+	}
+
+	h := &RpcEventHandler{
+		Fields: map[string]map[string]interface{}{ParamNames[GlobalConfig.ApiVersion]["port"]: {"device_id": options.Args.Id, "port_no": options.Args.PortId}},
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+
+	err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
+	if err != nil {
+		Error.Printf("Error enabling port number %v on device Id %s,err=%s\n", options.Args.PortId, options.Args.Id, ErrorToString(err))
+		return err
+	} else if h.Status != nil && h.Status.Err() != nil {
+		Error.Printf("Error enabling port number %v on device Id %s,err=%s\n", options.Args.PortId, options.Args.Id, ErrorToString(h.Status.Err()))
+		return h.Status.Err()
+	}
+
+	return nil
+}
+
+/*Device Port Disable */
+func (options *DevicePortDisable) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	descriptor, method, err := GetMethod("device-port-disable")
+	if err != nil {
+		return err
+	}
+	h := &RpcEventHandler{
+		Fields: map[string]map[string]interface{}{ParamNames[GlobalConfig.ApiVersion]["port"]: {"device_id": options.Args.Id, "port_no": options.Args.PortId}},
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+
+	err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
+	if err != nil {
+		Error.Printf("Error disabling port number %v on device Id %s,err=%s\n", options.Args.PortId, options.Args.Id, ErrorToString(err))
+		return err
+	} else if h.Status != nil && h.Status.Err() != nil {
+		Error.Printf("Error disabling port number %v on device Id %s,err=%s\n", options.Args.PortId, options.Args.Id, ErrorToString(h.Status.Err()))
+		return h.Status.Err()
+	}
 	return nil
 }
