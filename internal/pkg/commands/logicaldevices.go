@@ -63,10 +63,12 @@ type LogicalDeviceInspect struct {
 }
 
 type LogicalDeviceOpts struct {
-	List    LogicalDeviceList     `command:"list"`
-	Flows   LogicalDeviceFlowList `command:"flows"`
-	Ports   LogicalDevicePortList `command:"ports"`
-	Inspect LogicalDeviceInspect  `command:"inspect"`
+	List  LogicalDeviceList     `command:"list"`
+	Flows LogicalDeviceFlowList `command:"flows"`
+	Port  struct {
+		List LogicalDevicePortList `command:"list"`
+	} `command:"port"`
+	Inspect LogicalDeviceInspect `command:"inspect"`
 }
 
 var logicalDeviceOpts = LogicalDeviceOpts{}

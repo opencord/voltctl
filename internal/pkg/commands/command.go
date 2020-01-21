@@ -68,12 +68,16 @@ var (
 		"v2": {
 			"ID": "common.ID",
 		},
+		"v3": {
+			"ID":   "common.ID",
+			"port": "voltha.Port",
+		},
 	}
 
 	CharReplacer = strings.NewReplacer("\\t", "\t", "\\n", "\n")
 
 	GlobalConfig = GlobalConfigSpec{
-		ApiVersion: "v2",
+		ApiVersion: "v3",
 		Server:     "localhost:55555",
 		Kafka:      "",
 		Tls: TlsConfigSpec{
@@ -91,7 +95,7 @@ var (
 		Server string `short:"s" long:"server" default:"" value-name:"SERVER:PORT" description:"IP/Host and port of VOLTHA"`
 		Kafka  string `short:"k" long:"kafka" default:"" value-name:"SERVER:PORT" description:"IP/Host and port of Kafka"`
 		// Do not set the default for the API version here, else it will override the value read in the config
-		ApiVersion     string `short:"a" long:"apiversion" description:"API version" value-name:"VERSION" choice:"v1" choice:"v2"`
+		ApiVersion     string `short:"a" long:"apiversion" description:"API version" value-name:"VERSION" choice:"v1" choice:"v2" choice:"v3"`
 		Debug          bool   `short:"d" long:"debug" description:"Enable debug mode"`
 		UseTLS         bool   `long:"tls" description:"Use TLS"`
 		CACert         string `long:"tlscacert" value-name:"CA_CERT_FILE" description:"Trust certs signed only by this CA"`
