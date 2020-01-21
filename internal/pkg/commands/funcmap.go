@@ -126,6 +126,12 @@ var functionMap = map[string]map[string]string{
 		"v1": "voltha.VolthaGlobalService/ListDeviceGroups",
 		"v2": "voltha.VolthaService/ListDeviceGroups",
 	},
+	"device-port-enable": {
+		"v2": "voltha.VolthaService/EnablePort",
+	},
+	"device-port-disable": {
+		"v2": "voltha.VolthaService/DisablePort",
+	},
 	"get-goroutine-count": {
 		"v2": "afrouter.Configuration.GetGoroutineCount",
 	},
