@@ -66,6 +66,7 @@ var (
 		},
 		"v2": {
 			"ID": "common.ID",
+			"port": "voltha.Port",
 		},
 	}
 
