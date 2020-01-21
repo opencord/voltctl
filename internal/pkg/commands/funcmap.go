@@ -59,87 +59,115 @@ func (e *UnableToParseDescriptorErrror) Error() string {
 var descriptorMap = map[string][]byte{
 	"v1": V1Descriptor,
 	"v2": V2Descriptor,
+	"v3": V3Descriptor,
 }
 
 var functionMap = map[string]map[string]string{
 	"version": {
 		"v1": "voltha.VolthaGlobalService/GetVoltha",
 		"v2": "voltha.VolthaService/GetVoltha",
+		"v3": "voltha.VolthaService/GetVoltha",
 	},
 	"adapter-list": {
 		"v1": "voltha.VolthaGlobalService/ListAdapters",
 		"v2": "voltha.VolthaService/ListAdapters",
+		"v3": "voltha.VolthaService/ListAdapters",
 	},
 	"device-list": {
 		"v1": "voltha.VolthaGlobalService/ListDevices",
 		"v2": "voltha.VolthaService/ListDevices",
+		"v3": "voltha.VolthaService/ListDevices",
 	},
 	"device-ports": {
 		"v1": "voltha.VolthaGlobalService/ListDevicePorts",
 		"v2": "voltha.VolthaService/ListDevicePorts",
+		"v3": "voltha.VolthaService/ListDevicePorts",
 	},
 	"device-create": {
 		"v1": "voltha.VolthaGlobalService/CreateDevice",
 		"v2": "voltha.VolthaService/CreateDevice",
+		"v3": "voltha.VolthaService/CreateDevice",
 	},
 	"device-delete": {
 		"v1": "voltha.VolthaGlobalService/DeleteDevice",
 		"v2": "voltha.VolthaService/DeleteDevice",
+		"v3": "voltha.VolthaService/DeleteDevice",
 	},
 	"device-enable": {
 		"v1": "voltha.VolthaGlobalService/EnableDevice",
 		"v2": "voltha.VolthaService/EnableDevice",
+		"v3": "voltha.VolthaService/EnableDevice",
 	},
 	"device-disable": {
 		"v1": "voltha.VolthaGlobalService/DisableDevice",
 		"v2": "voltha.VolthaService/DisableDevice",
+		"v3": "voltha.VolthaService/DisableDevice",
 	},
 	"device-reboot": {
 		"v1": "voltha.VolthaGlobalService/RebootDevice",
 		"v2": "voltha.VolthaService/RebootDevice",
+		"v3": "voltha.VolthaService/RebootDevice",
 	},
 	"device-inspect": {
 		"v1": "voltha.VolthaGlobalService/GetDevice",
 		"v2": "voltha.VolthaService/GetDevice",
+		"v3": "voltha.VolthaService/GetDevice",
 	},
 	"device-flows": {
 		"v1": "voltha.VolthaGlobalService/ListDeviceFlows",
 		"v2": "voltha.VolthaService/ListDeviceFlows",
+		"v3": "voltha.VolthaService/ListDeviceFlows",
 	},
 	"logical-device-list": {
 		"v1": "voltha.VolthaGlobalService/ListLogicalDevices",
 		"v2": "voltha.VolthaService/ListLogicalDevices",
+		"v3": "voltha.VolthaService/ListLogicalDevices",
 	},
 	"logical-device-ports": {
 		"v1": "voltha.VolthaGlobalService/ListLogicalDevicePorts",
 		"v2": "voltha.VolthaService/ListLogicalDevicePorts",
+		"v3": "voltha.VolthaService/ListLogicalDevicePorts",
 	},
 	"logical-device-flows": {
 		"v1": "voltha.VolthaGlobalService/ListLogicalDeviceFlows",
 		"v2": "voltha.VolthaService/ListLogicalDeviceFlows",
+		"v3": "voltha.VolthaService/ListLogicalDeviceFlows",
 	},
 	"logical-device-inspect": {
 		"v1": "voltha.VolthaGlobalService/GetLogicalDevice",
 		"v2": "voltha.VolthaService/GetLogicalDevice",
+		"v3": "voltha.VolthaService/GetLogicalDevice",
 	},
 	"device-group-list": {
 		"v1": "voltha.VolthaGlobalService/ListDeviceGroups",
 		"v2": "voltha.VolthaService/ListDeviceGroups",
+		"v3": "voltha.VolthaService/ListDeviceGroups",
+	},
+	"device-port-enable": {
+		"v3": "voltha.VolthaService/EnablePort",
+	},
+	"device-port-disable": {
+		"v3": "voltha.VolthaService/DisablePort",
 	},
 	"get-goroutine-count": {
 		"v2": "afrouter.Configuration.GetGoroutineCount",
+		"v3": "afrouter.Configuration.GetGoroutineCount",
 	},
 	"apiserver-update-log-level": {
 		"v2": "afrouter.Configuration.UpdateLogLevel",
+		"v3": "afrouter.Configuration.UpdateLogLevel",
 	},
 	"apiserver-get-log-levels": {
 		"v2": "afrouter.Configuration.GetLogLevels",
+		"v3": "afrouter.Configuration.GetLogLevels",
 	},
 	"update-log-level": {
 		"v2": "voltha.VolthaService/UpdateLogLevel",
+		"v3": "voltha.VolthaService/UpdateLogLevel",
 	},
 	"get-log-levels": {
 		"v2": "voltha.VolthaService/GetLogLevels",
+		"v3": "voltha.VolthaService/GetLogLevels",
 	},
 }
 

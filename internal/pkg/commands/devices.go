@@ -53,6 +53,8 @@ type DeviceCreate struct {
 
 type DeviceId string
 
+type PortNum uint32
+
 type DeviceDelete struct {
 	Args struct {
 		Ids []DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
@@ -98,6 +100,20 @@ type DeviceInspect struct {
 	} `positional-args:"yes"`
 }
 
+type DevicePortEnable struct {
+	Args struct {
+		Id     DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+		PortId PortNum  `positional-arg-name:"PORT_NUMBER" required:"yes"`
+	} `positional-args:"yes"`
+}
+
+type DevicePortDisable struct {
+	Args struct {
+		Id     string  `positional-arg-name:"DEVICE_ID" required:"yes"`
+		PortId PortNum `positional-arg-name:"PORT_NUMBER" required:"yes"`
+	} `positional-args:"yes"`
+}
+
 type DeviceOpts struct {
 	List    DeviceList     `command:"list"`
 	Create  DeviceCreate   `command:"create"`
@@ -105,9 +121,13 @@ type DeviceOpts struct {
 	Enable  DeviceEnable   `command:"enable"`
 	Disable DeviceDisable  `command:"disable"`
 	Flows   DeviceFlowList `command:"flows"`
-	Ports   DevicePortList `command:"ports"`
-	Inspect DeviceInspect  `command:"inspect"`
-	Reboot  DeviceReboot   `command:"reboot"`
+	Port    struct {
+		List    DevicePortList    `command:"list"`
+		Enable  DevicePortEnable  `command:"enable"`
+		Disable DevicePortDisable `command:"disable"`
+	} `command:"port"`
+	Inspect DeviceInspect `command:"inspect"`
+	Reboot  DeviceReboot  `command:"reboot"`
 }
 
 var deviceOpts = DeviceOpts{}
@@ -544,5 +564,65 @@ func (options *DeviceInspect) Execute(args []string) error {
 		Data:      device,
 	}
 	GenerateOutput(&result)
+	return nil
+}
+
+/*Device  Port Enable */
+func (options *DevicePortEnable) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	descriptor, method, err := GetMethod("device-port-enable")
+	if err != nil {
+		return err
+	}
+
+	h := &RpcEventHandler{
+		Fields: map[string]map[string]interface{}{ParamNames[GlobalConfig.ApiVersion]["port"]: {"device_id": options.Args.Id, "port_no": options.Args.PortId}},
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+
+	err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
+	if err != nil {
+		Error.Printf("Error enabling port number %v on device Id %s,err=%s\n", options.Args.PortId, options.Args.Id, ErrorToString(err))
+		return err
+	} else if h.Status != nil && h.Status.Err() != nil {
+		Error.Printf("Error enabling port number %v on device Id %s,err=%s\n", options.Args.PortId, options.Args.Id, ErrorToString(h.Status.Err()))
+		return h.Status.Err()
+	}
+
+	return nil
+}
+
+/*Device Port Disable */
+func (options *DevicePortDisable) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	descriptor, method, err := GetMethod("device-port-disable")
+	if err != nil {
+		return err
+	}
+	h := &RpcEventHandler{
+		Fields: map[string]map[string]interface{}{ParamNames[GlobalConfig.ApiVersion]["port"]: {"device_id": options.Args.Id, "port_no": options.Args.PortId}},
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+
+	err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
+	if err != nil {
+		Error.Printf("Error disabling port number %v on device Id %s,err=%s\n", options.Args.PortId, options.Args.Id, ErrorToString(err))
+		return err
+	} else if h.Status != nil && h.Status.Err() != nil {
+		Error.Printf("Error disabling port number %v on device Id %s,err=%s\n", options.Args.PortId, options.Args.Id, ErrorToString(h.Status.Err()))
+		return h.Status.Err()
+	}
 	return nil
 }
