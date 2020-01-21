@@ -53,6 +53,8 @@ type DeviceCreate struct {
 
 type DeviceId string
 
+type PortNum uint32
+
 type DeviceDelete struct {
 	Args struct {
 		Ids []DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
@@ -98,16 +100,32 @@ type DeviceInspect struct {
 	} `positional-args:"yes"`
 }
 
+type DevicePortEnable struct {
+	Args struct {
+		Id     DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+		PortId PortNum  `positional-arg-name:"PORT_NUMBER" required:"yes"`
+	} `positional-args:"yes"`
+}
+
+type DevicePortDisable struct {
+	Args struct {
+		Id     string  `positional-arg-name:"DEVICE_ID" required:"yes"`
+		PortId PortNum `positional-arg-name:"PORT_NUMBER" required:"yes"`
+	} `positional-args:"yes"`
+}
+
 type DeviceOpts struct {
-	List    DeviceList     `command:"list"`
-	Create  DeviceCreate   `command:"create"`
-	Delete  DeviceDelete   `command:"delete"`
-	Enable  DeviceEnable   `command:"enable"`
-	Disable DeviceDisable  `command:"disable"`
-	Flows   DeviceFlowList `command:"flows"`
-	Ports   DevicePortList `command:"ports"`
-	Inspect DeviceInspect  `command:"inspect"`
-	Reboot  DeviceReboot   `command:"reboot"`
+	List        DeviceList        `command:"list"`
+	Create      DeviceCreate      `command:"create"`
+	Delete      DeviceDelete      `command:"delete"`
+	Enable      DeviceEnable      `command:"enable"`
+	Disable     DeviceDisable     `command:"disable"`
+	Flows       DeviceFlowList    `command:"flows"`
+	Ports       DevicePortList    `command:"ports"`
+	Inspect     DeviceInspect     `command:"inspect"`
+	Reboot      DeviceReboot      `command:"reboot"`
+	PortEnable  DevicePortEnable  `command:"port-enable"`
+	PortDisable DevicePortDisable `command:"port-disable"`
 }
 
 var deviceOpts = DeviceOpts{}
@@ -543,5 +561,64 @@ func (options *DeviceInspect) Execute(args []string) error {
 		Data:      device,
 	}
 	GenerateOutput(&result)
+	return nil
+}
+
+/*Device Pon/NNI Port Enable */
+func (options *DevicePortEnable) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	descriptor, method, err := GetMethod("device-port-enable")
+	if err != nil {
+		return err
+	}
+
+	h := &RpcEventHandler{
+		Fields: map[string]map[string]interface{}{ParamNames[GlobalConfig.ApiVersion]["port"]: {"port_no": options.Args.PortId, "device_id": options.Args.Id}},
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+
+	err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
+	if err != nil {
+		Error.Printf("Error while enabling device Id :'%s, port number:  %v': %s\n", options.Args.Id, options.Args.PortId, err)
+		return err
+	} else if h.Status != nil && h.Status.Err() != nil {
+		Error.Printf("Error while enabling device Id :'%s, port number:  %v': %s\n", options.Args.Id, options.Args.PortId, ErrorToString(h.Status.Err()))
+		return err
+	}
+	return nil
+}
+
+/*Device Pon/NNI Port Disable */
+func (options *DevicePortDisable) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	descriptor, method, err := GetMethod("device-port-disable")
+	if err != nil {
+		return err
+	}
+	h := &RpcEventHandler{
+		Fields: map[string]map[string]interface{}{ParamNames[GlobalConfig.ApiVersion]["port"]: {"port_no": options.Args.PortId, "device_id": options.Args.Id}},
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+
+	err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
+	if err != nil {
+		Error.Printf("Error while disabling port  %s", ErrorToString(err))
+		return err
+	} else if h.Status != nil && h.Status.Err() != nil {
+		Error.Printf("Error while disabling port  %s\n", ErrorToString(h.Status.Err()))
+		return err
+	}
 	return nil
 }
