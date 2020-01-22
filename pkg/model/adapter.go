@@ -16,20 +16,39 @@
 package model
 
 import (
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/jhump/protoreflect/dynamic"
+	"time"
 )
 
 type Adapter struct {
-	Id       string
-	Vendor   string
-	Version  string
-	LogLevel string
+	Id                     string
+	Vendor                 string
+	Version                string
+	LogLevel               string
+	LastCommunication      string
+	SinceLastCommunication string
 }
 
 func (adapter *Adapter) PopulateFrom(val *dynamic.Message) {
 	adapter.Id = val.GetFieldByName("id").(string)
 	adapter.Vendor = val.GetFieldByName("vendor").(string)
 	adapter.Version = val.GetFieldByName("version").(string)
+
+	if lastCommunication, err := val.TryGetFieldByName("last_communication"); err != nil {
+		adapter.LastCommunication = "UNKNOWN"
+		adapter.SinceLastCommunication = "UNKNOWN"
+	} else {
+		if lastCommunication, err := ptypes.Timestamp(lastCommunication.(*timestamp.Timestamp)); err != nil {
+			adapter.LastCommunication = "NEVER"
+			adapter.SinceLastCommunication = ""
+		} else {
+			adapter.LastCommunication = lastCommunication.Truncate(time.Second).String()
+			adapter.SinceLastCommunication = time.Now().Sub(lastCommunication).Truncate(time.Second).String()
+		}
+	}
+
 	var config *dynamic.Message = val.GetFieldByName("config").(*dynamic.Message)
 	if config != nil {
 		adapter.LogLevel = GetEnumValue(config, "log_level")

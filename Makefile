@@ -12,53 +12,34 @@ help:
 	@echo "check        - runs targets that should be run before a commit"
 	@echo "clean        - remove temporary and generated files"
 
-internal/pkg/commands/voltha_v1_pb.go: assets/protosets/voltha_v1.pb
-	@echo "/*" > $@
-	@echo " * Copyright 2019-present Open Networking Foundation" >> $@
-	@echo " *" >> $@
-	@echo " * Licensed under the Apache License, Version 2.0 (the "License");" >> $@
-	@echo " * you may not use this file except in compliance with the License." >> $@
-	@echo " * You may obtain a copy of the License at" >> $@
-	@echo " *" >> $@
-	@echo " * http://www.apache.org/licenses/LICENSE-2.0" >> $@
-	@echo " *" >> $@
-	@echo " * Unless required by applicable law or agreed to in writing, software" >> $@
-	@echo " * distributed under the License is distributed on an "AS IS" BASIS," >> $@
-	@echo " * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied." >> $@
-	@echo " * See the License for the specific language governing permissions and" >> $@
-	@echo " * limitations under the License." >> $@
-	@echo " */" >> $@
-	@echo "package commands" >> $@
-	@echo "" >> $@
-	@echo "var V1Descriptor = []byte{" >> $@
-	hexdump -ve '1/1 "0x%02x,"' assets/protosets/voltha_v1.pb | fold -w 60 -s >> $@
-	@echo "}" >> $@
-	@go fmt $@
-
-internal/pkg/commands/voltha_v2_pb.go: assets/protosets/voltha_v2.pb
-	@echo "/*" > $@
-	@echo " * Copyright 2019-present Open Networking Foundation" >> $@
-	@echo " *" >> $@
-	@echo " * Licensed under the Apache License, Version 2.0 (the "License");" >> $@
-	@echo " * you may not use this file except in compliance with the License." >> $@
-	@echo " * You may obtain a copy of the License at" >> $@
-	@echo " *" >> $@
-	@echo " * http://www.apache.org/licenses/LICENSE-2.0" >> $@
-	@echo " *" >> $@
-	@echo " * Unless required by applicable law or agreed to in writing, software" >> $@
-	@echo " * distributed under the License is distributed on an "AS IS" BASIS," >> $@
-	@echo " * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied." >> $@
-	@echo " * See the License for the specific language governing permissions and" >> $@
-	@echo " * limitations under the License." >> $@
-	@echo " */" >> $@
-	@echo "package commands" >> $@
-	@echo "" >> $@
-	@echo "var V2Descriptor = []byte{" >> $@
-	hexdump -ve '1/1 "0x%02x,"' assets/protosets/voltha_v2.pb | fold -w 60 -s >> $@
-	@echo "}" >> $@
-	@go fmt $@
-
-encode-protosets: internal/pkg/commands/voltha_v1_pb.go internal/pkg/commands/voltha_v2_pb.go
+encode-protosets:
+	@for in_file in assets/protosets/voltha_v*.pb; do \
+	  version=$${in_file#"assets/protosets/voltha_v"}; \
+	  version=$${version%".pb"}; \
+	  out_file="internal/pkg/commands/voltha_v$${version}_pb.go"; \
+	  echo "$$in_file -> $$out_file"; \
+	  echo "/*" > $$out_file; \
+	  echo " * Copyright 2019-present Open Networking Foundation" >> $$out_file; \
+	  echo " *" >> $$out_file; \
+	  echo " * Licensed under the Apache License, Version 2.0 (the "License");" >> $$out_file; \
+	  echo " * you may not use this file except in compliance with the License." >> $$out_file; \
+	  echo " * You may obtain a copy of the License at" >> $$out_file; \
+	  echo " *" >> $$out_file; \
+	  echo " * http://www.apache.org/licenses/LICENSE-2.0" >> $$out_file; \
+	  echo " *" >> $$out_file; \
+	  echo " * Unless required by applicable law or agreed to in writing, software" >> $$out_file; \
+	  echo " * distributed under the License is distributed on an "AS IS" BASIS," >> $$out_file; \
+	  echo " * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied." >> $$out_file; \
+	  echo " * See the License for the specific language governing permissions and" >> $$out_file; \
+	  echo " * limitations under the License." >> $$out_file; \
+	  echo " */" >> $$out_file; \
+	  echo "package commands" >> $$out_file; \
+	  echo "" >> $$out_file; \
+	  echo "var V$${version}Descriptor = []byte{" >> $$out_file; \
+	  hexdump -ve '1/1 "0x%02x,"' assets/protosets/voltha_v$${version}.pb | fold -w 60 -s >> $$out_file; \
+	  echo "}" >> $$out_file; \
+	  go fmt $$out_file >/dev/null; \
+	done
 
 SHELL=bash -e -o pipefail
 

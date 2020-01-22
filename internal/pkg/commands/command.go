@@ -67,12 +67,15 @@ var (
 		"v2": {
 			"ID": "common.ID",
 		},
+		"v3": {
+			"ID": "common.ID",
+		},
 	}
 
 	CharReplacer = strings.NewReplacer("\\t", "\t", "\\n", "\n")
 
 	GlobalConfig = GlobalConfigSpec{
-		ApiVersion: "v2",
+		ApiVersion: "v3",
 		Server:     "localhost:55555",
 		Tls: TlsConfigSpec{
 			UseTls: false,
