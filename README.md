@@ -1,4 +1,4 @@
-[![License](https://img.shields.io/github/license/ciena/voltctl.svg)]() [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip) [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://gitHub.com/ciena/voltctl/graphs/commit-activity) [![made-with-python](https://img.shields.io/badge/Made%20with-Go-1f425f.svg)](https://www.golang.org/) [![GitHub contributors](https://img.shields.io/github/contributors/ciena/voltctl.svg)](https://gitHub.com/ciena/voltctl/graphs/contributors/) [![GitHub issues](https://img.shields.io/github/issues/ciena/voltctl.svg)](https://gitHub.com/ciena/voltctl/issues/) [![GitHub issues-closed](https://img.shields.io/github/issues-closed/ciena/voltctl.svg)](https://gitHub.com/ciena/voltctl/issues?q=is%3Aissue+is%3Aclosed) [![Last Commit](https://img.shields.io/github/last-commit/ciena/voltctl.svg)](https://github.com/ciena/voltctl/commits/master)
+[![License](https://img.shields.io/github/license/opencord/voltctl.svg)]()[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://gitHub.com/opencord/voltctl/graphs/commit-activity) [![made-with-python](https://img.shields.io/badge/Made%20with-Go-1f425f.svg)](https://www.golang.org/) [![GitHub contributors](https://img.shields.io/github/contributors/opencord/voltctl.svg)](https://gitHub.com/opencord/voltctl/graphs/contributors/) [![GitHub issues](https://img.shields.io/github/issues/opencord/voltctl.svg)](https://gitHub.com/opencord/voltctl/issues/) [![GitHub issues-closed](https://img.shields.io/github/issues-closed/opencord/voltctl.svg)](https://gitHub.com/opencord/voltctl/issues?q=is%3Aissue+is%3Aclosed) [![Last Commit](https://img.shields.io/github/last-commit/opencord/voltctl.svg)](https://github.com/opencord/voltctl/commits/master)
 
 # `voltctl` - A command line tools to access VOLTHA
 In today's VOLTHA implementation the operator interacts with VOLTHA via a CLI
@@ -18,8 +18,8 @@ To install the `voltctl` command you can use the following:
 mkdir myworkdir
 cd myworkdir
 export GOPATH=$(pwd)
-git clone http://github.com/ciena/voltctl src/github.com/ciena/voltctl
-cd src/github.com/ciena/voltctl
+git clone https://gerrit.opencord.org/voltctl src/github.com/opencord/voltctl
+cd src/github.com/opencord/voltctl
 make build
 cp ./voltctl <to any place you want in your path>
 ```
