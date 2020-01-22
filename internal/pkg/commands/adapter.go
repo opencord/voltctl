@@ -25,7 +25,7 @@ import (
 )
 
 const (
-	DEFAULT_OUTPUT_FORMAT = "table{{ .Id }}\t{{.Vendor}}\t{{.Version}}"
+	DEFAULT_OUTPUT_FORMAT = "table{{ .Id }}\t{{ .Vendor }}\t{{ .Version }}\t{{ .SinceLastCommunication }}"
 )
 
 type AdapterList struct {

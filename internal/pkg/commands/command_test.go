@@ -34,5 +34,5 @@ func TestDefaultVersion(t *testing.T) {
 	assert.Nil(t, err, "unexpected error paring arguments")
 	ProcessGlobalOptions()
 
-	assert.Equal(t, "v2", GlobalConfig.ApiVersion, "wrong default version for API version")
+	assert.Equal(t, "v3", GlobalConfig.ApiVersion, "wrong default version for API version")
 }
