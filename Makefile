@@ -92,7 +92,7 @@ LDFLAGS=-ldflags \
 # Inspired by: https://github.com/kubernetes/minikube/releases
 RELEASE_DIR     ?= release
 RELEASE_NAME    ?= voltctl
-RELEASE_OS_ARCH ?= linux-amd64 windows-amd64 darwin-amd64
+RELEASE_OS_ARCH ?= linux-amd64 linux-arm64 windows-amd64 darwin-amd64
 RELEASE_BINS    := $(foreach rel,$(RELEASE_OS_ARCH),$(RELEASE_DIR)/$(RELEASE_NAME)-$(subst -dev,_dev,$(VERSION))-$(rel))
 
 # Functions to extract the OS/ARCH
