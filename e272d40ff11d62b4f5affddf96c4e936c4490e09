@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ac6e3869_162665b3",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 567,
+      "author": {
+        "id": 1000635
+      },
+      "writtenOn": "2020-01-30T10:36:01Z",
+      "side": 1,
+      "message": "Addressed the comment",
+      "parentUuid": "142a7b42_9c628ff2",
+      "revId": "e272d40ff11d62b4f5affddf96c4e936c4490e09",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fd959798_21794452",
         "filename": "internal/pkg/commands/devices.go",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2020-01-30T09:18:47Z",
       "side": 1,
       "message": "In this case... err is nil right? So if we return this caller thinks that API succeeded. Maybe you should be returning h.Status.Err() ?",
+      "revId": "e272d40ff11d62b4f5affddf96c4e936c4490e09",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8bd90206_96deb655",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 592,
+      "author": {
+        "id": 1000635
+      },
+      "writtenOn": "2020-01-30T10:36:01Z",
+      "side": 1,
+      "message": "Addressed the comment",
+      "parentUuid": "fd959798_21794452",
       "revId": "e272d40ff11d62b4f5affddf96c4e936c4490e09",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "87d75d14_0d9a3f27",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 597,
+      "author": {
+        "id": 1000635
+      },
+      "writtenOn": "2020-01-30T10:36:01Z",
+      "side": 1,
+      "message": "Addressed the comment",
+      "parentUuid": "b458d7ba_01ff97c8",
+      "revId": "e272d40ff11d62b4f5affddf96c4e936c4490e09",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e02ecf0e_da7c21e4",
         "filename": "internal/pkg/commands/devices.go",
         "patchSetId": 5
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "1f9b6809_240de7ac",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 1000635
+      },
+      "writtenOn": "2020-01-30T10:36:01Z",
+      "side": 1,
+      "message": "Addressed the comment",
+      "parentUuid": "e02ecf0e_da7c21e4",
+      "revId": "e272d40ff11d62b4f5affddf96c4e936c4490e09",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "685b42c2_877f5005",
         "filename": "internal/pkg/commands/devices.go",
         "patchSetId": 5
@@ -81,6 +153,24 @@
       "writtenOn": "2020-01-30T09:18:47Z",
       "side": 1,
       "message": "Same comments as above",
+      "revId": "e272d40ff11d62b4f5affddf96c4e936c4490e09",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "371b60e0_267b69fd",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 1000635
+      },
+      "writtenOn": "2020-01-30T10:36:01Z",
+      "side": 1,
+      "message": "Addressed the comment",
+      "parentUuid": "685b42c2_877f5005",
       "revId": "e272d40ff11d62b4f5affddf96c4e936c4490e09",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
