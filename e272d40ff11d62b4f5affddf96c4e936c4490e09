@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "142a7b42_9c628ff2",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 567,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2020-01-30T09:18:47Z",
+      "side": 1,
+      "message": "Could you please remove the \"Pon/NNI\" from the comments as the same could be used for UNI ports of an ONU in the future? Same comment for the Disable case as well.",
+      "revId": "e272d40ff11d62b4f5affddf96c4e936c4490e09",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fd959798_21794452",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 592,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2020-01-30T09:18:47Z",
+      "side": 1,
+      "message": "In this case... err is nil right? So if we return this caller thinks that API succeeded. Maybe you should be returning h.Status.Err() ?",
+      "revId": "e272d40ff11d62b4f5affddf96c4e936c4490e09",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b458d7ba_01ff97c8",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 597,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2020-01-30T09:18:47Z",
+      "side": 1,
+      "message": "Same comments as above",
+      "revId": "e272d40ff11d62b4f5affddf96c4e936c4490e09",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e02ecf0e_da7c21e4",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2020-01-30T09:18:47Z",
+      "side": 1,
+      "message": "The error print could be something like...\n\"Error disabling port number %v on device Id %s, err\u003d%s\\n\", port, deviceID, ErrorToString\n\nPlease fix in all the 4 places, enable and disable.",
+      "revId": "e272d40ff11d62b4f5affddf96c4e936c4490e09",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "685b42c2_877f5005",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2020-01-30T09:18:47Z",
+      "side": 1,
+      "message": "Same comments as above",
+      "revId": "e272d40ff11d62b4f5affddf96c4e936c4490e09",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}
