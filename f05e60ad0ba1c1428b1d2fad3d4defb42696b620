@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a39c607_fdc97c74",
+        "filename": "internal/pkg/commands/events.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-02-03T17:52:49Z",
+      "side": 1,
+      "message": "does it make since to default this to \"now\" so by default the events would start at the present time?",
+      "range": {
+        "startLine": 50,
+        "startChar": 48,
+        "endLine": 50,
+        "endChar": 51
+      },
+      "revId": "f05e60ad0ba1c1428b1d2fad3d4defb42696b620",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}
