@@ -47,6 +47,7 @@ type EventListenOpts struct {
 	Count    int    `short:"c" long:"count" default:"-1" value-name:"LIMIT" description:"Limit the count of messages that will be printed"`
 	Now      bool   `short:"n" long:"now" description:"Stop printing events when current time is reached"`
 	Timeout  int    `short:"t" long:"idle" default:"900" value-name:"SECONDS" description:"Timeout if no message received within specified seconds"`
+	Since    string `short:"s" long:"since" default:"" value-name:"TIMESTAMP" description:"Do not show entries before timestamp"`
 }
 
 type EventOpts struct {
@@ -93,6 +94,26 @@ func RegisterEventCommands(parent *flags.Parser) {
 	if err != nil {
 		Error.Fatalf("Unable to register event commands with voltctl command parser: %s", err.Error())
 	}
+}
+
+func ParseSince(s string) (*time.Time, error) {
+	if strings.EqualFold(s, "now") {
+		since := time.Now()
+		return &since, nil
+	}
+
+	rfc3339Time, err := time.Parse(time.RFC3339, s)
+	if err == nil {
+		return &rfc3339Time, nil
+	}
+
+	duration, err := time.ParseDuration(s)
+	if err == nil {
+		since := time.Now().Add(-duration)
+		return &since, nil
+	}
+
+	return nil, fmt.Errorf("Unable to parse time specification `%s`. Please use either `now`, a duration, or an RFC3339-compliant string", s)
 }
 
 // Extract the header, as well as a few other items that might be of interest
@@ -390,6 +411,14 @@ func (options *EventListenOpts) Execute(args []string) error {
 		return err
 	}
 
+	var since *time.Time
+	if options.Since != "" {
+		since, err = ParseSince(options.Since)
+		if err != nil {
+			return err
+		}
+	}
+
 	// Get signnal for finish
 	doneCh := make(chan struct{})
 	go func() {
@@ -409,6 +438,8 @@ func (options *EventListenOpts) Execute(args []string) error {
 				}
 				if headerFilter != nil && !headerFilter.Evaluate(*hdr) {
 					// skip printing message
+				} else if since != nil && since.Unix() > hdr.Timestamp {
+					// it's too old
 				} else {
 					// comma separated between this message and predecessor
 					if count > 0 {
