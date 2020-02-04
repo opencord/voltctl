@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "36a32437_2cef955e",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2020-02-04T08:14:02Z",
+      "side": 1,
+      "message": "just for consistency it\u0027s probably best to swap these around and have them in the other order, see positioning at lines 105/106",
+      "range": {
+        "startLine": 581,
+        "startChar": 89,
+        "endLine": 581,
+        "endChar": 151
+      },
+      "revId": "4968b45775c15e756acfa8f13fe31ec75726634f",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0a42ce89_fd8cf44e",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 611,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2020-02-04T08:14:02Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 611,
+        "startChar": 88,
+        "endLine": 611,
+        "endChar": 153
+      },
+      "revId": "4968b45775c15e756acfa8f13fe31ec75726634f",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}
