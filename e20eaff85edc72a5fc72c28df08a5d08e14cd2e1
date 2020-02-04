@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "898e382c_f9c1471d",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-02-04T16:44:06Z",
+      "side": 1,
+      "message": "would it be more appropriate to have a `device port enable \u003cdevice-id\u003e \u003cport-id\u003e` and disable command as opposed to port-enable and port-disable. it seems like it would be more consistent.\n\nthis may mean we want to change the `device ports` command to `device port list` as well.",
+      "range": {
+        "startLine": 127,
+        "startChar": 1,
+        "endLine": 128,
+        "endChar": 55
+      },
+      "revId": "e20eaff85edc72a5fc72c28df08a5d08e14cd2e1",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}
