@@ -240,7 +240,8 @@ func (options *DeviceCreate) Execute(args []string) error {
 		dm["host_and_port"] = options.HostAndPort
 	} else if options.IPAddress != "" {
 		dm["ipv4_address"] = options.IPAddress
-	} else if options.MACAddress != "" {
+	}
+	if options.MACAddress != "" {
 		dm["mac_address"] = strings.ToLower(options.MACAddress)
 	}
 	if options.DeviceType != "" {
