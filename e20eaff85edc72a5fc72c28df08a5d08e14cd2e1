@@ -22,6 +22,30 @@
       "revId": "e20eaff85edc72a5fc72c28df08a5d08e14cd2e1",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a2a3c2b5_a19870a8",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 9
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 1000635
+      },
+      "writtenOn": "2020-02-05T11:11:43Z",
+      "side": 1,
+      "message": "Hi David,\nThanks for the code change, i verifed the changes locally along with the modifed voltha-go,and the changes are working fine.",
+      "parentUuid": "898e382c_f9c1471d",
+      "range": {
+        "startLine": 127,
+        "startChar": 1,
+        "endLine": 128,
+        "endChar": 55
+      },
+      "revId": "e20eaff85edc72a5fc72c28df08a5d08e14cd2e1",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }
