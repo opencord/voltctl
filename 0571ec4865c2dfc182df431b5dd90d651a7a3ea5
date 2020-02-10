@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9791d666_7e8a6b3a",
+        "filename": "VERSION",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000514
+      },
+      "writtenOn": "2020-02-10T16:17:07Z",
+      "side": 1,
+      "message": "Should be 1.0.8-dev",
+      "range": {
+        "startLine": 1,
+        "startChar": 6,
+        "endLine": 1,
+        "endChar": 9
+      },
+      "revId": "0571ec4865c2dfc182df431b5dd90d651a7a3ea5",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}
