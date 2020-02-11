@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "73f5952c_f0b33625",
+        "filename": "VERSION",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000514
+      },
+      "writtenOn": "2020-02-11T16:37:49Z",
+      "side": 1,
+      "message": "Looks fine, but I have observed that for voltctl every merge is a new minor version release (+1) and not usually +1 with dev tag.",
+      "range": {
+        "startLine": 1,
+        "startChar": 6,
+        "endLine": 1,
+        "endChar": 9
+      },
+      "revId": "71075e6f32c4c0dc78c717f529b9c11eb8d7461d",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}
