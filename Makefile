@@ -153,6 +153,12 @@ test:
 	gocover-cobertura < ./tests/results/go-test-coverage.out > ./tests/results/go-test-coverage.xml ;\
 	exit $$RETURN
 
+docker-build:
+	docker build -t smbaker/voltctl:test -f docker/Dockerfile .
+
+docker-push:
+	docker push smbaker/voltctl:test
+
 view-coverage:
 	go tool cover -html ./tests/results/go-test-coverage.out
 
