@@ -21,6 +21,8 @@ import (
 	"fmt"
 	"github.com/Shopify/sarama"
 	"github.com/fullstorydev/grpcurl"
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/timestamp"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/jhump/protoreflect/desc"
 	"github.com/jhump/protoreflect/dynamic"
@@ -57,14 +59,14 @@ type EventOpts struct {
 var eventOpts = EventOpts{}
 
 type EventHeader struct {
-	Category    string   `json:"category"`
-	SubCategory string   `json:"sub_category"`
-	Type        string   `json:"type"`
-	Raised_ts   float32  `json:"raised_ts"`
-	Reported_ts float32  `json:"reported_ts"`
-	Device_ids  []string `json:"device_ids"` // Opportunistically collected list of device_ids
-	Titles      []string `json:"titles"`     // Opportunistically collected list of titles
-	Timestamp   int64    `json:"timestamp"`  // Timestamp from Kafka
+	Category    string    `json:"category"`
+	SubCategory string    `json:"sub_category"`
+	Type        string    `json:"type"`
+	Raised_ts   time.Time `json:"raised_ts"`
+	Reported_ts time.Time `json:"reported_ts"`
+	Device_ids  []string  `json:"device_ids"` // Opportunistically collected list of device_ids
+	Titles      []string  `json:"titles"`     // Opportunistically collected list of titles
+	Timestamp   time.Time `json:"timestamp"`  // Timestamp from Kafka
 }
 
 type EventHeaderWidths struct {
@@ -116,6 +118,22 @@ func ParseSince(s string) (*time.Time, error) {
 	return nil, fmt.Errorf("Unable to parse time specification `%s`. Please use either `now`, a duration, or an RFC3339-compliant string", s)
 }
 
+// Convert a timestamp field in an event to a time.Time
+func DecodeTimestamp(tsIntf interface{}) (time.Time, error) {
+	ts, okay := tsIntf.(*timestamp.Timestamp)
+	if okay {
+		// Voltha-Protos 3.2.3 and above
+		result, err := ptypes.Timestamp(ts)
+		return result, err
+	}
+	tsFloat, okay := tsIntf.(float32)
+	if okay {
+		// Voltha-Protos 3.2.2 and below
+		return time.Unix(int64(tsFloat), 0), nil
+	}
+	return time.Time{}, errors.New("Failed to decode timestamp")
+}
+
 // Extract the header, as well as a few other items that might be of interest
 func DecodeHeader(md *desc.MessageDescriptor, b []byte, ts time.Time) (*EventHeader, error) {
 	m := dynamic.NewMessage(md)
@@ -153,13 +171,19 @@ func DecodeHeader(md *desc.MessageDescriptor, b []byte, ts time.Time) (*EventHea
 	if err != nil {
 		return nil, err
 	}
-	raised := raisedIntf.(float32)
+	raised, err := DecodeTimestamp(raisedIntf)
+	if err != nil {
+		return nil, err
+	}
 
 	reportedIntf, err := header.TryGetFieldByName("reported_ts")
 	if err != nil {
 		return nil, err
 	}
-	reported := reportedIntf.(float32)
+	reported, err := DecodeTimestamp(reportedIntf)
+	if err != nil {
+		return nil, err
+	}
 
 	// Opportunistically try to extract the device_id and title from a kpi_event2
 	// note that there might actually be multiple_slice data, so there could
@@ -241,7 +265,7 @@ func DecodeHeader(md *desc.MessageDescriptor, b []byte, ts time.Time) (*EventHea
 		Raised_ts:   raised,
 		Reported_ts: reported,
 		Device_ids:  device_id_keys,
-		Timestamp:   ts.Unix(),
+		Timestamp:   ts,
 		Titles:      title_keys}
 
 	return &evHeader, nil
@@ -287,11 +311,7 @@ func PrintEventHeader(outputAs string, outputFormat string, hdr *EventHeader) er
 func GetEventMessageDesc() (*desc.MessageDescriptor, error) {
 	// This is a very long-winded way to get a message descriptor
 
-	// any descriptor on the file will do
-	descriptor, _, err := GetMethod("update-log-level")
-	if err != nil {
-		return nil, err
-	}
+	descriptor, err := GetDescriptorSource()
 
 	// get the symbol for voltha.events
 	eventSymbol, err := descriptor.FindSymbol("voltha.Event")
@@ -422,8 +442,7 @@ func (options *EventListenOpts) Execute(args []string) error {
 	// Get signnal for finish
 	doneCh := make(chan struct{})
 	go func() {
-		// Count how many messages printed
-		//		count := 0
+		tStart := time.Now()
 	Loop:
 		for {
 			// Initialize the idle timeout timer
@@ -438,7 +457,7 @@ func (options *EventListenOpts) Execute(args []string) error {
 				}
 				if headerFilter != nil && !headerFilter.Evaluate(*hdr) {
 					// skip printing message
-				} else if since != nil && since.Unix() > hdr.Timestamp {
+				} else if since != nil && hdr.Timestamp.Before(*since) {
 					// it's too old
 				} else {
 					// comma separated between this message and predecessor
@@ -467,7 +486,7 @@ func (options *EventListenOpts) Execute(args []string) error {
 					}
 
 					// Check to see if we've hit the "now" threshold the user specified
-					if (options.Now) && (hdr.Timestamp >= time.Now().Unix()) {
+					if (options.Now) && (!hdr.Timestamp.Before(tStart)) {
 						log.Println("Now timestamp reached")
 						doneCh <- struct{}{}
 						break Loop

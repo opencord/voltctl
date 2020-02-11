@@ -171,6 +171,26 @@ var functionMap = map[string]map[string]string{
 	},
 }
 
+// Get the descriptor source using the current ApiVersion setting
+func GetDescriptorSource() (grpcurl.DescriptorSource, error) {
+	version := GlobalConfig.ApiVersion
+	filename, ok := descriptorMap[version]
+	if !ok {
+		return nil, &DescriptorNotFoundError{version}
+	}
+	var fds descpb.FileDescriptorSet
+	err := proto.Unmarshal(filename, &fds)
+	if err != nil {
+		return nil, &UnableToParseDescriptorErrror{err, version}
+	}
+	desc, err := grpcurl.DescriptorSourceFromFileDescriptorSet(&fds)
+	if err != nil {
+		return nil, err
+	}
+
+	return desc, nil
+}
+
 func GetMethod(name string) (grpcurl.DescriptorSource, string, error) {
 	version := GlobalConfig.ApiVersion
 	f, ok := functionMap[name]
@@ -181,17 +201,7 @@ func GetMethod(name string) (grpcurl.DescriptorSource, string, error) {
 	if !ok {
 		return nil, "", &MethodVersionNotFoundError{name, version}
 	}
-	filename, ok := descriptorMap[version]
-	if !ok {
-		return nil, "", &DescriptorNotFoundError{version}
-	}
-
-	var fds descpb.FileDescriptorSet
-	err := proto.Unmarshal(filename, &fds)
-	if err != nil {
-		return nil, "", &UnableToParseDescriptorErrror{err, version}
-	}
-	desc, err := grpcurl.DescriptorSourceFromFileDescriptorSet(&fds)
+	desc, err := GetDescriptorSource()
 	if err != nil {
 		return nil, "", err
 	}
