@@ -22,6 +22,30 @@
       "revId": "574ab2b05d07a5ef96e216f60bf64bfe95a78ef4",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "14b36f5b_8f9791b1",
+        "filename": "VERSION",
+        "patchSetId": 8
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000107
+      },
+      "writtenOn": "2020-02-12T14:55:29Z",
+      "side": 1,
+      "message": "Dependency repos are usually \"released\" on every change, so that the changes can be pulled in by dependent repos.",
+      "parentUuid": "4b0f5e9b_53fa972b",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 5
+      },
+      "revId": "574ab2b05d07a5ef96e216f60bf64bfe95a78ef4",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }
