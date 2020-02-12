@@ -46,6 +46,30 @@
       "revId": "574ab2b05d07a5ef96e216f60bf64bfe95a78ef4",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cb32f75a_dd75b7fb",
+        "filename": "VERSION",
+        "patchSetId": 8
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000016
+      },
+      "writtenOn": "2020-02-12T16:59:39Z",
+      "side": 1,
+      "message": "My primary reason for releasing voltctl is that voltha-systems-tests relies upon a released voltctl to implement the alarm simulation test.\n\nThis is effectively an all-or-nothing with all the other VOL-2458 patches.",
+      "parentUuid": "14b36f5b_8f9791b1",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 5
+      },
+      "revId": "574ab2b05d07a5ef96e216f60bf64bfe95a78ef4",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }
