@@ -41,7 +41,8 @@ const (
 )
 
 type EventListenOpts struct {
-	Format   string `long:"format" value-name:"FORMAT" default:"" description:"Format to use to output structured data"`
+	Format string `long:"format" value-name:"FORMAT" default:"" description:"Format to use to output structured data"`
+	// nolint: staticcheck
 	OutputAs string `short:"o" long:"outputas" default:"table" choice:"table" choice:"json" choice:"yaml" description:"Type of output to generate"`
 	Filter   string `short:"f" long:"filter" default:"" value-name:"FILTER" description:"Only display results that match filter"`
 	Follow   bool   `short:"F" long:"follow" description:"Continue to consume until CTRL-C is pressed"`
@@ -194,17 +195,17 @@ func DecodeHeader(md *desc.MessageDescriptor, b []byte, ts time.Time) (*EventHea
 	kpiIntf, err := m.TryGetFieldByName("kpi_event2")
 	if err == nil {
 		kpi, ok := kpiIntf.(*dynamic.Message)
-		if ok == true && kpi != nil {
+		if ok && kpi != nil {
 			sliceListIntf, err := kpi.TryGetFieldByName("slice_data")
 			if err == nil {
 				sliceIntf, ok := sliceListIntf.([]interface{})
-				if ok == true && len(sliceIntf) > 0 {
+				if ok && len(sliceIntf) > 0 {
 					slice, ok := sliceIntf[0].(*dynamic.Message)
-					if ok == true && slice != nil {
+					if ok && slice != nil {
 						metadataIntf, err := slice.TryGetFieldByName("metadata")
 						if err == nil {
 							metadata, ok := metadataIntf.(*dynamic.Message)
-							if ok == true && metadata != nil {
+							if ok && metadata != nil {
 								deviceIdIntf, err := metadataIntf.(*dynamic.Message).TryGetFieldByName("device_id")
 								if err == nil {
 									device_ids[deviceIdIntf.(string)] = slice
@@ -227,7 +228,7 @@ func DecodeHeader(md *desc.MessageDescriptor, b []byte, ts time.Time) (*EventHea
 	deviceEventIntf, err := m.TryGetFieldByName("device_event")
 	if err == nil {
 		deviceEvent, ok := deviceEventIntf.(*dynamic.Message)
-		if ok == true && deviceEvent != nil {
+		if ok && deviceEvent != nil {
 			deviceEventNameIntf, err := deviceEvent.TryGetFieldByName("device_event_name")
 			if err == nil {
 				deviceEventName, ok := deviceEventNameIntf.(string)
@@ -247,14 +248,14 @@ func DecodeHeader(md *desc.MessageDescriptor, b []byte, ts time.Time) (*EventHea
 
 	device_id_keys := make([]string, len(device_ids))
 	i := 0
-	for k, _ := range device_ids {
+	for k := range device_ids {
 		device_id_keys[i] = k
 		i++
 	}
 
 	title_keys := make([]string, len(titles))
 	i = 0
-	for k, _ := range titles {
+	for k := range titles {
 		title_keys[i] = k
 		i++
 	}
@@ -312,6 +313,9 @@ func GetEventMessageDesc() (*desc.MessageDescriptor, error) {
 	// This is a very long-winded way to get a message descriptor
 
 	descriptor, err := GetDescriptorSource()
+	if err != nil {
+		return nil, err
+	}
 
 	// get the symbol for voltha.events
 	eventSymbol, err := descriptor.FindSymbol("voltha.Event")
@@ -469,10 +473,11 @@ func (options *EventListenOpts) Execute(args []string) error {
 
 					// Print it
 					if options.ShowBody {
-						PrintMessage(grpcurlFormatter, eventMessage, msg.Value)
+						if err := PrintMessage(grpcurlFormatter, eventMessage, msg.Value); err != nil {
+							log.Printf("%v\n", err)
+						}
 					} else {
-						err := PrintEventHeader(options.OutputAs, outputFormat, hdr)
-						if err != nil {
+						if err := PrintEventHeader(options.OutputAs, outputFormat, hdr); err != nil {
 							log.Printf("%v\n", err)
 						}
 					}
