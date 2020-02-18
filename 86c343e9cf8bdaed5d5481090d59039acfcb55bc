@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "45d65062_14d057db",
+        "filename": "internal/pkg/commands/events.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 1000107
+      },
+      "writtenOn": "2020-02-18T23:03:28Z",
+      "side": 1,
+      "message": "os.Exit(1) ?",
+      "revId": "86c343e9cf8bdaed5d5481090d59039acfcb55bc",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}
