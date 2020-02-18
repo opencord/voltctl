@@ -95,6 +95,7 @@ var (
 		Server string `short:"s" long:"server" default:"" value-name:"SERVER:PORT" description:"IP/Host and port of VOLTHA"`
 		Kafka  string `short:"k" long:"kafka" default:"" value-name:"SERVER:PORT" description:"IP/Host and port of Kafka"`
 		// Do not set the default for the API version here, else it will override the value read in the config
+		// nolint: staticcheck
 		ApiVersion     string `short:"a" long:"apiversion" description:"API version" value-name:"VERSION" choice:"v1" choice:"v2" choice:"v3"`
 		Debug          bool   `short:"d" long:"debug" description:"Enable debug mode"`
 		UseTLS         bool   `long:"tls" description:"Use TLS"`
@@ -113,8 +114,9 @@ var (
 )
 
 type OutputOptions struct {
-	Format    string `long:"format" value-name:"FORMAT" default:"" description:"Format to use to output structured data"`
-	Quiet     bool   `short:"q" long:"quiet" description:"Output only the IDs of the objects"`
+	Format string `long:"format" value-name:"FORMAT" default:"" description:"Format to use to output structured data"`
+	Quiet  bool   `short:"q" long:"quiet" description:"Output only the IDs of the objects"`
+	// nolint: staticcheck
 	OutputAs  string `short:"o" long:"outputas" default:"table" choice:"table" choice:"json" choice:"yaml" description:"Type of output to generate"`
 	NameLimit int    `short:"l" long:"namelimit" default:"-1" value-name:"LIMIT" description:"Limit the depth (length) in the table column name"`
 }
@@ -126,8 +128,9 @@ type ListOutputOptions struct {
 }
 
 type OutputOptionsJson struct {
-	Format    string `long:"format" value-name:"FORMAT" default:"" description:"Format to use to output structured data"`
-	Quiet     bool   `short:"q" long:"quiet" description:"Output only the IDs of the objects"`
+	Format string `long:"format" value-name:"FORMAT" default:"" description:"Format to use to output structured data"`
+	Quiet  bool   `short:"q" long:"quiet" description:"Output only the IDs of the objects"`
+	// nolint: staticcheck
 	OutputAs  string `short:"o" long:"outputas" default:"json" choice:"table" choice:"json" choice:"yaml" description:"Type of output to generate"`
 	NameLimit int    `short:"l" long:"namelimit" default:"-1" value-name:"LIMIT" description:"Limit the depth (length) in the table column name"`
 }

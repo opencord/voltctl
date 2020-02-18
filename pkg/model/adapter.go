@@ -45,7 +45,7 @@ func (adapter *Adapter) PopulateFrom(val *dynamic.Message) {
 			adapter.SinceLastCommunication = "NEVER"
 		} else {
 			adapter.LastCommunication = lastCommunication.Truncate(time.Second).Format(time.RFC3339)
-			adapter.SinceLastCommunication = time.Now().Sub(lastCommunication).Truncate(time.Second).String()
+			adapter.SinceLastCommunication = time.Since(lastCommunication).Truncate(time.Second).String()
 		}
 	}
 
