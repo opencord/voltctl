@@ -16,6 +16,24 @@
       "revId": "86c343e9cf8bdaed5d5481090d59039acfcb55bc",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c440b03a_72ecc3aa",
+        "filename": "internal/pkg/commands/events.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 1000016
+      },
+      "writtenOn": "2020-02-18T23:24:45Z",
+      "side": 1,
+      "message": "I think when I originally wrote this I wanted it to continue printing subsequent events on error",
+      "parentUuid": "45d65062_14d057db",
+      "revId": "86c343e9cf8bdaed5d5481090d59039acfcb55bc",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }
