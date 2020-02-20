@@ -56,13 +56,13 @@ endif
 BUILDTIME=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 LDFLAGS=-ldflags \
-	'-X "github.com/opencord/voltctl/internal/pkg/cli/version.Version=$(VERSION)"  \
-	 -X "github.com/opencord/voltctl/internal/pkg/cli/version.VcsRef=$(GITCOMMIT)"  \
-	 -X "github.com/opencord/voltctl/internal/pkg/cli/version.VcsDirty=$(GITDIRTY)"  \
-	 -X "github.com/opencord/voltctl/internal/pkg/cli/version.GoVersion=$(GOVERSION)"  \
-	 -X "github.com/opencord/voltctl/internal/pkg/cli/version.Os=$(HOST_OS)" \
-	 -X "github.com/opencord/voltctl/internal/pkg/cli/version.Arch=$(HOST_ARCH)" \
-	 -X "github.com/opencord/voltctl/internal/pkg/cli/version.BuildTime=$(BUILDTIME)"'
+	"-X \"github.com/opencord/voltctl/internal/pkg/cli/version.Version=$(VERSION)\"  \
+	 -X \"github.com/opencord/voltctl/internal/pkg/cli/version.VcsRef=$(GITCOMMIT)\"  \
+	 -X \"github.com/opencord/voltctl/internal/pkg/cli/version.VcsDirty=$(GITDIRTY)\"  \
+	 -X \"github.com/opencord/voltctl/internal/pkg/cli/version.GoVersion=$(GOVERSION)\"  \
+	 -X \"github.com/opencord/voltctl/internal/pkg/cli/version.Os=$(HOST_OS)\" \
+	 -X \"github.com/opencord/voltctl/internal/pkg/cli/version.Arch=$(HOST_ARCH)\" \
+	 -X \"github.com/opencord/voltctl/internal/pkg/cli/version.BuildTime=$(BUILDTIME)\""
 
 # Release related items
 # Generates binaries in $RELEASE_DIR with name $RELEASE_NAME-$RELEASE_OS_ARCH
@@ -70,24 +70,25 @@ LDFLAGS=-ldflags \
 RELEASE_DIR     ?= release
 RELEASE_NAME    ?= voltctl
 RELEASE_OS_ARCH ?= linux-amd64 linux-arm64 windows-amd64 darwin-amd64
-RELEASE_BINS    := $(foreach rel,$(RELEASE_OS_ARCH),$(RELEASE_DIR)/$(RELEASE_NAME)-$(subst -dev,_dev,$(VERSION))-$(rel))
 
-# Functions to extract the OS/ARCH
-rel_ver   = $(word 2, $(subst -, ,$(notdir $@)))
-rel_os    = $(word 3, $(subst -, ,$(notdir $@)))
-rel_arch  = $(word 4, $(subst -, ,$(notdir $@)))
+# tool containers
+VOLTHA_TOOLS_VERSION ?= 2.0.0
 
-# Default is GO111MODULE=auto, which will refuse to use go mod if running
-# go less than 1.13.0 and repo is checked out in gopath. For now, force
-# module usage.
-export GO111MODULE=on
+GO                = docker run --rm --user $$(id -u):$$(id -g) -v ${CURDIR}:/app $(shell test -t 0 && echo "-it") -v gocache:/.cache -v gocache-${VOLTHA_TOOLS_VERSION}:/go/pkg voltha/voltha-ci-tools:${VOLTHA_TOOLS_VERSION}-golang go
+GO_SH             = docker run --rm --user $$(id -u):$$(id -g) -v ${CURDIR}:/app $(shell test -t 0 && echo "-it") -v gocache:/.cache -v gocache-${VOLTHA_TOOLS_VERSION}:/go/pkg voltha/voltha-ci-tools:${VOLTHA_TOOLS_VERSION}-golang sh -c
+GO_JUNIT_REPORT   = docker run --rm --user $$(id -u):$$(id -g) -v ${CURDIR}:/appecho  -i voltha/voltha-ci-tools:${VOLTHA_TOOLS_VERSION}-go-junit-report go-junit-report
+GOCOVER_COBERTURA = docker run --rm --user $$(id -u):$$(id -g) -v ${CURDIR}:/app -i voltha/voltha-ci-tools:${VOLTHA_TOOLS_VERSION}-gocover-cobertura gocover-cobertura
+GOLANGCI_LINT     = docker run --rm --user $$(id -u):$$(id -g) -v ${CURDIR}:/app $(shell test -t 0 && echo "-it") -v gocache:/.cache -v gocache-${VOLTHA_TOOLS_VERSION}:/go/pkg -e GOGC=30 voltha/voltha-ci-tools:${VOLTHA_TOOLS_VERSION}-golangci-lint golangci-lint
 
-$(RELEASE_BINS):
-	mkdir -p $(RELEASE_DIR)
-	GOOS=$(rel_os) GOARCH=$(rel_arch) \
-	       go build -mod=vendor -v $(LDFLAGS) -o "$@" cmd/voltctl/voltctl.go
-
-release: $(RELEASE_BINS)
+release:
+	@mkdir -p $(RELEASE_DIR)
+	@${GO_SH} ' \
+	  set -e -o pipefail; \
+	  for x in ${RELEASE_OS_ARCH}; do \
+	    OUT_PATH="$(RELEASE_DIR)/$(RELEASE_NAME)-$(subst -dev,_dev,$(VERSION))-$$x"; \
+	    echo "$$OUT_PATH"; \
+	    GOOS=$${x%-*} GOARCH=$${x#*-} go build -mod=vendor -v $(LDFLAGS) -o "$$OUT_PATH" cmd/voltctl/voltctl.go; \
+	  done'
 
 build:
 	go build -mod=vendor $(LDFLAGS) cmd/voltctl/voltctl.go
@@ -98,59 +99,36 @@ install:
 run:
 	go run -mod=vendor $(LDFLAGS) cmd/voltctl/voltctl.go $(CMD)
 
-lint-style:
-ifeq (,$(shell which gofmt))
-	go get -u github.com/golang/go/src/cmd/gofmt
-endif
-	@echo -n "Running style check ... "
-	@gofmt_out="$$(gofmt -l $$(find . -name '*.go' -not -path './vendor/*'))" ;\
-	if [ ! -z "$$gofmt_out" ]; then \
-	  echo "$$gofmt_out" ;\
-	  echo "Style check failed on one or more files ^, run 'go fmt' to fix." ;\
-	  exit 1 ;\
-        fi
-	@echo "OK"
-
-lint-sanity:
-	@echo -n "Running sanity check ... "
-	@go vet -mod=vendor ./...
-	@echo "OK"
-
 lint-mod:
-	go version
 	@echo "Running dependency check..."
-	@go mod verify
+	@${GO} mod verify
 	@echo "Dependency check OK. Running vendor check..."
 	@git status > /dev/null
-	@git diff-index --quiet HEAD -- go.mod go.sum vendor || (echo "ERROR: Staged or modified files must be committed before running this test" && echo "`git status`" && exit 1)
-	@[[ `git ls-files --exclude-standard --others go.mod go.sum vendor` == "" ]] || (echo "ERROR: Untracked files must be cleaned up before running this test" && echo "`git status`" && exit 1)
-	go mod tidy
-	go mod vendor
+	@git diff-index --quiet HEAD -- go.mod go.sum vendor || (echo "ERROR: Staged or modified files must be committed before running this test" && git status -- go.mod go.sum vendor && exit 1)
+	@[[ `git ls-files --exclude-standard --others go.mod go.sum vendor` == "" ]] || (echo "ERROR: Untracked files must be cleaned up before running this test" && git status -- go.mod go.sum vendor && exit 1)
+	${GO} mod tidy
+	${GO} mod vendor
 	@git status > /dev/null
-	@git diff-index --quiet HEAD -- go.mod go.sum vendor || (echo "ERROR: Modified files detected after running go mod tidy / go mod vendor" && echo "`git status`" && exit 1)
-	@[[ `git ls-files --exclude-standard --others go.mod go.sum vendor` == "" ]] || (echo "ERROR: Untracked files detected after running go mod tidy / go mod vendor" && echo "`git status`" && exit 1)
+	@git diff-index --quiet HEAD -- go.mod go.sum vendor || (echo "ERROR: Modified files detected after running go mod tidy / go mod vendor" && git status -- go.mod go.sum vendor && git checkout -- go.mod go.sum vendor && exit 1)
+	@[[ `git ls-files --exclude-standard --others go.mod go.sum vendor` == "" ]] || (echo "ERROR: Untracked files detected after running go mod tidy / go mod vendor" && git status -- go.mod go.sum vendor && git checkout -- go.mod go.sum vendor && exit 1)
 	@echo "Vendor check OK."
 
-lint: lint-style lint-sanity lint-mod
+lint: lint-mod
 
-GOLANGCI_LINT_OUT_FORMAT ?= junit-xml
-GOLANGCI_LINT_TOOL:=$(shell which golangci-lint)
 sca:
-ifeq (,$(GOLANGCI_LINT_TOOL))
-	@echo "Please install golangci-lint tool to run sca"
-	exit 1
-endif
 	@rm -rf ./sca-report
 	@mkdir -p ./sca-report
-	$(GOLANGCI_LINT_TOOL) run --deadline 20m --out-format $(GOLANGCI_LINT_OUT_FORMAT) ./... 2>&1 | tee ./sca-report/sca-report.xml
+	@echo "Running static code analysis..."
+	@${GOLANGCI_LINT} run --deadline=20m --out-format junit-xml ./... | tee ./sca-report/sca-report.xml
+	@echo ""
+	@echo "Static code analysis OK"
 
 test:
 	@mkdir -p ./tests/results
-	@set +e; \
-	go test -mod=vendor -v -coverprofile ./tests/results/go-test-coverage.out -covermode count  ./... 2>&1 | tee ./tests/results/go-test-results.out ;\
+	@${GO} test -mod=vendor -v -coverprofile ./tests/results/go-test-coverage.out -covermode count ./... 2>&1 | tee ./tests/results/go-test-results.out ;\
 	RETURN=$$? ;\
-	go-junit-report < ./tests/results/go-test-results.out > ./tests/results/go-test-results.xml ;\
-	gocover-cobertura < ./tests/results/go-test-coverage.out > ./tests/results/go-test-coverage.xml ;\
+	${GO_JUNIT_REPORT} < ./tests/results/go-test-results.out > ./tests/results/go-test-results.xml ;\
+	${GOCOVER_COBERTURA} < ./tests/results/go-test-coverage.out > ./tests/results/go-test-coverage.xml ;\
 	exit $$RETURN
 
 view-coverage:
@@ -160,3 +138,7 @@ check: lint sca test
 
 clean:
 	rm -rf voltctl voltctl.cp release sca-report
+
+mod-update:
+	${GO} mod tidy
+	${GO} mod vendor
