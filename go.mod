@@ -1,6 +1,6 @@
 module github.com/opencord/voltctl
 
-go 1.12
+go 1.13
 
 require (
 	github.com/Shopify/sarama v1.25.0
