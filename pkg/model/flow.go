@@ -336,7 +336,16 @@ func (f *Flow) PopulateFrom(val *dynamic.Message) {
 			f.EthType = fmt.Sprintf("0x%04x", basic.GetFieldByName("eth_type").(uint32))
 		case 6: // VLAN_ID
 			f.Set(FLOW_FIELD_VLAN_ID)
-			f.VlanId = toVlanId(basic.GetFieldByName("vlan_vid").(uint32))
+			vid := basic.GetFieldByName("vlan_vid").(uint32)
+			mask, errMaskGet := basic.TryGetFieldByName("vlan_vid_mask")
+			fmt.Println(vid, mask, mask.(uint32), errMaskGet)
+			fmt.Println(vid == 0,  errMaskGet == nil, mask.(uint32) == 4096)
+			if vid == 0 && errMaskGet == nil && mask.(uint32) == 4096 {
+				fmt.Println("setting ANY")
+				f.VlanId = "any"
+			} else {
+				f.VlanId = toVlanId(vid)
+			}
 		case 7: // VLAN_PCP
 			f.Set(FLOW_FIELD_VLAN_PCP)
 			f.VlanPcp = fmt.Sprintf("%d", basic.GetFieldByName("vlan_pcp").(uint32))

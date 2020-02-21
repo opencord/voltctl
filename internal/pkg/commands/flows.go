@@ -158,6 +158,8 @@ func (options *FlowList) Execute(args []string) error {
 	for i, item := range items.([]interface{}) {
 		val := item.(*dynamic.Message)
 		data[i].PopulateFrom(val)
+		fmt.Println("FLow", data[i])
+		fmt.Println("FLow vid", data[i].VlanId)
 		fieldset |= data[i].Populated()
 	}
 
