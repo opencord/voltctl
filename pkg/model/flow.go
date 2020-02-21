@@ -23,7 +23,6 @@ import (
 type FlowFieldFlag uint64
 
 const (
-
 	// Define bit flags for flow fields to determine what is set and
 	// what is not
 	FLOW_FIELD_UNSUPPORTED_MATCH FlowFieldFlag = 1 << iota
@@ -64,6 +63,9 @@ const (
 	FLOW_FIELD_STATS = FLOW_FIELD_DURATION_SEC | FLOW_FIELD_DURATION_NSEC |
 		FLOW_FIELD_IDLE_TIMEOUT | FLOW_FIELD_HARD_TIMEOUT |
 		FLOW_FIELD_PACKET_COUNT | FLOW_FIELD_BYTE_COUNT
+
+	//ReservedVlan Transparent Vlan (Masked Vlan, VLAN_ANY in ONOS Flows)
+	ReservedTransparentVlan = 4096
 )
 
 var (
@@ -336,7 +338,13 @@ func (f *Flow) PopulateFrom(val *dynamic.Message) {
 			f.EthType = fmt.Sprintf("0x%04x", basic.GetFieldByName("eth_type").(uint32))
 		case 6: // VLAN_ID
 			f.Set(FLOW_FIELD_VLAN_ID)
-			f.VlanId = toVlanId(basic.GetFieldByName("vlan_vid").(uint32))
+			vid := basic.GetFieldByName("vlan_vid").(uint32)
+			mask, errMaskGet := basic.TryGetFieldByName("vlan_vid_mask")
+			if vid == ReservedTransparentVlan && errMaskGet == nil && mask.(uint32) == ReservedTransparentVlan {
+				f.VlanId = "any"
+			} else {
+				f.VlanId = toVlanId(vid)
+			}
 		case 7: // VLAN_PCP
 			f.Set(FLOW_FIELD_VLAN_PCP)
 			f.VlanPcp = fmt.Sprintf("%d", basic.GetFieldByName("vlan_pcp").(uint32))
