@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a3436fc8_414bf941",
+        "filename": "internal/pkg/commands/command.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-02-26T23:19:45Z",
+      "side": 1,
+      "message": "thanks. the times my fingers have misspelled DURATION is quite large.",
+      "parentUuid": "dc2ca5ed_e648b9f0",
+      "range": {
+        "startLine": 101,
+        "startChar": 103,
+        "endLine": 101,
+        "endChar": 112
+      },
+      "revId": "bc4542b4f6a241e6ddd291b02ad5f308a42d84df",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d710afa9_25fc340b",
         "filename": "internal/pkg/commands/command.go",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2020-02-26T23:02:41Z",
       "side": 1,
       "message": "\"diraction\" should be \"duration\"?",
+      "range": {
+        "startLine": 212,
+        "startChar": 51,
+        "endLine": 212,
+        "endChar": 60
+      },
+      "revId": "bc4542b4f6a241e6ddd291b02ad5f308a42d84df",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba599922_1e0c1787",
+        "filename": "internal/pkg/commands/command.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-02-26T23:19:45Z",
+      "side": 1,
+      "message": "thanks",
+      "parentUuid": "d710afa9_25fc340b",
       "range": {
         "startLine": 212,
         "startChar": 51,
