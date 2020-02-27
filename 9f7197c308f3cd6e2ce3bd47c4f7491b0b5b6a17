@@ -22,6 +22,30 @@
       "revId": "9f7197c308f3cd6e2ce3bd47c4f7491b0b5b6a17",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bed67976_461e6ffa",
+        "filename": "internal/pkg/commands/command.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-02-27T18:25:07Z",
+      "side": 1,
+      "message": "the problem is I can\u0027t have this set to duration and have a zero value. so the the command line option would always appear \"set\" and thus alway oerride what is in the config file. \n\nso if i set the default to 5m, for example, then even if the config file said 10m the code would see the command line option as set at 5m and would override.",
+      "parentUuid": "7a0188d8_cc9cdc46",
+      "range": {
+        "startLine": 101,
+        "startChar": 80,
+        "endLine": 101,
+        "endChar": 89
+      },
+      "revId": "9f7197c308f3cd6e2ce3bd47c4f7491b0b5b6a17",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }
