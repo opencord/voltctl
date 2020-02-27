@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f8f8bf39_ee54c13e",
+        "filename": "pkg/model/flow.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2020-02-27T18:03:28Z",
+      "side": 1,
+      "message": "should this logic be in voltctl or in the APIs?\nI\u0027m not sure the CLI should change the response with some implicit logic",
+      "range": {
+        "startLine": 339,
+        "startChar": 3,
+        "endLine": 345,
+        "endChar": 4
+      },
+      "revId": "533fc5d7fe1b9a23326a20eeb0e00c0ddbc084d1",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}
