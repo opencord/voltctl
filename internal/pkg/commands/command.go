@@ -84,7 +84,7 @@ var (
 			UseTls: false,
 		},
 		Grpc: GrpcConfigSpec{
-			Timeout: time.Second * 10,
+			Timeout: time.Minute * 5,
 		},
 	}
 
@@ -98,6 +98,7 @@ var (
 		// nolint: staticcheck
 		ApiVersion     string `short:"a" long:"apiversion" description:"API version" value-name:"VERSION" choice:"v1" choice:"v2" choice:"v3"`
 		Debug          bool   `short:"d" long:"debug" description:"Enable debug mode"`
+		Timeout        string `short:"t" long:"timeout" description:"API call timeout duration" value-name:"DURATION" default:""`
 		UseTLS         bool   `long:"tls" description:"Use TLS"`
 		CACert         string `long:"tlscacert" value-name:"CA_CERT_FILE" description:"Trust certs signed only by this CA"`
 		Cert           string `long:"tlscert" value-name:"CERT_FILE" description:"Path to TLS vertificate file"`
@@ -203,6 +204,15 @@ func ProcessGlobalOptions() {
 	}
 	if GlobalOptions.ApiVersion != "" {
 		GlobalConfig.ApiVersion = GlobalOptions.ApiVersion
+	}
+
+	if GlobalOptions.Timeout != "" {
+		timeout, err := time.ParseDuration(GlobalOptions.Timeout)
+		if err != nil {
+			Error.Fatalf("Unable to parse specified timeout duration '%s': %s",
+				GlobalOptions.Timeout, err.Error())
+		}
+		GlobalConfig.Grpc.Timeout = timeout
 	}
 
 	// If a k8s cert/key were not specified, then attempt to read it from
