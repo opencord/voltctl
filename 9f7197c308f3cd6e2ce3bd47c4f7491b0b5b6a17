@@ -70,6 +70,30 @@
       "revId": "9f7197c308f3cd6e2ce3bd47c4f7491b0b5b6a17",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "48f08407_ed68ebef",
+        "filename": "internal/pkg/commands/command.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-02-27T18:31:09Z",
+      "side": 1,
+      "message": "i thought i caught all those typos, @Kent pointed some out as well. thanks. will fix and resubmit.",
+      "parentUuid": "b0d4003c_86936d3b",
+      "range": {
+        "startLine": 101,
+        "startChar": 80,
+        "endLine": 101,
+        "endChar": 89
+      },
+      "revId": "9f7197c308f3cd6e2ce3bd47c4f7491b0b5b6a17",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }
