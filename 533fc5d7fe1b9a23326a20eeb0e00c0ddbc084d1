@@ -22,6 +22,30 @@
       "revId": "533fc5d7fe1b9a23326a20eeb0e00c0ddbc084d1",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "620b9811_78395ad5",
+        "filename": "pkg/model/flow.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2020-02-28T08:15:19Z",
+      "side": 1,
+      "message": "this si just syntactic sugar to change from 4096 to \"any\" to make it more comprehensible to users. 4096 is how we store the ANY internally because it\u0027s always a number, \"any\" can\u0027t be stored in the store internally. I could have left 4096 here but I feel \"any\" makes it more explicit.",
+      "parentUuid": "f8f8bf39_ee54c13e",
+      "range": {
+        "startLine": 339,
+        "startChar": 3,
+        "endLine": 345,
+        "endChar": 4
+      },
+      "revId": "533fc5d7fe1b9a23326a20eeb0e00c0ddbc084d1",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }
