@@ -51,13 +51,21 @@ type TlsConfigSpec struct {
 	Verify string `yaml:"verify"`
 }
 
+type KvStoreConf struct {
+	KVStoreType    string `yaml:"kvstoretype"`
+	KVStoreHost    string `yaml:"kvstorehost"`
+	KVStorePort    int    `yaml:"kvstoreport"`
+	KVStoreTimeout int    `yanl:"kvstoretimeout"`
+}
+
 type GlobalConfigSpec struct {
-	ApiVersion string         `yaml:"apiVersion"`
-	Server     string         `yaml:"server"`
-	Kafka      string         `yaml:"kafka"`
-	Tls        TlsConfigSpec  `yaml:"tls"`
-	Grpc       GrpcConfigSpec `yaml:"grpc"`
-	K8sConfig  string         `yaml:"-"`
+	ApiVersion    string         `yaml:"apiVersion"`
+	Server        string         `yaml:"server"`
+	Kafka         string         `yaml:"kafka"`
+	Tls           TlsConfigSpec  `yaml:"tls"`
+	Grpc          GrpcConfigSpec `yaml:"grpc"`
+	K8sConfig     string         `yaml:"-"`
+	KvStoreConfig KvStoreConf    `yaml:"kvstore"`
 }
 
 var (
@@ -85,6 +93,12 @@ var (
 		},
 		Grpc: GrpcConfigSpec{
 			Timeout: time.Minute * 5,
+		},
+		KvStoreConfig: KvStoreConf{
+			KVStoreType:    "etcd",
+			KVStoreTimeout: 5,
+			KVStoreHost:    "localhost",
+			KVStorePort:    2379,
 		},
 	}
 
