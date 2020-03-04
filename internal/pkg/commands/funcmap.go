@@ -149,6 +149,9 @@ var functionMap = map[string]map[string]string{
 	"device-port-disable": {
 		"v3": "voltha.VolthaService/DisablePort",
 	},
+        "get-value": {
+                "v3": "voltha.VolthaService/GetValue",
+        },
 }
 
 // Get the descriptor source using the current ApiVersion setting
