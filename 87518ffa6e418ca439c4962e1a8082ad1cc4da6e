@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c8c9028_b46ab647",
+        "filename": "internal/pkg/commands/loglevel.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-03-04T15:30:01Z",
+      "side": 1,
+      "message": "space after comma",
+      "range": {
+        "startLine": 89,
+        "startChar": 67,
+        "endLine": 89,
+        "endChar": 69
+      },
+      "revId": "87518ffa6e418ca439c4962e1a8082ad1cc4da6e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f951b1cf_b7f358ac",
+        "filename": "internal/pkg/commands/loglevel.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-03-04T15:30:01Z",
+      "side": 1,
+      "message": "comma after set",
+      "range": {
+        "startLine": 89,
+        "startChar": 71,
+        "endLine": 89,
+        "endChar": 72
+      },
+      "revId": "87518ffa6e418ca439c4962e1a8082ad1cc4da6e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "292ec691_0b887fa5",
+        "filename": "internal/pkg/commands/loglevel.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-03-04T15:30:01Z",
+      "side": 1,
+      "message": "i would remove \u003c\u003e and need space after comma",
+      "range": {
+        "startLine": 139,
+        "startChar": 63,
+        "endLine": 139,
+        "endChar": 100
+      },
+      "revId": "87518ffa6e418ca439c4962e1a8082ad1cc4da6e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e990b73a_197ca08e",
+        "filename": "internal/pkg/commands/loglevel.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-03-04T15:30:01Z",
+      "side": 1,
+      "message": "just return err",
+      "range": {
+        "startLine": 145,
+        "startChar": 9,
+        "endLine": 145,
+        "endChar": 30
+      },
+      "revId": "87518ffa6e418ca439c4962e1a8082ad1cc4da6e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}
