@@ -17,6 +17,7 @@ package commands
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -41,6 +42,7 @@ const (
   ADMINSTATE:    {{.AdminState}}
   OPERSTATUS:    {{.OperStatus}}
   CONNECTSTATUS: {{.ConnectStatus}}`
+	DEFAULT_DEVICE_VALUE_GET_FORMAT = "table{{.Name}}\t{{.Result}}"
 )
 
 type DeviceList struct {
@@ -57,6 +59,7 @@ type DeviceCreate struct {
 type DeviceId string
 
 type PortNum uint32
+type ValueFlag string
 
 type DeviceDelete struct {
 	Args struct {
@@ -117,6 +120,13 @@ type DevicePortDisable struct {
 	} `positional-args:"yes"`
 }
 
+type DeviceGetExtValue struct {
+	ListOutputOptions
+	Args struct {
+		Id        DeviceId  `positional-arg-name:"DEVICE_ID" required:"yes"`
+		Valueflag ValueFlag `positional-arg-name:"VALUE_FLAG" required:"yes"`
+	} `positional-args:"yes"`
+}
 type DeviceOpts struct {
 	List    DeviceList     `command:"list"`
 	Create  DeviceCreate   `command:"create"`
@@ -131,6 +141,9 @@ type DeviceOpts struct {
 	} `command:"port"`
 	Inspect DeviceInspect `command:"inspect"`
 	Reboot  DeviceReboot  `command:"reboot"`
+	Value   struct {
+		Get DeviceGetExtValue `command:"get"`
+	} `command:"value"`
 }
 
 var deviceOpts = DeviceOpts{}
@@ -728,5 +741,74 @@ func (options *DevicePortDisable) Execute(args []string) error {
 		Error.Printf("Error disabling port number %v on device Id %s,err=%s\n", options.Args.PortId, options.Args.Id, ErrorToString(h.Status.Err()))
 		return h.Status.Err()
 	}
+	return nil
+}
+
+/*Device  get Onu Distance */
+func (options *DeviceGetExtValue) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	descriptor, method, err := GetMethod("get-ext-value")
+	if err != nil {
+		return err
+	}
+
+	// TODO: support multiple flags (VOL-2946)
+	// TODO: a more extensible way to validate than a long if statement...  (VOL-2946)
+	if (options.Args.Valueflag != "DISTANCE") && (options.Args.Valueflag != "EMPTY") {
+		return errors.New("ValueFlag must be either DISTANCE or EMPTY")
+	}
+
+	// value is an enum, so we need to map from an enum name to a value
+	valTypeDescriptor, err := descriptor.FindSymbol("common.ValueType")
+	if err != nil {
+		return err
+	}
+	valueTypeTypeDescriptor := valTypeDescriptor.GetFile().FindEnum("common.ValueType.Type")
+	eValue := valueTypeTypeDescriptor.FindValueByName(string(options.Args.Valueflag)).GetNumber()
+
+	h := &RpcEventHandler{
+		Fields: map[string]map[string]interface{}{ParamNames[GlobalConfig.ApiVersion]["ValueSpecifier"]: {"id": options.Args.Id, "value": eValue}},
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+
+	err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
+	if err != nil {
+		Error.Printf("Error getting value on device Id %s,err=%s\n", options.Args.Id, ErrorToString(err))
+		return err
+	} else if h.Status != nil && h.Status.Err() != nil {
+		Error.Printf("Error Error getting distance on device Id %s,err=%s\n", options.Args.Id, ErrorToString(h.Status.Err()))
+		return h.Status.Err()
+	}
+
+	d, err := dynamic.AsDynamicMessage(h.Response)
+	if err != nil {
+		return err
+	}
+
+	returnValues := &model.ReturnValues{}
+	returnValues.PopulateFrom(d)
+
+	returnRows := returnValues.GetKeyValuePairs(valueTypeTypeDescriptor.GetValues())
+
+	// TODO: Format me
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("device-value-get", "format", DEFAULT_DEVICE_VALUE_GET_FORMAT)
+	}
+
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      returnRows,
+	}
+	GenerateOutput(&result)
 	return nil
 }
