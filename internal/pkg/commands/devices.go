@@ -17,6 +17,7 @@ package commands
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -57,6 +58,7 @@ type DeviceCreate struct {
 type DeviceId string
 
 type PortNum uint32
+type ValueFlag string
 
 type DeviceDelete struct {
 	Args struct {
@@ -117,6 +119,12 @@ type DevicePortDisable struct {
 	} `positional-args:"yes"`
 }
 
+type DeviceGetExtValue struct {
+	Args struct {
+		Id        DeviceId  `positional-arg-name:"DEVICE_ID" required:"yes"`
+		Valueflag ValueFlag `positional-arg-name:"VALUE_FLAG" required:"yes"`
+	} `positional-args:"yes"`
+}
 type DeviceOpts struct {
 	List    DeviceList     `command:"list"`
 	Create  DeviceCreate   `command:"create"`
@@ -131,6 +139,9 @@ type DeviceOpts struct {
 	} `command:"port"`
 	Inspect DeviceInspect `command:"inspect"`
 	Reboot  DeviceReboot  `command:"reboot"`
+	Value   struct {
+		Get DeviceGetExtValue `command:"get"`
+	} `command:"value"`
 }
 
 var deviceOpts = DeviceOpts{}
@@ -728,5 +739,100 @@ func (options *DevicePortDisable) Execute(args []string) error {
 		Error.Printf("Error disabling port number %v on device Id %s,err=%s\n", options.Args.PortId, options.Args.Id, ErrorToString(h.Status.Err()))
 		return h.Status.Err()
 	}
+	return nil
+}
+
+/*Device  get Onu Distance */
+func (options *DeviceGetExtValue) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	descriptor, method, err := GetMethod("get-ext-value")
+	if err != nil {
+		return err
+	}
+
+	// TODO: support multiple flags
+	// TODO: a more extensible way to validate than a long if statement...
+	if (options.Args.Valueflag != "DISTANCE") && (options.Args.Valueflag != "EMPTY") {
+		return errors.New("ValueFlag must be either DISTANCE or EMPTY")
+	}
+
+	// value is an enum, so we need to map from an enum name to a value
+	valTypeDescriptor, err := descriptor.FindSymbol("common.ValueType")
+	if err != nil {
+		return err
+	}
+	//valTypeMsgDescriptor := valTypeDescriptor.(*desc.MessageDescriptor)
+	valueTypeTypeDescriptor := valTypeDescriptor.GetFile().FindEnum("common.ValueType.Type")
+	eValue := valueTypeTypeDescriptor.FindValueByName(string(options.Args.Valueflag)).GetNumber()
+
+	h := &RpcEventHandler{
+		Fields: map[string]map[string]interface{}{ParamNames[GlobalConfig.ApiVersion]["ValueSpecifier"]: {"id": options.Args.Id, "value": eValue}},
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+
+	err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
+	if err != nil {
+		Error.Printf("Error getting value on device Id %s,err=%s\n", options.Args.Id, ErrorToString(err))
+		return err
+	} else if h.Status != nil && h.Status.Err() != nil {
+		Error.Printf("Error Error getting distance on device Id %s,err=%s\n", options.Args.Id, ErrorToString(h.Status.Err()))
+		return h.Status.Err()
+	}
+
+	d, err := dynamic.AsDynamicMessage(h.Response)
+	if err != nil {
+		return err
+	}
+
+	// TODO: Implement as a voltctl model
+	// TODO: Better error reporting when unsupported or error are nonzero
+
+	set, err := d.TryGetFieldByName("Set")
+	if err != nil {
+		return err
+	}
+
+	unsupported, err := d.TryGetFieldByName("Unsupported")
+	if err != nil {
+		return err
+	}
+
+	errors, err := d.TryGetFieldByName("Error")
+	if err != nil {
+		return err
+	}
+
+	// Loop through each possible enum in ValueType_Type and
+	// see if it is Set, Unsupported, or Error.
+
+	enumValues := valueTypeTypeDescriptor.GetValues()
+	for _, v := range enumValues {
+		num := uint32(v.GetNumber())
+		if num == 0 {
+			// EMPTY is not a real value
+			continue
+		}
+		name := v.GetName()
+		if (errors.(uint32) & num) != 0 {
+			fmt.Printf("%v: Error\n", name)
+		}
+		if (unsupported.(uint32) & num) != 0 {
+			fmt.Printf("%v: Unsupported\n", name)
+		}
+		if (set.(uint32) & num) != 0 {
+			switch name {
+			case "DISTANCE":
+				fmt.Printf("Distance: %v\n", d.GetFieldByName("Distance"))
+			}
+		}
+	}
+
 	return nil
 }
