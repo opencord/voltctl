@@ -48,6 +48,52 @@
     },
     {
       "key": {
+        "uuid": "2002be6f_545da9da",
+        "filename": "internal/pkg/commands/loglevel.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-03-04T16:33:25Z",
+      "side": 1,
+      "message": "SliptN? is there ever going to be more than a single #?",
+      "range": {
+        "startLine": 109,
+        "startChar": 18,
+        "endLine": 109,
+        "endChar": 23
+      },
+      "revId": "87518ffa6e418ca439c4962e1a8082ad1cc4da6e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dc563f66_36d8ce7c",
+        "filename": "internal/pkg/commands/loglevel.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-03-04T16:33:25Z",
+      "side": 1,
+      "message": "Could this be change to something like\nval :\u003d strings.SplitN(component, \"#\", 2)\nlogConfig.ComponentName \u003d val[0]\nif len(val) \u003e 1 {\n    logConfig.PackageName \u003d strings.ReplaceAll(val[1], \"/\", \"#\")\n} else {\n    logConfig.PackageName \u003d defaultPackageName\n}\nlogLevelConfig \u003d append(logLevelConifg, logConfig)\n\n// and if there is only ever a single # in the line then you don\u0027t need ReplaceAll",
+      "range": {
+        "startLine": 108,
+        "startChar": 0,
+        "endLine": 120,
+        "endChar": 2
+      },
+      "revId": "87518ffa6e418ca439c4962e1a8082ad1cc4da6e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "292ec691_0b887fa5",
         "filename": "internal/pkg/commands/loglevel.go",
         "patchSetId": 1
