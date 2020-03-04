@@ -90,8 +90,9 @@ var (
 			"ID": "common.ID",
 		},
 		"v3": {
-			"ID":   "common.ID",
-			"port": "voltha.Port",
+			"ID":             "common.ID",
+			"port":           "voltha.Port",
+			"ValueSpecifier": "common.ValueSpecifier",
 		},
 	}
 
