@@ -17,6 +17,7 @@ package commands
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -24,6 +25,7 @@ import (
 
 	"github.com/fullstorydev/grpcurl"
 	flags "github.com/jessevdk/go-flags"
+	"github.com/jhump/protoreflect/desc"
 	"github.com/jhump/protoreflect/dynamic"
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltctl/pkg/model"
@@ -57,6 +59,7 @@ type DeviceCreate struct {
 type DeviceId string
 
 type PortNum uint32
+type ValueFlag string
 
 type DeviceDelete struct {
 	Args struct {
@@ -117,6 +120,12 @@ type DevicePortDisable struct {
 	} `positional-args:"yes"`
 }
 
+type DeviceGetValue struct {
+	Args struct {
+		Id        DeviceId  `positional-arg-name:"DEVICE_ID" required:"yes"`
+		Valueflag ValueFlag `positional-arg-name:"VALUE_FLAG" required:"yes"`
+	} `positional-args:"yes"`
+}
 type DeviceOpts struct {
 	List    DeviceList     `command:"list"`
 	Create  DeviceCreate   `command:"create"`
@@ -131,6 +140,9 @@ type DeviceOpts struct {
 	} `command:"port"`
 	Inspect DeviceInspect `command:"inspect"`
 	Reboot  DeviceReboot  `command:"reboot"`
+	Value   struct {
+		Get DeviceGetValue `command:"get"`
+	} `command:"value"`
 }
 
 var deviceOpts = DeviceOpts{}
@@ -728,5 +740,57 @@ func (options *DevicePortDisable) Execute(args []string) error {
 		Error.Printf("Error disabling port number %v on device Id %s,err=%s\n", options.Args.PortId, options.Args.Id, ErrorToString(h.Status.Err()))
 		return h.Status.Err()
 	}
+	return nil
+}
+
+/*Device  get Onu Distance */
+func (options *DeviceGetValue) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	descriptor, method, err := GetMethod("get-value")
+	if err != nil {
+		return err
+	}
+
+	// deviceId is a voltha.ID message.
+	// We can't pass a string in to InvokeRPC. We message to pass in the common.ID
+	devIdDescriptor, err := descriptor.FindSymbol("common.ID")
+	if err != nil {
+		return err
+	}
+	devIdMsgDescriptor := devIdDescriptor.(*desc.MessageDescriptor)
+	devId := dynamic.NewMessage(devIdMsgDescriptor)
+	devId.SetFieldByName("id", options.Args.Id)
+
+	// TODO: support multiple flags
+	// TODO: a more extensible way to validate than a long if statement...
+	if (options.Args.Valueflag != "VAL_DISTANCE") && (options.Args.Valueflag != "VAL_EMPTY") {
+		return errors.New("ValueFlag must be either VAL_DISTANCE or VAL_EMPTY")
+	}
+
+	// value is an enum, so we need to map from an enum name to a value
+	valueTypeDescriptor := devIdMsgDescriptor.GetFile().FindEnum("common.ValueType.Type")
+	eValue := valueTypeDescriptor.FindValueByName(string(options.Args.Valueflag)).GetNumber()
+
+	h := &RpcEventHandler{
+		Fields: map[string]map[string]interface{}{ParamNames[GlobalConfig.ApiVersion]["ValueSpecifier"]: {"deviceID": devId, "value": eValue}},
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+
+	err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
+	if err != nil {
+		Error.Printf("Error getting value on device Id %s,err=%s\n", options.Args.Id, ErrorToString(err))
+		return err
+	} else if h.Status != nil && h.Status.Err() != nil {
+		Error.Printf("Error Error getting distance on device Id %s,err=%s\n", options.Args.Id, ErrorToString(h.Status.Err()))
+		return h.Status.Err()
+	}
+
 	return nil
 }
