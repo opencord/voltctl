@@ -25,8 +25,10 @@ import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
+	"net"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -37,9 +39,26 @@ const (
 	OUTPUT_TABLE OutputType = iota
 	OUTPUT_JSON
 	OUTPUT_YAML
+
+	defaultApiHost = "localhost"
+	defaultApiPort = 55555
+
+	defaultKafkaHost = "localhost"
+	defaultKafkaPort = 9092
+
+	supportedKvStoreType = "etcd"
+	defaultKvHost        = "localhost"
+	defaultKvPort        = 2379
+	defaultKvTimeout     = time.Second * 5
+
+	defaultGrpcTimeout = time.Minute * 5
 )
 
 type GrpcConfigSpec struct {
+	Timeout time.Duration `yaml:"timeout"`
+}
+
+type KvStoreConfigSpec struct {
 	Timeout time.Duration `yaml:"timeout"`
 }
 
@@ -52,12 +71,14 @@ type TlsConfigSpec struct {
 }
 
 type GlobalConfigSpec struct {
-	ApiVersion string         `yaml:"apiVersion"`
-	Server     string         `yaml:"server"`
-	Kafka      string         `yaml:"kafka"`
-	Tls        TlsConfigSpec  `yaml:"tls"`
-	Grpc       GrpcConfigSpec `yaml:"grpc"`
-	K8sConfig  string         `yaml:"-"`
+	ApiVersion    string            `yaml:"apiVersion"`
+	Server        string            `yaml:"server"`
+	Kafka         string            `yaml:"kafka"`
+	KvStore       string            `yaml:"kvstore"`
+	Tls           TlsConfigSpec     `yaml:"tls"`
+	Grpc          GrpcConfigSpec    `yaml:"grpc"`
+	KvStoreConfig KvStoreConfigSpec `yaml:"kvstoreconfig"`
+	K8sConfig     string            `yaml:"-"`
 }
 
 var (
@@ -80,20 +101,26 @@ var (
 		ApiVersion: "v3",
 		Server:     "localhost:55555",
 		Kafka:      "",
+		KvStore:    "localhost:2379",
 		Tls: TlsConfigSpec{
 			UseTls: false,
 		},
 		Grpc: GrpcConfigSpec{
-			Timeout: time.Minute * 5,
+			Timeout: defaultGrpcTimeout,
+		},
+		KvStoreConfig: KvStoreConfigSpec{
+			Timeout: defaultKvTimeout,
 		},
 	}
 
 	GlobalCommandOptions = make(map[string]map[string]string)
 
 	GlobalOptions struct {
-		Config string `short:"c" long:"config" env:"VOLTCONFIG" value-name:"FILE" default:"" description:"Location of client config file"`
-		Server string `short:"s" long:"server" default:"" value-name:"SERVER:PORT" description:"IP/Host and port of VOLTHA"`
-		Kafka  string `short:"k" long:"kafka" default:"" value-name:"SERVER:PORT" description:"IP/Host and port of Kafka"`
+		Config  string `short:"c" long:"config" env:"VOLTCONFIG" value-name:"FILE" default:"" description:"Location of client config file"`
+		Server  string `short:"s" long:"server" default:"" value-name:"SERVER:PORT" description:"IP/Host and port of VOLTHA"`
+		Kafka   string `short:"k" long:"kafka" default:"" value-name:"SERVER:PORT" description:"IP/Host and port of Kafka"`
+		KvStore string `short:"e" long:"kvstore" env:"KVSTORE" value-name:"SERVER:PORT" description:"IP/Host and port of KV store (etcd)"`
+
 		// Do not set the default for the API version here, else it will override the value read in the config
 		// nolint: staticcheck
 		ApiVersion     string `short:"a" long:"apiversion" description:"API version" value-name:"VERSION" choice:"v1" choice:"v2" choice:"v3"`
@@ -105,6 +132,7 @@ var (
 		Key            string `long:"tlskey" value-name:"KEY_FILE" description:"Path to TLS key file"`
 		Verify         bool   `long:"tlsverify" description:"Use TLS and verify the remote"`
 		K8sConfig      string `short:"8" long:"k8sconfig" env:"KUBECONFIG" value-name:"FILE" default:"" description:"Location of Kubernetes config file"`
+		KvStoreTimeout string `long:"kvstoretimeout" env:"KVSTORE_TIMEOUT" value-name:"DURATION" default:"" description:"timeout for calls to KV store"`
 		CommandOptions string `short:"o" long:"command-options" env:"VOLTCTL_COMMAND_OPTIONS" value-name:"FILE" default:"" description:"Location of command options default configuration file"`
 	}
 
@@ -155,6 +183,31 @@ func toOutputType(in string) OutputType {
 	}
 }
 
+func splitEndpoint(ep, defaultHost string, defaultPort int) (string, int, error) {
+	port := defaultPort
+	host, sPort, err := net.SplitHostPort(ep)
+	if err != nil {
+		if addrErr, ok := err.(*net.AddrError); ok {
+			if addrErr.Err != "missing port in address" {
+				return "", 0, err
+			}
+			host = ep
+		} else {
+			return "", 0, err
+		}
+	} else if len(strings.TrimSpace(sPort)) > 0 {
+		val, err := strconv.Atoi(sPort)
+		if err != nil {
+			return "", 0, err
+		}
+		port = val
+	}
+	if len(strings.TrimSpace(host)) == 0 {
+		host = defaultHost
+	}
+	return strings.Trim(host, "]["), port, nil
+}
+
 type CommandResult struct {
 	Format    format.Format
 	Filter    string
@@ -199,11 +252,44 @@ func ProcessGlobalOptions() {
 	if GlobalOptions.Server != "" {
 		GlobalConfig.Server = GlobalOptions.Server
 	}
+	host, port, err := splitEndpoint(GlobalConfig.Server, defaultApiHost, defaultApiPort)
+	if err != nil {
+		Error.Fatalf("voltha API endport incorrectly specified '%s':%s",
+			GlobalConfig.Server, err)
+	}
+	GlobalConfig.Server = net.JoinHostPort(host, strconv.Itoa(port))
+
 	if GlobalOptions.Kafka != "" {
 		GlobalConfig.Kafka = GlobalOptions.Kafka
 	}
+	host, port, err = splitEndpoint(GlobalConfig.Kafka, defaultKafkaHost, defaultKafkaPort)
+	if err != nil {
+		Error.Fatalf("Kafka endport incorrectly specified '%s':%s",
+			GlobalConfig.Kafka, err)
+	}
+	GlobalConfig.Kafka = net.JoinHostPort(host, strconv.Itoa(port))
+
+	if GlobalOptions.KvStore != "" {
+		GlobalConfig.KvStore = GlobalOptions.KvStore
+	}
+	host, port, err = splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
+	if err != nil {
+		Error.Fatalf("KV store endport incorrectly specified '%s':%s",
+			GlobalConfig.KvStore, err)
+	}
+	GlobalConfig.KvStore = net.JoinHostPort(host, strconv.Itoa(port))
+
 	if GlobalOptions.ApiVersion != "" {
 		GlobalConfig.ApiVersion = GlobalOptions.ApiVersion
+	}
+
+	if GlobalOptions.KvStoreTimeout != "" {
+		timeout, err := time.ParseDuration(GlobalOptions.KvStoreTimeout)
+		if err != nil {
+			Error.Fatalf("Unable to parse specified KV strore timeout duration '%s': %s",
+				GlobalOptions.KvStoreTimeout, err.Error())
+		}
+		GlobalConfig.KvStoreConfig.Timeout = timeout
 	}
 
 	if GlobalOptions.Timeout != "" {
