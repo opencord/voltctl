@@ -169,6 +169,9 @@ var functionMap = map[string]map[string]string{
 		"v2": "voltha.VolthaService/GetLogLevels",
 		"v3": "voltha.VolthaService/GetLogLevels",
 	},
+        "get-onu-distance": {
+                "v3": "voltha.VolthaService/GetOnuDistance",
+        },
 }
 
 // Get the descriptor source using the current ApiVersion setting
