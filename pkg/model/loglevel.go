@@ -15,18 +15,14 @@
  */
 package model
 
-import (
-	"github.com/jhump/protoreflect/dynamic"
-)
-
 type LogLevel struct {
 	ComponentName string
 	PackageName   string
 	Level         string
 }
 
-func (logLevel *LogLevel) PopulateFrom(val *dynamic.Message) {
-	logLevel.ComponentName = val.GetFieldByName("component_name").(string)
-	logLevel.PackageName = val.GetFieldByName("package_name").(string)
-	logLevel.Level = GetEnumValue(val, "level") //val.GetFieldByName("level").(string)
+func (logLevel *LogLevel) PopulateFrom(componentName, packageName, level string) {
+	logLevel.ComponentName = componentName
+	logLevel.PackageName = packageName
+	logLevel.Level = level
 }

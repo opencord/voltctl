@@ -17,319 +17,191 @@ package commands
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"github.com/fullstorydev/grpcurl"
 	flags "github.com/jessevdk/go-flags"
-	"github.com/jhump/protoreflect/dynamic"
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltctl/pkg/model"
-	"google.golang.org/grpc"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
+	"github.com/opencord/voltha-lib-go/v3/pkg/config"
+	"github.com/opencord/voltha-lib-go/v3/pkg/db/kvstore"
+	"github.com/opencord/voltha-lib-go/v3/pkg/log"
+	"io/ioutil"
+	"os"
 	"strings"
 )
 
-type SetLogLevelOutput struct {
+const (
+	defaultComponentName = "global"
+	defaultPackageName   = "default"
+)
+
+// LogLevelOutput represents the  output structure for the loglevel
+type LogLevelOutput struct {
 	ComponentName string
 	Status        string
 	Error         string
 }
 
+// SetLogLevelOpts represents the supported CLI arguments for the loglevel set command
 type SetLogLevelOpts struct {
 	OutputOptions
-	Package string `short:"p" long:"package" description:"Package name to set log level"`
-	Args    struct {
+	Args struct {
 		Level     string
 		Component []string
 	} `positional-args:"yes" required:"yes"`
 }
 
-type GetLogLevelsOpts struct {
+// ListLogLevelOpts represents the supported CLI arguments for the loglevel list command
+type ListLogLevelsOpts struct {
 	ListOutputOptions
 	Args struct {
 		Component []string
 	} `positional-args:"yes" required:"yes"`
 }
 
-type ListLogLevelsOpts struct {
-	ListOutputOptions
+// ClearLogLevelOpts represents the supported CLI arguments for the loglevel clear command
+type ClearLogLevelsOpts struct {
+	OutputOptions
+	Args struct {
+		Component []string
+	} `positional-args:"yes" required:"yes"`
 }
 
+// LogLevelOpts represents the loglevel commands
 type LogLevelOpts struct {
-	SetLogLevel   SetLogLevelOpts   `command:"set"`
-	GetLogLevels  GetLogLevelsOpts  `command:"get"`
-	ListLogLevels ListLogLevelsOpts `command:"list"`
+	SetLogLevel    SetLogLevelOpts    `command:"set"`
+	ListLogLevels  ListLogLevelsOpts  `command:"list"`
+	ClearLogLevels ClearLogLevelsOpts `command:"clear"`
 }
 
 var logLevelOpts = LogLevelOpts{}
 
 const (
-	DEFAULT_LOGLEVELS_FORMAT   = "table{{ .ComponentName }}\t{{.PackageName}}\t{{.Level}}"
-	DEFAULT_SETLOGLEVEL_FORMAT = "table{{ .ComponentName }}\t{{.Status}}\t{{.Error}}"
+	DEFAULT_LOGLEVELS_FORMAT       = "table{{ .ComponentName }}\t{{.PackageName}}\t{{.Level}}"
+	DEFAULT_LOGLEVEL_RESULT_FORMAT = "table{{ .ComponentName }}\t{{.Status}}\t{{.Error}}"
 )
 
+// RegisterLogLevelCommands is used to  register set,list and clear loglevel of components
 func RegisterLogLevelCommands(parent *flags.Parser) {
-	_, err := parent.AddCommand("loglevel", "loglevel commands", "Get and set log levels", &logLevelOpts)
+	_, err := parent.AddCommand("loglevel", "loglevel commands", "list, set, clear log levels of components", &logLevelOpts)
 	if err != nil {
 		Error.Fatalf("Unable to register log level commands with voltctl command parser: %s", err.Error())
 	}
 }
 
-func MapListAppend(m map[string][]string, name string, item string) {
-	list, okay := m[name]
-	if okay {
-		m[name] = append(list, item)
-	} else {
-		m[name] = []string{item}
-	}
-}
+// processComponentListArgs stores  the component name and package names given in command arguments to LogLevel
+// It checks the given argument has # key or not, if # is present then split the argument for # then stores first part as component name
+// and second part as package name
+func processComponentListArgs(Components []string) ([]model.LogLevel, error) {
 
-/*
- * A roundabout way of going of using the LogLevel enum to map from
- * a string to an integer that we can pass into the dynamic
- * proto.
- *
- * TODO: There's probably an easier way.
- */
-func LogLevelStringToInt(logLevelString string) (int32, error) {
-	ProcessGlobalOptions() // required for GetMethod()
+	var logLevelConfig []model.LogLevel
 
-	/*
-	 * Use GetMethod() to get us a descriptor on the proto file we're
-	 * interested in.
-	 */
-
-	descriptor, _, err := GetMethod("update-log-level")
-	if err != nil {
-		return 0, err
+	if len(Components) == 0 {
+		Components = append(Components, defaultComponentName)
 	}
 
-	/*
-	 * Map string LogLevel to enumerated type LogLevel
-	 * We have descriptor from above, which is a DescriptorSource
-	 * We can use FindSymbol to get at the message
-	 */
-
-	loggingSymbol, err := descriptor.FindSymbol("common.LogLevel")
-	if err != nil {
-		return 0, err
-	}
-
-	/*
-	 * LoggingSymbol is a Descriptor, but not a MessageDescrptior,
-	 * so we can't look at it's fields yet. Go back to the file,
-	 * call FindMessage to get the Message, then we can get the
-	 * embedded enum.
-	 */
-
-	loggingFile := loggingSymbol.GetFile()
-	logLevelMessage := loggingFile.FindMessage("common.LogLevel")
-	logLevelEnumType := logLevelMessage.GetNestedEnumTypes()[0]
-	enumLogLevel := logLevelEnumType.FindValueByName(logLevelString)
-
-	if enumLogLevel == nil {
-		return 0, fmt.Errorf("Unknown log level %s", logLevelString)
-	}
-
-	return enumLogLevel.GetNumber(), nil
-}
-
-// Validate a list of component names and throw an error if any one of them is bad.
-func ValidateComponentNames(kube_to_arouter map[string][]string, names []string) error {
-	var badNames []string
-	for _, name := range names {
-		_, ok := kube_to_arouter[name]
-		if !ok {
-			badNames = append(badNames, name)
-		}
-	}
-
-	if len(badNames) > 0 {
-		allowedNames := make([]string, len(kube_to_arouter))
-		i := 0
-		for k := range kube_to_arouter {
-			allowedNames[i] = k
-			i++
-		}
-
-		return fmt.Errorf("Unknown component(s): %s.\n  (Allowed values for component names: \n    %s)",
-			strings.Join(badNames, ", "),
-			strings.Join(allowedNames, ",\n    "))
-	} else {
-		return nil
-	}
-}
-
-func BuildKubernetesNameMap() (map[string][]string, map[string]string, error) {
-	kube_to_arouter := make(map[string][]string)
-	arouter_to_kube := make(map[string]string)
-
-	// use the current context in kubeconfig
-	config, err := clientcmd.BuildConfigFromFlags("", GlobalOptions.K8sConfig)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	// create the clientset
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	pods, err := clientset.CoreV1().Pods("").List(metav1.ListOptions{
-		LabelSelector: "app.kubernetes.io/part-of=voltha",
-	})
-	if err != nil {
-		return nil, nil, err
-	}
-
-	if len(pods.Items) == 0 {
-		return nil, nil, fmt.Errorf("No Voltha pods found in Kubernetes -- verify pod is setup")
-	}
-
-	for _, pod := range pods.Items {
-		app, ok := pod.Labels["app"]
-		if !ok {
-			continue
-		}
-
-		var arouter_name string
-
-		switch app {
-		case "voltha-api-server":
-			/*
-			 * Assumes a single api_server for now.
-			 * TODO: Make labeling changes in charts to be able to derive name from labels
-			 */
-			arouter_name = "api_server0.api_server01"
-		case "rw-core":
-			affinity_group, affinity_group_ok := pod.Labels["affinity-group"]
-			affinity_group_core_id, affinity_group_core_ok := pod.Labels["affinity-group-core-id"]
-
-			if affinity_group_ok && affinity_group_core_ok {
-				// api-server is part of the deployment
-				arouter_name = "vcore" + affinity_group + ".vcore" + affinity_group + affinity_group_core_id
-			} else if !affinity_group_ok && !affinity_group_core_ok {
-				// api-server is not part of the deployment. Any name will do since we're talking
-				// directly to the core and not routing through the api-server.
-				arouter_name = app
-			} else {
-				// labeling is inconsistent; something is messed up
-				Warn.Printf("rwcore %s has one of affinity-group-core-id, affinity-group label but not the other", pod.Name)
-				continue
+	for _, component := range Components {
+		logConfig := model.LogLevel{}
+		val := strings.SplitN(component, "#", 2)
+		if len(val) > 1 {
+			if val[0] == defaultComponentName {
+				return nil, errors.New("global level doesn't support packageName")
 			}
-		case "ro-core":
-			/*
-			 * Assumes a single rocore for now.
-			 * TODO: Make labeling changes in charts to be able to derive name from labels
-			 */
-			arouter_name = "ro_vcore0.ro_vcore01"
-		default:
-			// skip this pod as it's not relevant
-			continue
+			logConfig.ComponentName = val[0]
+			logConfig.PackageName = strings.ReplaceAll(val[1], "/", "#")
+		} else {
+			logConfig.ComponentName = component
+			logConfig.PackageName = defaultPackageName
 		}
-
-		// Multiple ways to identify the component
-
-		// 1) The pod name. One pod name maps to exactly one pod.
-
-		arouter_to_kube[arouter_name] = pod.Name
-		MapListAppend(kube_to_arouter, pod.Name, arouter_name)
-
-		// 2) The kubernetes component name. A single component (i.e. "core") may map to multiple pods.
-
-		component, ok := pod.Labels["app.kubernetes.io/component"]
-		if ok {
-			MapListAppend(kube_to_arouter, component, arouter_name)
-		}
-
-		// 3) The voltha app label. A single app (i.e. "rwcore") may map to multiple pods.
-
-		MapListAppend(kube_to_arouter, app, arouter_name)
-
+		logLevelConfig = append(logLevelConfig, logConfig)
 	}
-
-	return kube_to_arouter, arouter_to_kube, nil
+	return logLevelConfig, nil
 }
 
+// This method set loglevel for components.
+// For example, using below command loglevel can be set for specific component with default packageName
+// voltctl loglevel set level  <componentName>
+// For example, using below command loglevel can be set for specific component with specific packageName
+// voltctl loglevel set level <componentName#packageName>
+// For example, using below command loglevel can be set for more than one component for default package and other component for specific packageName
+// voltctl loglevel set level <componentName1#packageName> <componentName2>
 func (options *SetLogLevelOpts) Execute(args []string) error {
-	if len(options.Args.Component) == 0 {
-		return fmt.Errorf("Please specify at least one component")
+	var (
+		logLevelConfig []model.LogLevel
+		err            error
+	)
+	ProcessGlobalOptions()
+
+	/*
+	 * TODO: VOL-2738
+	 * EVIL HACK ALERT
+	 * ===============
+	 * It would be nice if we could squelch all but fatal log messages from
+	 * the underlying libraries because as a CLI client we don't want a
+	 * bunch of logs and stack traces output and instead want to deal with
+	 * simple error propagation. To work around this, voltha-lib-go logging
+	 * is set to fatal and we redirect etcd client logging to a temp file.
+	 *
+	 * Replacing os.Stderr is used here as opposed to Dup2 because we want
+	 * low level panic to be displayed if they occurr. A temp file is used
+	 * as opposed to /dev/null because it can't be assumed that /dev/null
+	 * exists on all platforms and thus a temp file seems more portable.
+	 */
+	log.SetAllLogLevel(log.FatalLevel)
+	saveStderr := os.Stderr
+	if tmpStderr, err := ioutil.TempFile("", ""); err == nil {
+		os.Stderr = tmpStderr
+		defer func() {
+			os.Stderr = saveStderr
+			// Ignore errors on clean up because we can't do
+			// anything anyway.
+			_ = tmpStderr.Close()
+			_ = os.Remove(tmpStderr.Name())
+		}()
 	}
 
-	kube_to_arouter, arouter_to_kube, err := BuildKubernetesNameMap()
-	if err != nil {
-		return err
-	}
-
-	var output []SetLogLevelOutput
-
-	// Validate component names, throw error now to avoid doing partial work
-	err = ValidateComponentNames(kube_to_arouter, options.Args.Component)
-	if err != nil {
-		return err
-	}
-
-	// Validate and map the logLevel string to an integer, throw error now to avoid doing partial work
-	intLogLevel, err := LogLevelStringToInt(options.Args.Level)
-	if err != nil {
-		return err
-	}
-
-	for _, kubeComponentName := range options.Args.Component {
-		var descriptor grpcurl.DescriptorSource
-		var conn *grpc.ClientConn
-		var method string
-
-		componentNameList := kube_to_arouter[kubeComponentName]
-
-		for _, componentName := range componentNameList {
-			conn, err = NewConnection()
-			if err != nil {
-				return err
-			}
-			defer conn.Close()
-			if strings.HasPrefix(componentName, "api_server") {
-				// apiserver's UpdateLogLevel is in the afrouter.Configuration gRPC package
-				descriptor, method, err = GetMethod("apiserver-update-log-level")
-			} else {
-				descriptor, method, err = GetMethod("update-log-level")
-			}
-			if err != nil {
-				return err
-			}
-
-			ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
-			defer cancel()
-
-			ll := make(map[string]interface{})
-			ll["component_name"] = componentName
-			ll["package_name"] = options.Package
-			ll["level"] = intLogLevel
-
-			h := &RpcEventHandler{
-				Fields: map[string]map[string]interface{}{"common.Logging": ll},
-			}
-			err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
-			if err != nil {
-				return err
-			}
-
-			if h.Status != nil && h.Status.Err() != nil {
-				output = append(output, SetLogLevelOutput{ComponentName: arouter_to_kube[componentName], Status: "Failure", Error: h.Status.Err().Error()})
-				continue
-			}
-
-			output = append(output, SetLogLevelOutput{ComponentName: arouter_to_kube[componentName], Status: "Success"})
+	if options.Args.Level != "" {
+		if _, err := log.StringToLogLevel(options.Args.Level); err != nil {
+			return fmt.Errorf("Unknown log level %s. Allowed values are INFO, DEBUG, ERROR, WARN, FATAL", options.Args.Level)
 		}
+	}
+
+	logLevelConfig, err = processComponentListArgs(options.Args.Component)
+	if err != nil {
+		return fmt.Errorf(err.Error())
+	}
+
+	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()))
+	if err != nil {
+		return fmt.Errorf("Unable to create kvstore client %s", err)
+	}
+	defer client.Close()
+
+	// Already error checked during option processing
+	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
+	cm := config.NewConfigManager(client, supportedKvStoreType, host, port, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()))
+
+	var output []LogLevelOutput
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	defer cancel()
+
+	for _, lConfig := range logLevelConfig {
+
+		logConfig := cm.InitComponentConfig(lConfig.ComponentName, config.ConfigTypeLogLevel)
+		err := logConfig.Save(ctx, lConfig.PackageName, strings.ToUpper(options.Args.Level))
+		if err != nil {
+			output = append(output, LogLevelOutput{ComponentName: lConfig.ComponentName, Status: "Failure", Error: err.Error()})
+		} else {
+			output = append(output, LogLevelOutput{ComponentName: lConfig.ComponentName, Status: "Success"})
+		}
+
 	}
 
 	outputFormat := CharReplacer.Replace(options.Format)
 	if outputFormat == "" {
-		outputFormat = GetCommandOptionWithDefault("loglevel-set", "format", DEFAULT_SETLOGLEVEL_FORMAT)
+		outputFormat = GetCommandOptionWithDefault("loglevel-set", "format", DEFAULT_LOGLEVEL_RESULT_FORMAT)
 	}
-
 	result := CommandResult{
 		Format:    format.Format(outputFormat),
 		OutputAs:  toOutputType(options.OutputAs),
@@ -341,91 +213,98 @@ func (options *SetLogLevelOpts) Execute(args []string) error {
 	return nil
 }
 
-func (options *GetLogLevelsOpts) getLogLevels(methodName string, args []string) error {
+// This method list loglevel for components.
+// For example, using below command loglevel can be list for specific component
+// voltctl loglevel list  <componentName>
+// For example, using below command loglevel can be list for all the components with all the packageName
+// voltctl loglevel list
+func (options *ListLogLevelsOpts) Execute(args []string) error {
+
+	var (
+		data           []model.LogLevel
+		componentList  []string
+		logLevelConfig map[string]string
+		err            error
+	)
+	ProcessGlobalOptions()
+
+	/*
+	 * TODO: VOL-2738
+	 * EVIL HACK ALERT
+	 * ===============
+	 * It would be nice if we could squelch all but fatal log messages from
+	 * the underlying libraries because as a CLI client we don't want a
+	 * bunch of logs and stack traces output and instead want to deal with
+	 * simple error propagation. To work around this, voltha-lib-go logging
+	 * is set to fatal and we redirect etcd client logging to a temp file.
+	 *
+	 * Replacing os.Stderr is used here as opposed to Dup2 because we want
+	 * low level panic to be displayed if they occurr. A temp file is used
+	 * as opposed to /dev/null because it can't be assumed that /dev/null
+	 * exists on all platforms and thus a temp file seems more portable.
+	 */
+	log.SetAllLogLevel(log.FatalLevel)
+	saveStderr := os.Stderr
+	if tmpStderr, err := ioutil.TempFile("", ""); err == nil {
+		os.Stderr = tmpStderr
+		defer func() {
+			os.Stderr = saveStderr
+			// Ignore errors on clean up because we can't do
+			// anything anyway.
+			_ = tmpStderr.Close()
+			_ = os.Remove(tmpStderr.Name())
+		}()
+	}
+
+	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()))
+	if err != nil {
+		return fmt.Errorf("Unable to create kvstore client %s", err)
+	}
+	defer client.Close()
+
+	// Already error checked during option processing
+	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
+	cm := config.NewConfigManager(client, supportedKvStoreType, host, port, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()))
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	defer cancel()
+
 	if len(options.Args.Component) == 0 {
-		return fmt.Errorf("Please specify at least one component")
+		componentList, err = cm.RetrieveComponentList(ctx, config.ConfigTypeLogLevel)
+		if err != nil {
+			return fmt.Errorf("Unable to retrieve list of voltha components : %s ", err)
+		}
+	} else {
+		componentList = options.Args.Component
 	}
 
-	kube_to_arouter, arouter_to_kube, err := BuildKubernetesNameMap()
-	if err != nil {
-		return err
-	}
+	for _, componentName := range componentList {
+		logConfig := cm.InitComponentConfig(componentName, config.ConfigTypeLogLevel)
 
-	var data []model.LogLevel
+		logLevelConfig, err = logConfig.RetrieveAll(ctx)
+		if err != nil {
+			return fmt.Errorf("Unable to retrieve loglevel configuration for component %s : %s", componentName, err)
+		}
 
-	// Validate component names, throw error now to avoid doing partial work
-	err = ValidateComponentNames(kube_to_arouter, options.Args.Component)
-	if err != nil {
-		return err
-	}
-
-	for _, kubeComponentName := range options.Args.Component {
-		var descriptor grpcurl.DescriptorSource
-		var conn *grpc.ClientConn
-		var method string
-
-		componentNameList := kube_to_arouter[kubeComponentName]
-
-		for _, componentName := range componentNameList {
-			conn, err = NewConnection()
-			if err != nil {
-				return err
-			}
-			defer conn.Close()
-			if strings.HasPrefix(componentName, "api_server") {
-				// apiserver's UpdateLogLevel is in the afrouter.Configuration gRPC package
-				descriptor, method, err = GetMethod("apiserver-get-log-levels")
-			} else {
-				descriptor, method, err = GetMethod("get-log-levels")
-			}
-			if err != nil {
-				return err
+		for packageName, level := range logLevelConfig {
+			logLevel := model.LogLevel{}
+			if packageName == "" {
+				continue
 			}
 
-			ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
-			defer cancel()
-
-			ll := make(map[string]interface{})
-			ll["component_name"] = componentName
-
-			h := &RpcEventHandler{
-				Fields: map[string]map[string]interface{}{"common.LoggingComponent": ll},
-			}
-			err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
-			if err != nil {
-				return err
-			}
-
-			if h.Status != nil && h.Status.Err() != nil {
-				return h.Status.Err()
-			}
-
-			d, err := dynamic.AsDynamicMessage(h.Response)
-			if err != nil {
-				return err
-			}
-			items, err := d.TryGetFieldByName("items")
-			if err != nil {
-				return err
-			}
-
-			for _, item := range items.([]interface{}) {
-				logLevel := model.LogLevel{}
-				logLevel.PopulateFrom(item.(*dynamic.Message))
-				logLevel.ComponentName = arouter_to_kube[logLevel.ComponentName]
-
-				data = append(data, logLevel)
-			}
+			pName := strings.ReplaceAll(packageName, "#", "/")
+			logLevel.PopulateFrom(componentName, pName, level)
+			data = append(data, logLevel)
 		}
 	}
 
 	outputFormat := CharReplacer.Replace(options.Format)
 	if outputFormat == "" {
-		outputFormat = GetCommandOptionWithDefault(methodName, "format", DEFAULT_LOGLEVELS_FORMAT)
+		outputFormat = GetCommandOptionWithDefault("loglevel-list", "format", DEFAULT_LOGLEVELS_FORMAT)
 	}
 	orderBy := options.OrderBy
 	if orderBy == "" {
-		orderBy = GetCommandOptionWithDefault(methodName, "order", "")
+		orderBy = GetCommandOptionWithDefault("loglevel-list", "order", "")
 	}
 
 	result := CommandResult{
@@ -440,27 +319,91 @@ func (options *GetLogLevelsOpts) getLogLevels(methodName string, args []string) 
 	return nil
 }
 
-func (options *GetLogLevelsOpts) Execute(args []string) error {
-	return options.getLogLevels("loglevel-get", args)
-}
+// This method clear loglevel for components.
+// For example, using below command loglevel can be clear for specific component with default packageName
+// voltctl loglevel clear  <componentName>
+// For example, using below command loglevel can be clear for specific component with specific packageName
+// voltctl loglevel clear <componentName#packageName>
+func (options *ClearLogLevelsOpts) Execute(args []string) error {
 
-func (options *ListLogLevelsOpts) Execute(args []string) error {
-	var getOptions GetLogLevelsOpts
-	var podNames []string
+	var (
+		logLevelConfig []model.LogLevel
+		err            error
+	)
+	ProcessGlobalOptions()
 
-	_, arouter_to_kube, err := BuildKubernetesNameMap()
+	/*
+	 * TODO: VOL-2738
+	 * EVIL HACK ALERT
+	 * ===============
+	 * It would be nice if we could squelch all but fatal log messages from
+	 * the underlying libraries because as a CLI client we don't want a
+	 * bunch of logs and stack traces output and instead want to deal with
+	 * simple error propagation. To work around this, voltha-lib-go logging
+	 * is set to fatal and we redirect etcd client logging to a temp file.
+	 *
+	 * Replacing os.Stderr is used here as opposed to Dup2 because we want
+	 * low level panic to be displayed if they occurr. A temp file is used
+	 * as opposed to /dev/null because it can't be assumed that /dev/null
+	 * exists on all platforms and thus a temp file seems more portable.
+	 */
+	log.SetAllLogLevel(log.FatalLevel)
+	saveStderr := os.Stderr
+	if tmpStderr, err := ioutil.TempFile("", ""); err == nil {
+		os.Stderr = tmpStderr
+		defer func() {
+			os.Stderr = saveStderr
+			// Ignore errors on clean up because we can't do
+			// anything anyway.
+			_ = tmpStderr.Close()
+			_ = os.Remove(tmpStderr.Name())
+		}()
+	}
+
+	logLevelConfig, err = processComponentListArgs(options.Args.Component)
 	if err != nil {
-		return err
+		return fmt.Errorf("%s", err)
 	}
 
-	for _, podName := range arouter_to_kube {
-		podNames = append(podNames, podName)
+	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()))
+	if err != nil {
+		return fmt.Errorf("Unable to create kvstore client %s", err)
+	}
+	defer client.Close()
+
+	// Already error checked during option processing
+	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
+	cm := config.NewConfigManager(client, supportedKvStoreType, host, port, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()))
+
+	var output []LogLevelOutput
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	defer cancel()
+
+	for _, lConfig := range logLevelConfig {
+
+		logConfig := cm.InitComponentConfig(lConfig.ComponentName, config.ConfigTypeLogLevel)
+
+		err := logConfig.Delete(ctx, lConfig.PackageName)
+		if err != nil {
+			output = append(output, LogLevelOutput{ComponentName: lConfig.ComponentName, Status: "Failure", Error: err.Error()})
+		} else {
+			output = append(output, LogLevelOutput{ComponentName: lConfig.ComponentName, Status: "Success"})
+		}
 	}
 
-	// Just call GetLogLevels with a list of podnames that includes everything relevant.
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("loglevel-clear", "format", DEFAULT_LOGLEVEL_RESULT_FORMAT)
+	}
 
-	getOptions.ListOutputOptions = options.ListOutputOptions
-	getOptions.Args.Component = podNames
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      output,
+	}
 
-	return getOptions.getLogLevels("loglevel-list", args)
+	GenerateOutput(&result)
+	return nil
 }
