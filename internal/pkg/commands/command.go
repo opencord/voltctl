@@ -71,6 +71,7 @@ var (
 		"v3": {
 			"ID":   "common.ID",
 			"port": "voltha.Port",
+			"valueflag": "voltha.ValueType",
 		},
 	}
 

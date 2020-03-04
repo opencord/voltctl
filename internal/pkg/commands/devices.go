@@ -56,6 +56,7 @@ type DeviceCreate struct {
 type DeviceId string
 
 type PortNum uint32
+type ValueFlag uint32
 
 type DeviceDelete struct {
 	Args struct {
@@ -116,6 +117,12 @@ type DevicePortDisable struct {
 	} `positional-args:"yes"`
 }
 
+type DeviceGetValue struct {
+        Args struct {
+                Id DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+                valueflag ValueFlag `positional-arg-name:"VALUE_FLAG" required:"yes"`
+        } `positional-args:"yes"`
+}
 type DeviceOpts struct {
 	List    DeviceList     `command:"list"`
 	Create  DeviceCreate   `command:"create"`
@@ -130,6 +137,7 @@ type DeviceOpts struct {
 	} `command:"port"`
 	Inspect DeviceInspect `command:"inspect"`
 	Reboot  DeviceReboot  `command:"reboot"`
+	Value DeviceGetValue `command:"value"`
 }
 
 var deviceOpts = DeviceOpts{}
@@ -705,3 +713,36 @@ func (options *DevicePortDisable) Execute(args []string) error {
 	}
 	return nil
 }
+
+/*Device  get Onu Distance */
+func (options *DeviceGetValue) Execute(args []string) error {
+        conn, err := NewConnection()
+        if err != nil {
+                return err
+        }
+        defer conn.Close()
+
+        descriptor, method, err := GetMethod("get-onu-distance")
+        if err != nil {
+                return err
+        }
+
+	  h := &RpcEventHandler{
+                Fields: map[string]map[string]interface{}{ParamNames[GlobalConfig.ApiVersion]["ID"]: {"id": options.Args.Id, "value_param": options.Args.valueflag}},
+	}
+
+        ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+        defer cancel()
+
+        err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
+        if err != nil {
+                Error.Printf("Error getting value on device Id %s,err=%s\n",  options.Args.Id, ErrorToString(err))
+                return err
+        } else if h.Status != nil && h.Status.Err() != nil {
+                Error.Printf("Error Error getting distance on device Id %s,err=%s\n",  options.Args.Id, ErrorToString(h.Status.Err()))
+                return h.Status.Err()
+        }
+
+        return nil
+}
+
