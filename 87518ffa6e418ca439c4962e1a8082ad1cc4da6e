@@ -94,6 +94,30 @@
     },
     {
       "key": {
+        "uuid": "0d540891_09092b7d",
+        "filename": "internal/pkg/commands/loglevel.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1000627
+      },
+      "writtenOn": "2020-03-05T04:31:41Z",
+      "side": 1,
+      "message": "The packagename separator is # which comes with component name in command line.Example:  DEBUG\nvoltctl loglevel set DEBUG adapter-open-olt#github.com/opencord/voltha-lib-go/kafka\n\nin the above logic separating component name and package name if # is present then replacing / with # for packagename.",
+      "parentUuid": "dc563f66_36d8ce7c",
+      "range": {
+        "startLine": 108,
+        "startChar": 0,
+        "endLine": 120,
+        "endChar": 2
+      },
+      "revId": "87518ffa6e418ca439c4962e1a8082ad1cc4da6e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "292ec691_0b887fa5",
         "filename": "internal/pkg/commands/loglevel.go",
         "patchSetId": 1
