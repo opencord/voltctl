@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8a8ae877_c41736e3",
+        "filename": "internal/pkg/commands/loglevel.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-03-07T00:13:11Z",
+      "side": 1,
+      "message": "These values should be able to be overridden by configuration. Likely something that needs to be added to the config file, like the kafka configuration.",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 59
+      },
+      "revId": "1851d9e2bfa62fd37d2c69223bdc6dd8333758fc",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c8873194_a03d07c7",
+        "filename": "vendor/github.com/armon/go-metrics/README.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-03-07T00:13:11Z",
+      "side": 1,
+      "message": "i wonder what pulled this package in.",
+      "revId": "1851d9e2bfa62fd37d2c69223bdc6dd8333758fc",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}
