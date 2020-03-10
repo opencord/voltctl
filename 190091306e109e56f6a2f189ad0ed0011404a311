@@ -154,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "75824553_ae4cd017",
+        "filename": "internal/pkg/commands/loglevel.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-03-10T20:06:53Z",
+      "side": 1,
+      "message": "clarified @Kent offline. we will keep an eye if this becomes a performance issue, but for now not optimize it.",
+      "parentUuid": "df35478f_d91d9ba4",
+      "range": {
+        "startLine": 153,
+        "startChar": 14,
+        "endLine": 153,
+        "endChar": 23
+      },
+      "revId": "190091306e109e56f6a2f189ad0ed0011404a311",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3db0f43d_f7e2c4b3",
         "filename": "internal/pkg/commands/loglevel.go",
         "patchSetId": 7
