@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a83b6de6_c043c8a1",
+        "filename": "internal/pkg/commands/command.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1000107
+      },
+      "writtenOn": "2020-03-10T19:51:03Z",
+      "side": 1,
+      "message": "apiVersion uses camelCase, should this a well?",
+      "range": {
+        "startLine": 77,
+        "startChar": 40,
+        "endLine": 77,
+        "endChar": 47
+      },
+      "revId": "190091306e109e56f6a2f189ad0ed0011404a311",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "def07223_568f86e8",
+        "filename": "internal/pkg/commands/command.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 1000107
+      },
+      "writtenOn": "2020-03-10T19:51:03Z",
+      "side": 1,
+      "message": "apiVersion uses camelCase, should this a well?",
+      "range": {
+        "startLine": 80,
+        "startChar": 40,
+        "endLine": 80,
+        "endChar": 53
+      },
+      "revId": "190091306e109e56f6a2f189ad0ed0011404a311",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2b0486e2_5bb68eaf",
+        "filename": "internal/pkg/commands/command.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 1000107
+      },
+      "writtenOn": "2020-03-10T19:51:03Z",
+      "side": 1,
+      "message": "Can shorten to:\n\nif addrErr, ok :\u003d err.(*net.AddrError); !ok || addrErr.Err !\u003d \"missing port in address\" {\n  //return err\n}\nhost\u003dep",
+      "revId": "190091306e109e56f6a2f189ad0ed0011404a311",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "df35478f_d91d9ba4",
+        "filename": "internal/pkg/commands/loglevel.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 1000107
+      },
+      "writtenOn": "2020-03-10T19:51:03Z",
+      "side": 1,
+      "message": "Consider wrapping in a bufio.NewWriter() for efficiency.",
+      "range": {
+        "startLine": 153,
+        "startChar": 14,
+        "endLine": 153,
+        "endChar": 23
+      },
+      "revId": "190091306e109e56f6a2f189ad0ed0011404a311",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3db0f43d_f7e2c4b3",
+        "filename": "internal/pkg/commands/loglevel.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 1000107
+      },
+      "writtenOn": "2020-03-10T19:51:03Z",
+      "side": 1,
+      "message": "No err!\u003dnil case?",
+      "range": {
+        "startLine": 352,
+        "startChar": 47,
+        "endLine": 352,
+        "endChar": 57
+      },
+      "revId": "190091306e109e56f6a2f189ad0ed0011404a311",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}
