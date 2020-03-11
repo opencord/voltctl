@@ -406,7 +406,7 @@ func (options *EventListenOpts) Execute(args []string) error {
 	if options.ShowBody {
 		if options.OutputAs == "json" {
 			// need a descriptor source, any method will do
-			descriptor, _, _ := GetMethod("device-list")
+			descriptor, _, err := GetMethod("device-list")
 			if err != nil {
 				return err
 			}

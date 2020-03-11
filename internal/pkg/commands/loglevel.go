@@ -221,7 +221,9 @@ func (options *SetLogLevelOpts) Execute(args []string) error {
 func (options *ListLogLevelsOpts) Execute(args []string) error {
 
 	var (
-		data           []model.LogLevel
+		// Initialize to empty as opposed to nil so that -o json will
+		// display empty list and not null VOL-2742
+		data           []model.LogLevel = []model.LogLevel{}
 		componentList  []string
 		logLevelConfig map[string]string
 		err            error
