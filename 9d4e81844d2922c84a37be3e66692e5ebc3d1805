@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dffcf0f7_7fb8bba2",
+        "filename": "internal/pkg/commands/loglevel.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 1000526
+      },
+      "writtenOn": "2020-03-16T12:22:54Z",
+      "side": 1,
+      "message": "Add default keyword as well. Should be \"The global default loglevel cannot be cleared\"",
+      "revId": "9d4e81844d2922c84a37be3e66692e5ebc3d1805",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}
