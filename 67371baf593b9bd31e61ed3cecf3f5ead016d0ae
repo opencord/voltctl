@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f6279c50_d6b854b6",
+        "filename": "internal/pkg/commands/loglevel.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-03-16T15:43:54Z",
+      "side": 1,
+      "message": "A more descriptive error message would help here as it is unclear why the component name is not valid. i.e. does the component not exists? something like \"the component name \u0027%s\u0027 contains an invalid character \u0027%s\u0027.",
+      "revId": "67371baf593b9bd31e61ed3cecf3f5ead016d0ae",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}
