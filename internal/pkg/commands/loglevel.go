@@ -103,6 +103,11 @@ func processComponentListArgs(Components []string) ([]model.LogLevel, error) {
 	for _, component := range Components {
 		logConfig := model.LogLevel{}
 		val := strings.SplitN(component, "#", 2)
+
+		if strings.Contains(val[0], "/") {
+			return nil, errors.New("please provide valid component name")
+		}
+
 		if len(val) > 1 {
 			if val[0] == defaultComponentName {
 				return nil, errors.New("global level doesn't support packageName")
@@ -383,6 +388,10 @@ func (options *ClearLogLevelsOpts) Execute(args []string) error {
 	defer cancel()
 
 	for _, lConfig := range logLevelConfig {
+
+		if lConfig.ComponentName == defaultComponentName {
+			return fmt.Errorf("The global loglevel cannot be cleared.")
+		}
 
 		logConfig := cm.InitComponentConfig(lConfig.ComponentName, config.ConfigTypeLogLevel)
 
