@@ -149,26 +149,6 @@ var functionMap = map[string]map[string]string{
 	"device-port-disable": {
 		"v3": "voltha.VolthaService/DisablePort",
 	},
-	"get-goroutine-count": {
-		"v2": "afrouter.Configuration.GetGoroutineCount",
-		"v3": "afrouter.Configuration.GetGoroutineCount",
-	},
-	"apiserver-update-log-level": {
-		"v2": "afrouter.Configuration.UpdateLogLevel",
-		"v3": "afrouter.Configuration.UpdateLogLevel",
-	},
-	"apiserver-get-log-levels": {
-		"v2": "afrouter.Configuration.GetLogLevels",
-		"v3": "afrouter.Configuration.GetLogLevels",
-	},
-	"update-log-level": {
-		"v2": "voltha.VolthaService/UpdateLogLevel",
-		"v3": "voltha.VolthaService/UpdateLogLevel",
-	},
-	"get-log-levels": {
-		"v2": "voltha.VolthaService/GetLogLevels",
-		"v3": "voltha.VolthaService/GetLogLevels",
-	},
 }
 
 // Get the descriptor source using the current ApiVersion setting
