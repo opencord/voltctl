@@ -18,14 +18,15 @@ package commands
 import (
 	"context"
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
+
 	"github.com/fullstorydev/grpcurl"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/jhump/protoreflect/dynamic"
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltctl/pkg/model"
-	"os"
-	"strconv"
-	"strings"
 )
 
 const (
@@ -393,6 +394,7 @@ func (options *DeviceDelete) Execute(args []string) error {
 		return err
 	}
 
+	var lastErr error
 	for _, i := range options.Args.Ids {
 
 		h := &RpcEventHandler{
@@ -404,14 +406,19 @@ func (options *DeviceDelete) Execute(args []string) error {
 		err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
 		if err != nil {
 			Error.Printf("Error while deleting '%s': %s\n", i, err)
+			lastErr = err
 			continue
 		} else if h.Status != nil && h.Status.Err() != nil {
 			Error.Printf("Error while deleting '%s': %s\n", i, ErrorToString(h.Status.Err()))
+			lastErr = h.Status.Err()
 			continue
 		}
 		fmt.Printf("%s\n", i)
 	}
 
+	if lastErr != nil {
+		return NoReportErr
+	}
 	return nil
 }
 
@@ -427,6 +434,7 @@ func (options *DeviceEnable) Execute(args []string) error {
 		return err
 	}
 
+	var lastErr error
 	for _, i := range options.Args.Ids {
 		h := &RpcEventHandler{
 			Fields: map[string]map[string]interface{}{ParamNames[GlobalConfig.ApiVersion]["ID"]: {"id": i}},
@@ -437,14 +445,19 @@ func (options *DeviceEnable) Execute(args []string) error {
 		err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
 		if err != nil {
 			Error.Printf("Error while enabling '%s': %s\n", i, err)
+			lastErr = err
 			continue
 		} else if h.Status != nil && h.Status.Err() != nil {
 			Error.Printf("Error while enabling '%s': %s\n", i, ErrorToString(h.Status.Err()))
+			lastErr = h.Status.Err()
 			continue
 		}
 		fmt.Printf("%s\n", i)
 	}
 
+	if lastErr != nil {
+		return NoReportErr
+	}
 	return nil
 }
 
@@ -460,6 +473,7 @@ func (options *DeviceDisable) Execute(args []string) error {
 		return err
 	}
 
+	var lastErr error
 	for _, i := range options.Args.Ids {
 		h := &RpcEventHandler{
 			Fields: map[string]map[string]interface{}{ParamNames[GlobalConfig.ApiVersion]["ID"]: {"id": i}},
@@ -470,14 +484,19 @@ func (options *DeviceDisable) Execute(args []string) error {
 		err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
 		if err != nil {
 			Error.Printf("Error while disabling '%s': %s\n", i, err)
+			lastErr = err
 			continue
 		} else if h.Status != nil && h.Status.Err() != nil {
 			Error.Printf("Error while disabling '%s': %s\n", i, ErrorToString(h.Status.Err()))
+			lastErr = h.Status.Err()
 			continue
 		}
 		fmt.Printf("%s\n", i)
 	}
 
+	if lastErr != nil {
+		return NoReportErr
+	}
 	return nil
 }
 
@@ -493,6 +512,7 @@ func (options *DeviceReboot) Execute(args []string) error {
 		return err
 	}
 
+	var lastErr error
 	for _, i := range options.Args.Ids {
 		h := &RpcEventHandler{
 			Fields: map[string]map[string]interface{}{ParamNames[GlobalConfig.ApiVersion]["ID"]: {"id": i}},
@@ -503,14 +523,19 @@ func (options *DeviceReboot) Execute(args []string) error {
 		err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
 		if err != nil {
 			Error.Printf("Error while rebooting '%s': %s\n", i, err)
+			lastErr = err
 			continue
 		} else if h.Status != nil && h.Status.Err() != nil {
 			Error.Printf("Error while rebooting '%s': %s\n", i, ErrorToString(h.Status.Err()))
+			lastErr = h.Status.Err()
 			continue
 		}
 		fmt.Printf("%s\n", i)
 	}
 
+	if lastErr != nil {
+		return NoReportErr
+	}
 	return nil
 }
 

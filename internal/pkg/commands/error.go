@@ -18,16 +18,19 @@
 package commands
 
 import (
+	"errors"
 	"fmt"
-	"google.golang.org/grpc/status"
 	"regexp"
 	"strings"
+
+	"google.golang.org/grpc/status"
 )
 
 var (
-	descRE = regexp.MustCompile(`desc = "(.*)"`)
-	try2RE = regexp.MustCompile(`all SubConns are in TransientFailure, latest connection error: (.*)`)
-	try3RE = regexp.MustCompile(`all SubConns are in TransientFailure, (.*)`)
+	descRE      = regexp.MustCompile(`desc = "(.*)"`)
+	try2RE      = regexp.MustCompile(`all SubConns are in TransientFailure, latest connection error: (.*)`)
+	try3RE      = regexp.MustCompile(`all SubConns are in TransientFailure, (.*)`)
+	NoReportErr = errors.New("no-report-please")
 )
 
 func ErrorToString(err error) string {
