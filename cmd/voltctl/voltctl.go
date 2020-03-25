@@ -17,10 +17,11 @@ package main
 
 import (
 	"fmt"
-	flags "github.com/jessevdk/go-flags"
-	"github.com/opencord/voltctl/internal/pkg/commands"
 	"os"
 	"path"
+
+	flags "github.com/jessevdk/go-flags"
+	"github.com/opencord/voltctl/internal/pkg/commands"
 )
 
 func main() {
@@ -77,10 +78,13 @@ func main() {
 			if real.Type == flags.ErrHelp {
 				parser.WriteHelp(os.Stdout)
 			} else {
-				fmt.Fprintf(os.Stderr, "%s\n", real.Error())
+				if real.Error() != commands.NoReportErr.Error() {
+					fmt.Fprintf(os.Stderr, "%s\n", real.Error())
+				}
+				os.Exit(1)
 			}
 			return
-		} else {
+		} else if err != commands.NoReportErr {
 			commands.Error.Fatal(commands.ErrorToString(err))
 		}
 		os.Exit(1)
