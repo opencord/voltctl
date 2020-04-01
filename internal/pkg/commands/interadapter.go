@@ -21,8 +21,9 @@ import (
 	"fmt"
 	"github.com/Shopify/sarama"
 	"github.com/fullstorydev/grpcurl"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/timestamp"
+	//"github.com/golang/protobuf/ptypes"
+	//	"github.com/golang/protobuf/ptypes/timestamp"
+	"github.com/golang/protobuf/ptypes/any"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/jhump/protoreflect/desc"
 	"github.com/jhump/protoreflect/dynamic"
@@ -37,116 +38,100 @@ import (
 )
 
 const (
-	DEFAULT_EVENT_FORMAT = "table{{.Category}}\t{{.SubCategory}}\t{{.Type}}\t{{.Timestamp}}\t{{.Device_ids}}\t{{.Titles}}"
+	DEFAULT_INTER_CONTAINER_FORMAT = "table{{.Id}}\t{{.Type}}\t{{.FromTopic}}\t{{.ToTopic}}\t{{.KeyTopic}}\t{{.InterAdapterType}}"
 )
 
-type EventListenOpts struct {
+type InterContainerListenOpts struct {
 	Format string `long:"format" value-name:"FORMAT" default:"" description:"Format to use to output structured data"`
 	// nolint: staticcheck
 	OutputAs string `short:"o" long:"outputas" default:"table" choice:"table" choice:"json" choice:"yaml" description:"Type of output to generate"`
 	Filter   string `short:"f" long:"filter" default:"" value-name:"FILTER" description:"Only display results that match filter"`
 	Follow   bool   `short:"F" long:"follow" description:"Continue to consume until CTRL-C is pressed"`
-	ShowBody bool   `short:"b" long:"show-body" description:"Show body of events rather than only a header summary"`
+	ShowBody bool   `short:"b" long:"show-body" description:"Show body of messages rather than only a header summary"`
 	Count    int    `short:"c" long:"count" default:"-1" value-name:"LIMIT" description:"Limit the count of messages that will be printed"`
-	Now      bool   `short:"n" long:"now" description:"Stop printing events when current time is reached"`
+	Now      bool   `short:"n" long:"now" description:"Stop printing messages when current time is reached"`
 	Timeout  int    `short:"t" long:"idle" default:"900" value-name:"SECONDS" description:"Timeout if no message received within specified seconds"`
 	Since    string `short:"s" long:"since" default:"" value-name:"TIMESTAMP" description:"Do not show entries before timestamp"`
+
+	Args struct {
+		Topic string
+	} `positional-args:"yes" required:"yes"`
 }
 
-type EventOpts struct {
-	EventListen EventListenOpts `command:"listen"`
+type InterContainerOpts struct {
+	InterContainerListen InterContainerListenOpts `command:"listen"`
 }
 
-var eventOpts = EventOpts{}
+var interAdapterOpts = InterContainerOpts{}
 
-type EventHeader struct {
-	Category    string    `json:"category"`
-	SubCategory string    `json:"sub_category"`
-	Type        string    `json:"type"`
-	Raised_ts   time.Time `json:"raised_ts"`
-	Reported_ts time.Time `json:"reported_ts"`
-	Device_ids  []string  `json:"device_ids"` // Opportunistically collected list of device_ids
-	Titles      []string  `json:"titles"`     // Opportunistically collected list of titles
-	Timestamp   time.Time `json:"timestamp"`  // Timestamp from Kafka
+type InterContainerHeader struct {
+	Id               string    `json:"id"`
+	Type             string    `json:"type"`
+	FromTopic        string    `json:"from_topic"`
+	ToTopic          string    `json:"to_topic"`
+	KeyTopic         string    `json:"key_topic"`
+	Timestamp        time.Time `json:"timestamp"`
+	InterAdapterType string    `json:"inter_adapter_type"` // interadapter header
+	ToDeviceId       string    `json:"to_device_id"`       // interadapter header
+	ProxyDeviceId    string    `json:"proxy_device_id"`    //interadapter header
 }
 
-type EventHeaderWidths struct {
-	Category    int
-	SubCategory int
-	Type        int
-	Raised_ts   int
-	Reported_ts int
-	Device_ids  int
-	Titles      int
-	Timestamp   int
+type InterContainerHeaderWidths struct {
+	Id               int
+	Type             int
+	FromTopic        int
+	ToTopic          int
+	KeyTopic         int
+	InterAdapterType int
+	ToDeviceId       int
+	ProxyDeviceId    int
+	Timestamp        int
 }
 
-var DefaultWidths EventHeaderWidths = EventHeaderWidths{
-	Category:    13,
-	SubCategory: 3,
-	Type:        12,
-	Raised_ts:   10,
-	Reported_ts: 10,
-	Device_ids:  40,
-	Titles:      40,
-	Timestamp:   10,
+var DefaultInterContainerWidths InterContainerHeaderWidths = InterContainerHeaderWidths{
+	Id:               32,
+	Type:             10,
+	FromTopic:        16,
+	ToTopic:          16,
+	KeyTopic:         10,
+	Timestamp:        10,
+	InterAdapterType: 10,
+	ToDeviceId:       10,
+	ProxyDeviceId:    10,
 }
 
-func RegisterEventCommands(parent *flags.Parser) {
-	_, err := parent.AddCommand("event", "event commands", "Commands for observing events", &eventOpts)
+func RegisterInterContainerCommands(parent *flags.Parser) {
+	_, err := parent.AddCommand("intercontainer", "intercontainer commands", "Commands for observing intercontainer messages", &interAdapterOpts)
 	if err != nil {
-		Error.Fatalf("Unable to register event commands with voltctl command parser: %s", err.Error())
+		Error.Fatalf("Unable to register intercontainer commands with voltctl command parser: %s", err.Error())
 	}
 }
 
-func ParseSince(s string) (*time.Time, error) {
-	if strings.EqualFold(s, "now") {
-		since := time.Now()
-		return &since, nil
+// Find the any.Any field named by "fieldName" in the dynamic Message m.
+// Create a new dynamic message using the bytes from the Any
+// Return the new dynamic message and the type name
+func DeserializeAny(iaFile *desc.FileDescriptor, m *dynamic.Message, fieldName string) (*dynamic.Message, string, error) {
+	f, err := m.TryGetFieldByName(fieldName)
+	if err != nil {
+		return nil, "", err
+	}
+	a := f.(*any.Any)
+	embeddedType := strings.SplitN(a.TypeUrl, "/", 2)[1] // example type.googleapis.com/voltha.InterContainerRequestBody
+	embeddedBytes := a.Value
+
+	md := iaFile.FindMessage(embeddedType)
+
+	embeddedM := dynamic.NewMessage(md)
+	err = embeddedM.Unmarshal(embeddedBytes)
+	if err != nil {
+		return nil, "", err
 	}
 
-	rfc3339Time, err := time.Parse(time.RFC3339, s)
-	if err == nil {
-		return &rfc3339Time, nil
-	}
-
-	duration, err := time.ParseDuration(s)
-	if err == nil {
-		since := time.Now().Add(-duration)
-		return &since, nil
-	}
-
-	return nil, fmt.Errorf("Unable to parse time specification `%s`. Please use either `now`, a duration, or an RFC3339-compliant string", s)
-}
-
-// Convert a timestamp field in an event to a time.Time
-func DecodeTimestamp(tsIntf interface{}) (time.Time, error) {
-	ts, okay := tsIntf.(*timestamp.Timestamp)
-	if okay {
-		// Voltha-Protos 3.2.3 and above
-		result, err := ptypes.Timestamp(ts)
-		return result, err
-	}
-	tsFloat, okay := tsIntf.(float32)
-	if okay {
-		// Voltha-Protos 3.2.2 and below
-		return time.Unix(int64(tsFloat), 0), nil
-	}
-	tsInt64, okay := tsIntf.(int64)
-	if okay {
-		if tsInt64 > 10000000000000 {
-			// sometimes it's in nanoseconds
-			return time.Unix(tsInt64/1000000000, tsInt64%1000000000), nil
-		} else {
-			// sometimes it's in seconds
-			return time.Unix(tsInt64/1000, 0), nil
-		}
-	}
-	return time.Time{}, errors.New("Failed to decode timestamp")
+	return embeddedM, embeddedType, nil
 }
 
 // Extract the header, as well as a few other items that might be of interest
-func DecodeHeader(md *desc.MessageDescriptor, b []byte, ts time.Time) (*EventHeader, error) {
+func DecodeInterContainerHeader(iaFile *desc.FileDescriptor, md *desc.MessageDescriptor, b []byte, ts time.Time, f grpcurl.Formatter) (*InterContainerHeader, error) {
 	m := dynamic.NewMessage(md)
 	err := m.Unmarshal(b)
 	if err != nil {
@@ -160,131 +145,112 @@ func DecodeHeader(md *desc.MessageDescriptor, b []byte, ts time.Time) (*EventHea
 
 	header := headerIntf.(*dynamic.Message)
 
-	catIntf, err := header.TryGetFieldByName("category")
+	idIntf, err := header.TryGetFieldByName("id")
 	if err != nil {
 		return nil, err
 	}
-	cat := catIntf.(int32)
-
-	subCatIntf, err := header.TryGetFieldByName("sub_category")
-	if err != nil {
-		return nil, err
-	}
-	subCat := subCatIntf.(int32)
+	id := idIntf.(string)
 
 	typeIntf, err := header.TryGetFieldByName("type")
 	if err != nil {
 		return nil, err
 	}
-	evType := typeIntf.(int32)
+	msgType := typeIntf.(int32)
 
-	raisedIntf, err := header.TryGetFieldByName("raised_ts")
+	fromTopicIntf, err := header.TryGetFieldByName("from_topic")
 	if err != nil {
 		return nil, err
 	}
-	raised, err := DecodeTimestamp(raisedIntf)
+	fromTopic := fromTopicIntf.(string)
+
+	toTopicIntf, err := header.TryGetFieldByName("to_topic")
+	if err != nil {
+		return nil, err
+	}
+	toTopic := toTopicIntf.(string)
+
+	keyTopicIntf, err := header.TryGetFieldByName("key_topic")
+	if err != nil {
+		return nil, err
+	}
+	keyTopic := keyTopicIntf.(string)
+
+	/*
+		proxyDeviceIdIntf, err := header.TryGetFieldByName("proxy_device_id")
+		if err != nil {
+			return nil, err
+		}
+		proxyDeviceId := proxyDeviceIdIntf.(string)
+	*/
+
+	timestampIntf, err := header.TryGetFieldByName("timestamp")
+	if err != nil {
+		return nil, err
+	}
+	timestamp, err := DecodeTimestamp(timestampIntf)
 	if err != nil {
 		return nil, err
 	}
 
-	reportedIntf, err := header.TryGetFieldByName("reported_ts")
+	// Pull some additional data out of the InterAdapterHeader, if it
+	// is embedded inside the InterContainerMessage
+
+	var iaMessageTypeStr string
+	body, bodyKind, err := DeserializeAny(iaFile, m, "body")
 	if err != nil {
 		return nil, err
 	}
-	reported, err := DecodeTimestamp(reportedIntf)
-	if err != nil {
-		return nil, err
-	}
-
-	// Opportunistically try to extract the device_id and title from a kpi_event2
-	// note that there might actually be multiple_slice data, so there could
-	// be multiple device_id, multiple title, etc.
-	device_ids := make(map[string]interface{})
-	titles := make(map[string]interface{})
-
-	kpiIntf, err := m.TryGetFieldByName("kpi_event2")
-	if err == nil {
-		kpi, ok := kpiIntf.(*dynamic.Message)
-		if ok && kpi != nil {
-			sliceListIntf, err := kpi.TryGetFieldByName("slice_data")
-			if err == nil {
-				sliceIntf, ok := sliceListIntf.([]interface{})
-				if ok && len(sliceIntf) > 0 {
-					slice, ok := sliceIntf[0].(*dynamic.Message)
-					if ok && slice != nil {
-						metadataIntf, err := slice.TryGetFieldByName("metadata")
-						if err == nil {
-							metadata, ok := metadataIntf.(*dynamic.Message)
-							if ok && metadata != nil {
-								deviceIdIntf, err := metadataIntf.(*dynamic.Message).TryGetFieldByName("device_id")
-								if err == nil {
-									device_ids[deviceIdIntf.(string)] = slice
-								}
-								titleIntf, err := metadataIntf.(*dynamic.Message).TryGetFieldByName("title")
-								if err == nil {
-									titles[titleIntf.(string)] = slice
-								}
-							}
-						}
+	switch bodyKind {
+	case "voltha.InterContainerRequestBody":
+		argListIntf, err := body.TryGetFieldByName("args")
+		if err != nil {
+			return nil, err
+		}
+		argList := argListIntf.([]interface{})
+		for _, argIntf := range argList {
+			arg := argIntf.(*dynamic.Message)
+			keyIntf, err := arg.TryGetFieldByName("key")
+			if err != nil {
+				return nil, err
+			}
+			key := keyIntf.(string)
+			if key == "msg" {
+				argBody, argBodyKind, err := DeserializeAny(iaFile, arg, "value")
+				if err != nil {
+					return nil, err
+				}
+				switch argBodyKind {
+				case "voltha.InterAdapterMessage":
+					iaHeaderIntf, err := argBody.TryGetFieldByName("header")
+					if err != nil {
+						return nil, err
 					}
+					iaHeader := iaHeaderIntf.(*dynamic.Message)
+					iaMessageTypeIntf, err := iaHeader.TryGetFieldByName("type")
+					if err != nil {
+						return nil, err
+					}
+					iaMessageType := iaMessageTypeIntf.(int32)
+					iaMessageTypeStr = model.GetEnumString(iaHeader, "type", iaMessageType)
 				}
 			}
 		}
 	}
 
-	// Opportunistically try to pull a resource_id and title from a DeviceEvent
-	// There can only be one resource_id and title from a DeviceEvent, so it's easier
-	// than dealing with KPI_EVENT2.
-	deviceEventIntf, err := m.TryGetFieldByName("device_event")
-	if err == nil {
-		deviceEvent, ok := deviceEventIntf.(*dynamic.Message)
-		if ok && deviceEvent != nil {
-			deviceEventNameIntf, err := deviceEvent.TryGetFieldByName("device_event_name")
-			if err == nil {
-				deviceEventName, ok := deviceEventNameIntf.(string)
-				if ok {
-					titles[deviceEventName] = deviceEvent
-				}
-			}
-			resourceIdIntf, err := deviceEvent.TryGetFieldByName("resource_id")
-			if err == nil {
-				resourceId, ok := resourceIdIntf.(string)
-				if ok {
-					device_ids[resourceId] = deviceEvent
-				}
-			}
-		}
-	}
+	iaHeader := InterContainerHeader{Id: id,
+		Type:             model.GetEnumString(header, "type", msgType),
+		FromTopic:        fromTopic,
+		ToTopic:          toTopic,
+		KeyTopic:         keyTopic,
+		Timestamp:        timestamp,
+		InterAdapterType: iaMessageTypeStr}
 
-	device_id_keys := make([]string, len(device_ids))
-	i := 0
-	for k := range device_ids {
-		device_id_keys[i] = k
-		i++
-	}
-
-	title_keys := make([]string, len(titles))
-	i = 0
-	for k := range titles {
-		title_keys[i] = k
-		i++
-	}
-
-	evHeader := EventHeader{Category: model.GetEnumString(header, "category", cat),
-		SubCategory: model.GetEnumString(header, "sub_category", subCat),
-		Type:        model.GetEnumString(header, "type", evType),
-		Raised_ts:   raised,
-		Reported_ts: reported,
-		Device_ids:  device_id_keys,
-		Timestamp:   ts,
-		Titles:      title_keys}
-
-	return &evHeader, nil
+	return &iaHeader, nil
 }
 
 // Print the full message, either in JSON or in GRPCURL-human-readable format,
 // depending on which grpcurl formatter is passed in.
-func PrintMessage(f grpcurl.Formatter, md *desc.MessageDescriptor, b []byte) error {
+func PrintInterContainerMessage(f grpcurl.Formatter, md *desc.MessageDescriptor, b []byte) error {
 	m := dynamic.NewMessage(md)
 	err := m.Unmarshal(b)
 	if err != nil {
@@ -298,9 +264,9 @@ func PrintMessage(f grpcurl.Formatter, md *desc.MessageDescriptor, b []byte) err
 	return nil
 }
 
-// Print just the enriched EventHeader. This is either in JSON format, or in
+// Print just the enriched InterContainerHeader. This is either in JSON format, or in
 // table format.
-func PrintEventHeader(outputAs string, outputFormat string, hdr *EventHeader) error {
+func PrintInterContainerHeader(outputAs string, outputFormat string, hdr *InterContainerHeader) error {
 	if outputAs == "json" {
 		asJson, err := json.Marshal(hdr)
 		if err != nil {
@@ -310,7 +276,7 @@ func PrintEventHeader(outputAs string, outputFormat string, hdr *EventHeader) er
 		}
 	} else {
 		f := format.Format(outputFormat)
-		output, err := f.ExecuteFixedWidth(DefaultWidths, false, *hdr)
+		output, err := f.ExecuteFixedWidth(DefaultInterContainerWidths, false, *hdr)
 		if err != nil {
 			return err
 		}
@@ -319,7 +285,7 @@ func PrintEventHeader(outputAs string, outputFormat string, hdr *EventHeader) er
 	return nil
 }
 
-func GetEventMessageDesc() (*desc.MessageDescriptor, error) {
+func GetInterContainerDescriptorFile() (*desc.FileDescriptor, error) {
 	// This is a very long-winded way to get a message descriptor
 
 	descriptor, err := GetDescriptorSource()
@@ -327,31 +293,35 @@ func GetEventMessageDesc() (*desc.MessageDescriptor, error) {
 		return nil, err
 	}
 
-	// get the symbol for voltha.events
-	eventSymbol, err := descriptor.FindSymbol("voltha.Event")
+	// get the symbol for voltha.InterContainerMessage
+	iaSymbol, err := descriptor.FindSymbol("voltha.InterContainerMessage")
 	if err != nil {
 		return nil, err
 	}
 
 	/*
-	 * EventSymbol is a Descriptor, but not a MessageDescrptior,
+	 * iaSymbol is a Descriptor, but not a MessageDescrptior,
 	 * so we can't look at it's fields yet. Go back to the file,
 	 * call FindMessage to get the Message, then ...
 	 */
 
-	eventFile := eventSymbol.GetFile()
-	eventMessage := eventFile.FindMessage("voltha.Event")
+	iaFile := iaSymbol.GetFile()
+	return iaFile, nil
 
-	return eventMessage, nil
+	/*
+		var result map[string]*desc.MessageDescrptor
+		result["voltha.InterContainerMessage"] = iaFile.FindMessage("voltha.InterContainerMessage")
+
+		return result, nil*/
 }
 
 // Start output, print any column headers or other start characters
-func (options *EventListenOpts) StartOutput(outputFormat string) error {
+func (options *InterContainerListenOpts) StartOutput(outputFormat string) error {
 	if options.OutputAs == "json" {
 		fmt.Println("[")
 	} else if (options.OutputAs == "table") && !options.ShowBody {
 		f := format.Format(outputFormat)
-		output, err := f.ExecuteFixedWidth(DefaultWidths, true, nil)
+		output, err := f.ExecuteFixedWidth(DefaultInterContainerWidths, true, nil)
 		if err != nil {
 			return err
 		}
@@ -361,22 +331,24 @@ func (options *EventListenOpts) StartOutput(outputFormat string) error {
 }
 
 // Finish output, print any column footers or other end characters
-func (options *EventListenOpts) FinishOutput() {
+func (options *InterContainerListenOpts) FinishOutput() {
 	if options.OutputAs == "json" {
 		fmt.Println("]")
 	}
 }
 
-func (options *EventListenOpts) Execute(args []string) error {
+func (options *InterContainerListenOpts) Execute(args []string) error {
 	ProcessGlobalOptions()
 	if GlobalConfig.Kafka == "" {
 		return errors.New("Kafka address is not specified")
 	}
 
-	eventMessage, err := GetEventMessageDesc()
+	iaFile, err := GetInterContainerDescriptorFile()
 	if err != nil {
 		return err
 	}
+
+	iaMessage := iaFile.FindMessage("voltha.InterContainerMessage")
 
 	config := sarama.NewConfig()
 	config.ClientID = "go-kafka-consumer"
@@ -395,12 +367,12 @@ func (options *EventListenOpts) Execute(args []string) error {
 		}
 	}()
 
-	consumer, consumerErrors, highwaterMarks, err := startConsumer([]string{"voltha.events"}, client)
+	consumer, consumerErrors, highwaterMarks, err := startInterContainerConsumer([]string{options.Args.Topic}, client)
 	if err != nil {
 		return err
 	}
 
-	highwater := highwaterMarks["voltha.events"]
+	highwater := highwaterMarks[options.Args.Topic]
 
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt)
@@ -412,15 +384,16 @@ func (options *EventListenOpts) Execute(args []string) error {
 	count := 0
 
 	var grpcurlFormatter grpcurl.Formatter
+	// need a descriptor source, any method will do
+	descriptor, _, err := GetMethod("device-list")
+	if err != nil {
+		return err
+	}
 
+	jsonFormatter := grpcurl.NewJSONFormatter(false, grpcurl.AnyResolverFromDescriptorSource(descriptor))
 	if options.ShowBody {
 		if options.OutputAs == "json" {
-			// need a descriptor source, any method will do
-			descriptor, _, err := GetMethod("device-list")
-			if err != nil {
-				return err
-			}
-			grpcurlFormatter = grpcurl.NewJSONFormatter(false, grpcurl.AnyResolverFromDescriptorSource(descriptor))
+			grpcurlFormatter = jsonFormatter
 		} else {
 			grpcurlFormatter = grpcurl.NewTextFormatter(false)
 		}
@@ -437,7 +410,7 @@ func (options *EventListenOpts) Execute(args []string) error {
 
 	outputFormat := CharReplacer.Replace(options.Format)
 	if outputFormat == "" {
-		outputFormat = GetCommandOptionWithDefault("events-listen", "format", DEFAULT_EVENT_FORMAT)
+		outputFormat = GetCommandOptionWithDefault("intercontainer-listen", "format", DEFAULT_INTER_CONTAINER_FORMAT)
 	}
 
 	err = options.StartOutput(outputFormat)
@@ -464,7 +437,7 @@ func (options *EventListenOpts) Execute(args []string) error {
 			select {
 			case msg := <-consumer:
 				consumeCount++
-				hdr, err := DecodeHeader(eventMessage, msg.Value, msg.Timestamp)
+				hdr, err := DecodeInterContainerHeader(iaFile, iaMessage, msg.Value, msg.Timestamp, jsonFormatter)
 				if err != nil {
 					log.Printf("Error decoding header %v\n", err)
 					continue
@@ -483,11 +456,11 @@ func (options *EventListenOpts) Execute(args []string) error {
 
 					// Print it
 					if options.ShowBody {
-						if err := PrintMessage(grpcurlFormatter, eventMessage, msg.Value); err != nil {
+						if err := PrintInterContainerMessage(grpcurlFormatter, iaMessage, msg.Value); err != nil {
 							log.Printf("%v\n", err)
 						}
 					} else {
-						if err := PrintEventHeader(options.OutputAs, outputFormat, hdr); err != nil {
+						if err := PrintInterContainerHeader(options.OutputAs, outputFormat, hdr); err != nil {
 							log.Printf("%v\n", err)
 						}
 					}
@@ -543,7 +516,7 @@ func (options *EventListenOpts) Execute(args []string) error {
 // Consume message from Sarama and send them out on a channel.
 // Supports multiple topics.
 // Taken from Sarama example consumer.
-func startConsumer(topics []string, client sarama.Client) (chan *sarama.ConsumerMessage, chan *sarama.ConsumerError, map[string]int64, error) {
+func startInterContainerConsumer(topics []string, client sarama.Client) (chan *sarama.ConsumerMessage, chan *sarama.ConsumerError, map[string]int64, error) {
 	master, err := sarama.NewConsumerFromClient(client)
 	if err != nil {
 		return nil, nil, nil, err
@@ -563,7 +536,7 @@ func startConsumer(topics []string, client sarama.Client) (chan *sarama.Consumer
 			log.Printf("WARNING: %d partitions on topic %s but we only listen to the first one\n", len(partitions), topic)
 		}
 
-		hw, err := client.GetOffset("voltha.events", partitions[0], sarama.OffsetNewest)
+		hw, err := client.GetOffset("openolt", partitions[0], sarama.OffsetNewest)
 		if err != nil {
 			return nil, nil, nil, fmt.Errorf("Error in consume() getting highwater: Topic %v Partitions: %v", topic, partitions)
 		}
