@@ -22,6 +22,52 @@
       "revId": "8c3161f43c7d69b1f7636c3d200ec67551de61e8",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4dd89c55_c27aa6dc",
+        "filename": "internal/pkg/commands/message.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-04-06T20:54:11Z",
+      "side": 1,
+      "message": "could put this on a single line",
+      "range": {
+        "startLine": 138,
+        "startChar": 0,
+        "endLine": 141,
+        "endChar": 2
+      },
+      "revId": "8c3161f43c7d69b1f7636c3d200ec67551de61e8",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "61ba8f65_2855e18e",
+        "filename": "internal/pkg/commands/message.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-04-06T20:54:11Z",
+      "side": 1,
+      "message": "single line",
+      "range": {
+        "startLine": 170,
+        "startChar": 0,
+        "endLine": 173,
+        "endChar": 2
+      },
+      "revId": "8c3161f43c7d69b1f7636c3d200ec67551de61e8",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }
