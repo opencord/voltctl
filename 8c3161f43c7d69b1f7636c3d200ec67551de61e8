@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4f68dc52_fba89c61",
+        "filename": "internal/pkg/commands/events.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-04-06T20:52:40Z",
+      "side": 1,
+      "message": "did you create a JIRA for this (i.e. either unify the timestamp or add a unit)",
+      "range": {
+        "startLine": 135,
+        "startChar": 0,
+        "endLine": 144,
+        "endChar": 2
+      },
+      "revId": "8c3161f43c7d69b1f7636c3d200ec67551de61e8",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}
