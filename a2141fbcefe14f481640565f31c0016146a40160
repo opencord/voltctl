@@ -22,6 +22,30 @@
       "revId": "a2141fbcefe14f481640565f31c0016146a40160",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8bcc0b1a_8da79776",
+        "filename": "README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 1000011
+      },
+      "writtenOn": "2020-04-06T23:24:21Z",
+      "side": 1,
+      "message": "Python doesn\u0027t require an install in most cases, where jq does.",
+      "parentUuid": "8b4c3218_4d4dcc40",
+      "range": {
+        "startLine": 129,
+        "startChar": 22,
+        "endLine": 129,
+        "endChar": 41
+      },
+      "revId": "a2141fbcefe14f481640565f31c0016146a40160",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }
