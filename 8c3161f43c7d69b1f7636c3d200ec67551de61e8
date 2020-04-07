@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4b300169_5821e4b8",
+        "filename": "internal/pkg/commands/events.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 1000016
+      },
+      "writtenOn": "2020-04-07T01:01:35Z",
+      "side": 1,
+      "message": "Yeah, https://jira.opencord.org/browse/VOL-2861",
+      "parentUuid": "4f68dc52_fba89c61",
+      "range": {
+        "startLine": 135,
+        "startChar": 0,
+        "endLine": 144,
+        "endChar": 2
+      },
+      "revId": "8c3161f43c7d69b1f7636c3d200ec67551de61e8",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4dd89c55_c27aa6dc",
         "filename": "internal/pkg/commands/message.go",
         "patchSetId": 8
