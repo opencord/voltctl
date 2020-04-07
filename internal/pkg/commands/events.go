@@ -132,6 +132,16 @@ func DecodeTimestamp(tsIntf interface{}) (time.Time, error) {
 		// Voltha-Protos 3.2.2 and below
 		return time.Unix(int64(tsFloat), 0), nil
 	}
+	tsInt64, okay := tsIntf.(int64)
+	if okay {
+		if tsInt64 > 10000000000000 {
+			// sometimes it's in nanoseconds
+			return time.Unix(tsInt64/1000000000, tsInt64%1000000000), nil
+		} else {
+			// sometimes it's in seconds
+			return time.Unix(tsInt64/1000, 0), nil
+		}
+	}
 	return time.Time{}, errors.New("Failed to decode timestamp")
 }
 
