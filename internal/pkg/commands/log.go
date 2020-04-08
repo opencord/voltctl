@@ -188,7 +188,7 @@ func getPackageNames(componentName string) ([]string, error) {
 
 	log.SetAllLogLevel(log.FatalLevel)
 
-	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()), log.FatalLevel)
+	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
 	if err != nil {
 		return nil, fmt.Errorf("Unable to create kvstore client %s", err)
 	}
@@ -196,7 +196,7 @@ func getPackageNames(componentName string) ([]string, error) {
 
 	// Already error checked during option processing
 	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
-	cm := config.NewConfigManager(client, supportedKvStoreType, host, port, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()))
+	cm := config.NewConfigManager(client, supportedKvStoreType, host, port, GlobalConfig.KvStoreConfig.Timeout)
 
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
 	defer cancel()
@@ -313,7 +313,7 @@ func (ccpn *ConfiguredComponentAndPackageName) Complete(match string) []flags.Co
 
 	log.SetAllLogLevel(log.FatalLevel)
 
-	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()), log.FatalLevel)
+	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
 	if err != nil {
 		return list
 	}
@@ -321,7 +321,7 @@ func (ccpn *ConfiguredComponentAndPackageName) Complete(match string) []flags.Co
 
 	// Already error checked during option processing
 	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
-	cm := config.NewConfigManager(client, supportedKvStoreType, host, port, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()))
+	cm := config.NewConfigManager(client, supportedKvStoreType, host, port, GlobalConfig.KvStoreConfig.Timeout)
 
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
 	defer cancel()
@@ -499,7 +499,7 @@ func (options *SetLogLevelOpts) Execute(args []string) error {
 		return fmt.Errorf(err.Error())
 	}
 
-	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()), log.FatalLevel)
+	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
 	if err != nil {
 		return fmt.Errorf("Unable to create kvstore client %s", err)
 	}
@@ -507,7 +507,7 @@ func (options *SetLogLevelOpts) Execute(args []string) error {
 
 	// Already error checked during option processing
 	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
-	cm := config.NewConfigManager(client, supportedKvStoreType, host, port, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()))
+	cm := config.NewConfigManager(client, supportedKvStoreType, host, port, GlobalConfig.KvStoreConfig.Timeout)
 
 	var output []LogLevelOutput
 
@@ -606,7 +606,7 @@ func (options *ListLogLevelsOpts) Execute(args []string) error {
 
 	log.SetAllLogLevel(log.FatalLevel)
 
-	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()), log.FatalLevel)
+	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
 	if err != nil {
 		return fmt.Errorf("Unable to create kvstore client %s", err)
 	}
@@ -614,7 +614,7 @@ func (options *ListLogLevelsOpts) Execute(args []string) error {
 
 	// Already error checked during option processing
 	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
-	cm := config.NewConfigManager(client, supportedKvStoreType, host, port, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()))
+	cm := config.NewConfigManager(client, supportedKvStoreType, host, port, GlobalConfig.KvStoreConfig.Timeout)
 
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
 	defer cancel()
@@ -728,7 +728,7 @@ func (options *ClearLogLevelsOpts) Execute(args []string) error {
 		return fmt.Errorf("%s", err)
 	}
 
-	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()), log.FatalLevel)
+	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
 	if err != nil {
 		return fmt.Errorf("Unable to create kvstore client %s", err)
 	}
@@ -736,7 +736,7 @@ func (options *ClearLogLevelsOpts) Execute(args []string) error {
 
 	// Already error checked during option processing
 	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
-	cm := config.NewConfigManager(client, supportedKvStoreType, host, port, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()))
+	cm := config.NewConfigManager(client, supportedKvStoreType, host, port, GlobalConfig.KvStoreConfig.Timeout)
 
 	var output []LogLevelOutput
 
@@ -794,7 +794,7 @@ func (options *ListLogPackagesOpts) Execute(args []string) error {
 
 	log.SetAllLogLevel(log.FatalLevel)
 
-	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()), log.FatalLevel)
+	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
 	if err != nil {
 		return fmt.Errorf("Unable to create kvstore client %s", err)
 	}
@@ -802,7 +802,7 @@ func (options *ListLogPackagesOpts) Execute(args []string) error {
 
 	// Already error checked during option processing
 	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
-	cm := config.NewConfigManager(client, supportedKvStoreType, host, port, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()))
+	cm := config.NewConfigManager(client, supportedKvStoreType, host, port, GlobalConfig.KvStoreConfig.Timeout)
 
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
 	defer cancel()
