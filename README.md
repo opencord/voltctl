@@ -168,3 +168,32 @@ ID                                      SERIALNUMBER    CONNECTSTATUS
 $ voltctl device list --outputas json
 [{"id":"d2960b6e-f963-4acb-83c9-492b3211cf6b","type":"brcm_openomci_onu","root":false,"parentid":"e2c1d2cd-c260-4285-8632-7b205aed660a","parentportno":536870912,"vendor":"OpenONU","model":"","hardwareversion":"","firmwareversion":"","serialnumber":"BBSM00000001","vendorid":"BBSM","adapter":"brcm_openomci_onu","vlan":0,"macaddress":"","address":"unknown","extraargs":"","proxyaddress":{"deviceId":"e2c1d2cd-c260-4285-8632-7b205aed660a","devicetype":"openolt","channelid":0,"channelgroup":0,"onuid":1,"onusessionid":0},"adminstate":"ENABLED","operstatus":"DISCOVERED","reason":"stopping-openomci","connectstatus":"UNREACHABLE","ports":[{"portno":536870912,"label":"PON port","type":"PON_ONU","adminstate":"ENABLED","operstatus":"ACTIVE","deviceid":"","peers":[{"deviceid":"e2c1d2cd-c260-4285-8632-7b205aed660a","portno":536870912}]},{"portno":16,"label":"uni-16","type":"ETHERNET_UNI","adminstate":"ENABLED","operstatus":"UNKNOWN","deviceid":"","peers":[]},{"portno":17,"label":"uni-17","type":"ETHERNET_UNI","adminstate":"ENABLED","operstatus":"DISCOVERED","deviceid":"","peers":[]},{"portno":18,"label":"uni-18","type":"ETHERNET_UNI","adminstate":"ENABLED","operstatus":"DISCOVERED","deviceid":"","peers":[]},{"portno":19,"label":"uni-19","type":"ETHERNET_UNI","adminstate":"ENABLED","operstatus":"DISCOVERED","deviceid":"","peers":[]}],"flows":[{"id":"8c4fd2d0f768700a","tableid":0,"durationsec":0,"durationnsec":0,"idletimeout":0,"hardtimeout":0,"packetcount":0,"bytecount":0,"priority":1000,"cookie":"~3fd5629a","inport":"16","vlanid":"0","setvlanid":"900","output":"536870912","writemetadata":"0x0384004000100000","meter":"2","tunnelid":"16"},{"id":"5d0b3499cd2bf4ac","tableid":0,"durationsec":0,"durationnsec":0,"idletimeout":0,"hardtimeout":0,"packetcount":0,"bytecount":0,"priority":1000,"cookie":"~4df91e40","inport":"536870912","vlanid":"900","metadata":"0x0000000000000010","setvlanid":"0","output":"16","writemetadata":"0x0000004000000000","meter":"2"},{"id":"21a5ad60293e6c60","tableid":0,"durationsec":0,"durationnsec":0,"idletimeout":0,"hardtimeout":0,"packetcount":0,"bytecount":0,"priority":10000,"cookie":"~ba31a4f2","inport":"16","ethtype":"0x0800","ipproto":"17","udpsrc":"68","dstsrc":"67","setvlanid":"900","pushvlanid":"0x8100","output":"536870912","writemetadata":"0x0000004000000000","meter":"2","tunnelid":"16"}]},{"id":"e2c1d2cd-c260-4285-8632-7b205aed660a","type":"openolt","root":true,"parentid":"28d1128f-7d9a-48fa-b60b-d96e1491d92a","parentportno":0,"vendor":"BBSim","model":"asfvolt16","hardwareversion":"","firmwareversion":"","serialnumber":"BBSIM_OLT_0","vendorid":"","adapter":"openolt","vlan":0,"macaddress":"0a:0a:0a:0a:0a:00","address":"bbsim.voltha.svc:50060","extraargs":"","adminstate":"DISABLED","operstatus":"UNKNOWN","reason":"","connectstatus":"REACHABLE","ports":[{"portno":1048576,"label":"nni-1048576","type":"ETHERNET_NNI","adminstate":"ENABLED","operstatus":"ACTIVE","deviceid":"","peers":[]},{"portno":536870912,"label":"pon-536870912","type":"PON_OLT","adminstate":"ENABLED","operstatus":"DISCOVERED","deviceid":"","peers":[{"deviceid":"d2960b6e-f963-4acb-83c9-492b3211cf6b","portno":536870912}]}],"flows":[{"id":"e1746c5320441c57","tableid":0,"durationsec":0,"durationnsec":0,"idletimeout":0,"hardtimeout":0,"packetcount":0,"bytecount":0,"priority":10000,"cookie":"~f81586a7","inport":"1048576","ethtype":"0x0800","ipproto":"17","udpsrc":"67","dstsrc":"68","output":"CONTROLLER"},{"id":"12f8e0237d36dcab","tableid":0,"durationsec":0,"durationnsec":0,"idletimeout":0,"hardtimeout":0,"packetcount":0,"bytecount":0,"priority":10000,"cookie":"~ce6c3527","inport":"1048576","ethtype":"0x88cc","output":"CONTROLLER"},{"id":"35f0a5d7315c8b8a","tableid":0,"durationsec":0,"durationnsec":0,"idletimeout":0,"hardtimeout":0,"packetcount":0,"bytecount":0,"priority":1000,"cookie":"~986cca9a","inport":"536870912","vlanid":"900","setvlanid":"900","pushvlanid":"0x8100","output":"1048576","writemetadata":"0x0000004000000000","meter":"2","tunnelid":"16"},{"id":"755a065fb691c418","tableid":0,"durationsec":0,"durationnsec":0,"idletimeout":0,"hardtimeout":0,"packetcount":0,"bytecount":0,"priority":1000,"cookie":"~531d5ec9","inport":"1048576","vlanid":"900","metadata":"0x0000000000000384","popvlan":"yes","output":"536870912","writemetadata":"0x0384004000000010","meter":"2","tunnelid":"16"},{"id":"e11f009524a53eb2","tableid":0,"durationsec":0,"durationnsec":0,"idletimeout":0,"hardtimeout":0,"packetcount":0,"bytecount":0,"priority":10000,"cookie":"~ba31a4f2","inport":"536870912","ethtype":"0x0800","vlanid":"900","ipproto":"17","udpsrc":"68","dstsrc":"67","output":"CONTROLLER","writemetadata":"0x0000004000000000","meter":"2","tunnelid":"16"}]}]
 ```
+
+### Configure logs in the VOLTHA components
+
+Check the current log levels:
+
+```shell
+$ voltctl loglevel list
+COMPONENTNAME       PACKAGENAME    LEVEL
+read-write-core     default        DEBUG
+adapter-open-olt    default        DEBUG
+global              default        WARN
+open-flow-agent     default        DEBUG
+```
+
+Configure the global log level:
+
+```shell
+$ voltctl loglevel set INFO
+COMPONENTNAME    STATUS     ERROR
+global           Success
+```
+
+Set the log level of a specific package within a component:
+
+```shell
+$ voltctl loglevel set WARN adapter-open-olt#github.com/opencord/voltha-lib-go/kafka
+COMPONENTNAME       STATUS     ERROR
+adapter-open-olt    Success
+```
