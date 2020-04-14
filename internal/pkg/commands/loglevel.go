@@ -26,6 +26,9 @@ import (
 	"github.com/opencord/voltha-lib-go/v3/pkg/db/kvstore"
 	"github.com/opencord/voltha-lib-go/v3/pkg/log"
 	"io/ioutil"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
 	"os"
 	"strings"
 )
@@ -33,7 +36,10 @@ import (
 const (
 	defaultComponentName = "global"
 	defaultPackageName   = "default"
+	logPackagesListKey   = "log_package_list" // kvstore key containing list of allowed log packages
 )
+
+type ComponentName string
 
 // LogLevelOutput represents the  output structure for the loglevel
 type LogLevelOutput struct {
@@ -67,17 +73,27 @@ type ClearLogLevelsOpts struct {
 	} `positional-args:"yes" required:"yes"`
 }
 
+// ListLogLevelOpts represents the supported CLI arguments for the loglevel list command
+type ListLogPackagesOpts struct {
+	ListOutputOptions
+	Args struct {
+		Component []ComponentName
+	} `positional-args:"yes" required:"yes"`
+}
+
 // LogLevelOpts represents the loglevel commands
 type LogLevelOpts struct {
-	SetLogLevel    SetLogLevelOpts    `command:"set"`
-	ListLogLevels  ListLogLevelsOpts  `command:"list"`
-	ClearLogLevels ClearLogLevelsOpts `command:"clear"`
+	SetLogLevel     SetLogLevelOpts     `command:"set"`
+	ListLogLevels   ListLogLevelsOpts   `command:"list"`
+	ClearLogLevels  ClearLogLevelsOpts  `command:"clear"`
+	ListLogPackages ListLogPackagesOpts `command:"listpackage"`
 }
 
 var logLevelOpts = LogLevelOpts{}
 
 const (
 	DEFAULT_LOGLEVELS_FORMAT       = "table{{ .ComponentName }}\t{{.PackageName}}\t{{.Level}}"
+	DEFAULT_LOGPACKAGES_FORMAT     = "table{{ .ComponentName }}\t{{.PackageName}}"
 	DEFAULT_LOGLEVEL_RESULT_FORMAT = "table{{ .ComponentName }}\t{{.Status}}\t{{.Error}}"
 )
 
@@ -87,6 +103,57 @@ func RegisterLogLevelCommands(parent *flags.Parser) {
 	if err != nil {
 		Error.Fatalf("Unable to register log level commands with voltctl command parser: %s", err.Error())
 	}
+}
+
+// Common method to get list of VOLTHA components using k8s API. Used for validation and auto-complete
+// Just return a blank list in case of any error
+func getVolthaComponentNames() []string {
+	componentList := make([]string, 0)
+
+	// use the current context in kubeconfig
+	config, err := clientcmd.BuildConfigFromFlags("", GlobalOptions.K8sConfig)
+	if err != nil {
+		// Ignore any error
+		return componentList
+	}
+
+	// create the clientset
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		return componentList
+	}
+
+	pods, err := clientset.CoreV1().Pods("").List(metav1.ListOptions{
+		LabelSelector: "app.kubernetes.io/part-of=voltha",
+	})
+	if err != nil {
+		return componentList
+	}
+
+	for _, pod := range pods.Items {
+		componentList = append(componentList, pod.ObjectMeta.Labels["app.kubernetes.io/name"])
+	}
+
+	return componentList
+}
+
+func (cn *ComponentName) Complete(match string) []flags.Completion {
+
+	componentNames := getVolthaComponentNames()
+
+	// Return nil if no component names could be fetched
+	if len(componentNames) == 0 {
+		return nil
+	}
+
+	list := make([]flags.Completion, 0)
+	for _, name := range componentNames {
+		if strings.HasPrefix(name, match) {
+			list = append(list, flags.Completion{Item: name})
+		}
+	}
+
+	return list
 }
 
 // processComponentListArgs stores  the component name and package names given in command arguments to LogLevel
@@ -415,6 +482,117 @@ func (options *ClearLogLevelsOpts) Execute(args []string) error {
 		Data:      output,
 	}
 
+	GenerateOutput(&result)
+	return nil
+}
+
+// This method lists registered log packages for components.
+// For example, available log packages can be listed for specific component using below command
+// voltctl loglevel listpackage  <componentName>
+// For example, available log packages can be listed for all the components using below command (omitting component name)
+// voltctl loglevel listpackage
+func (options *ListLogPackagesOpts) Execute(args []string) error {
+
+	var (
+		// Initialize to empty as opposed to nil so that -o json will
+		// display empty list and not null VOL-2742
+		data          []model.LogLevel = []model.LogLevel{}
+		componentList []string
+		err           error
+	)
+
+	ProcessGlobalOptions()
+
+	/*
+	 * TODO: VOL-2738
+	 * EVIL HACK ALERT
+	 * ===============
+	 * It would be nice if we could squelch all but fatal log messages from
+	 * the underlying libraries because as a CLI client we don't want a
+	 * bunch of logs and stack traces output and instead want to deal with
+	 * simple error propagation. To work around this, voltha-lib-go logging
+	 * is set to fatal and we redirect etcd client logging to a temp file.
+	 *
+	 * Replacing os.Stderr is used here as opposed to Dup2 because we want
+	 * low level panic to be displayed if they occurr. A temp file is used
+	 * as opposed to /dev/null because it can't be assumed that /dev/null
+	 * exists on all platforms and thus a temp file seems more portable.
+	 */
+	log.SetAllLogLevel(log.FatalLevel)
+	saveStderr := os.Stderr
+	if tmpStderr, err := ioutil.TempFile("", ""); err == nil {
+		os.Stderr = tmpStderr
+		defer func() {
+			os.Stderr = saveStderr
+			// Ignore errors on clean up because we can't do
+			// anything anyway.
+			_ = tmpStderr.Close()
+			_ = os.Remove(tmpStderr.Name())
+		}()
+	}
+
+	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()))
+	if err != nil {
+		return fmt.Errorf("Unable to create kvstore client %s", err)
+	}
+	defer client.Close()
+
+	// Already error checked during option processing
+	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
+	cm := config.NewConfigManager(client, supportedKvStoreType, host, port, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()))
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	defer cancel()
+
+	if len(options.Args.Component) == 0 {
+		componentList, err = cm.RetrieveComponentList(ctx, config.ConfigTypeLogLevel)
+		if err != nil {
+			return fmt.Errorf("Unable to retrieve list of voltha components : %s ", err)
+		}
+
+		// Include default global package as well when displaying packages for all components
+		logLevel := model.LogLevel{}
+		logLevel.PopulateFrom(defaultComponentName, defaultPackageName, "")
+		data = append(data, logLevel)
+	} else {
+		for _, name := range options.Args.Component {
+			componentList = append(componentList, string(name))
+		}
+	}
+
+	for _, componentName := range componentList {
+		componentMetadata := cm.InitComponentConfig(componentName, config.ConfigTypeMetadata)
+
+		packageList, err := componentMetadata.Retrieve(ctx, logPackagesListKey)
+		if err != nil {
+			// Ignore any error in retrieval for log package list; some components may not store it
+			continue
+		}
+
+		for _, packageName := range strings.Split(packageList, ",") {
+			logLevel := model.LogLevel{}
+			logLevel.PopulateFrom(componentName, packageName, "")
+			data = append(data, logLevel)
+		}
+	}
+
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("loglevel-listpackage", "format", DEFAULT_LOGPACKAGES_FORMAT)
+	}
+	orderBy := options.OrderBy
+	if orderBy == "" {
+		orderBy = GetCommandOptionWithDefault("loglevel-listpackage", "order", "PackageName,ComponentName,Level")
+	}
+
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		Filter:    options.Filter,
+		OrderBy:   orderBy,
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      data,
+	}
 	GenerateOutput(&result)
 	return nil
 }
