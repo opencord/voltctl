@@ -17,23 +17,39 @@ package commands
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"strings"
+
 	flags "github.com/jessevdk/go-flags"
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltctl/pkg/model"
 	"github.com/opencord/voltha-lib-go/v3/pkg/config"
 	"github.com/opencord/voltha-lib-go/v3/pkg/db/kvstore"
 	"github.com/opencord/voltha-lib-go/v3/pkg/log"
-	"io/ioutil"
-	"os"
-	"strings"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 const (
 	defaultComponentName = "global"
 	defaultPackageName   = "default"
+	logPackagesListKey   = "log_package_list" // kvstore key containing list of allowed log packages
 )
+
+// Custom Option representing <component-name>#<package-name> format (package is optional)
+// This is used by 'log level set' and 'log level clear' commands
+type ComponentAndPackageName string
+
+// Custom Option representing component-name. This is used by 'log level list' and 'log package list' commands
+type ComponentName string
+
+// Custom Option representing Log Level (one of debug, info, warn, error, fatal)
+type LevelName string
 
 // LogLevelOutput represents the  output structure for the loglevel
 type LogLevelOutput struct {
@@ -46,8 +62,8 @@ type LogLevelOutput struct {
 type SetLogLevelOpts struct {
 	OutputOptions
 	Args struct {
-		Level     string
-		Component []string
+		Level     LevelName
+		Component []ComponentAndPackageName
 	} `positional-args:"yes" required:"yes"`
 }
 
@@ -55,7 +71,7 @@ type SetLogLevelOpts struct {
 type ListLogLevelsOpts struct {
 	ListOutputOptions
 	Args struct {
-		Component []string
+		Component []ComponentName
 	} `positional-args:"yes" required:"yes"`
 }
 
@@ -63,32 +79,252 @@ type ListLogLevelsOpts struct {
 type ClearLogLevelsOpts struct {
 	OutputOptions
 	Args struct {
-		Component []string
+		Component []ComponentAndPackageName
 	} `positional-args:"yes" required:"yes"`
 }
 
-// LogLevelOpts represents the loglevel commands
+// ListLogLevelOpts represents the supported CLI arguments for the loglevel list command
+type ListLogPackagesOpts struct {
+	ListOutputOptions
+	Args struct {
+		Component []ComponentName
+	} `positional-args:"yes" required:"yes"`
+}
+
+// LogPackageOpts represents the log package commands
+type LogPackageOpts struct {
+	ListLogPackages ListLogPackagesOpts `command:"list"`
+}
+
+// LogLevelOpts represents the log level commands
 type LogLevelOpts struct {
 	SetLogLevel    SetLogLevelOpts    `command:"set"`
 	ListLogLevels  ListLogLevelsOpts  `command:"list"`
 	ClearLogLevels ClearLogLevelsOpts `command:"clear"`
 }
 
-var logLevelOpts = LogLevelOpts{}
+// LogOpts represents the log commands
+type LogOpts struct {
+	LogLevel   LogLevelOpts   `command:"level"`
+	LogPackage LogPackageOpts `command:"package"`
+}
+
+var logOpts = LogOpts{}
 
 const (
-	DEFAULT_LOGLEVELS_FORMAT       = "table{{ .ComponentName }}\t{{.PackageName}}\t{{.Level}}"
-	DEFAULT_LOGLEVEL_RESULT_FORMAT = "table{{ .ComponentName }}\t{{.Status}}\t{{.Error}}"
+	DEFAULT_LOG_LEVELS_FORMAT   = "table{{ .ComponentName }}\t{{.PackageName}}\t{{.Level}}"
+	DEFAULT_LOG_PACKAGES_FORMAT = "table{{ .ComponentName }}\t{{.PackageName}}"
+	DEFAULT_LOG_RESULT_FORMAT   = "table{{ .ComponentName }}\t{{.Status}}\t{{.Error}}"
 )
 
-// RegisterLogLevelCommands is used to  register set,list and clear loglevel of components
-func RegisterLogLevelCommands(parent *flags.Parser) {
-	_, err := parent.AddCommand("loglevel", "loglevel commands", "list, set, clear log levels of components", &logLevelOpts)
+func toStringArray(arg interface{}) []string {
+	var list []string
+	if cnl, ok := arg.([]ComponentName); ok {
+		for _, cn := range cnl {
+			list = append(list, string(cn))
+		}
+	} else if cpnl, ok := arg.([]ComponentAndPackageName); ok {
+		for _, cpn := range cpnl {
+			list = append(list, string(cpn))
+		}
+	}
+
+	return list
+}
+
+// RegisterLogCommands is used to register log and its sub-commands e.g. level, package etc
+func RegisterLogCommands(parent *flags.Parser) {
+	_, err := parent.AddCommand("log", "log config commands", "list, set, clear log levels and list packages of components", &logOpts)
 	if err != nil {
-		Error.Fatalf("Unable to register log level commands with voltctl command parser: %s", err.Error())
+		Error.Fatalf("Unable to register log commands with voltctl command parser: %s", err.Error())
 	}
 }
 
+// Common method to get list of VOLTHA components using k8s API. Used for validation and auto-complete
+// Just return a blank list in case of any error
+func getVolthaComponentNames() []string {
+	var componentList []string
+
+	// use the current context in kubeconfig
+	config, err := clientcmd.BuildConfigFromFlags("", GlobalOptions.K8sConfig)
+	if err != nil {
+		// Ignore any error
+		return componentList
+	}
+
+	// create the clientset
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		return componentList
+	}
+
+	pods, err := clientset.CoreV1().Pods("").List(metav1.ListOptions{
+		LabelSelector: "app.kubernetes.io/part-of=voltha",
+	})
+	if err != nil {
+		return componentList
+	}
+
+	for _, pod := range pods.Items {
+		componentList = append(componentList, pod.ObjectMeta.Labels["app.kubernetes.io/name"])
+	}
+
+	return componentList
+}
+
+func getPackageNames(componentName string) ([]string, error) {
+	list := []string{defaultPackageName}
+
+	ProcessGlobalOptions()
+
+	/*
+	 * TODO: VOL-2738
+	 * EVIL HACK ALERT
+	 * ===============
+	 * It would be nice if we could squelch all but fatal log messages from
+	 * the underlying libraries because as a CLI client we don't want a
+	 * bunch of logs and stack traces output and instead want to deal with
+	 * simple error propagation. To work around this, voltha-lib-go logging
+	 * is set to fatal and we redirect etcd client logging to a temp file.
+	 *
+	 * Replacing os.Stderr is used here as opposed to Dup2 because we want
+	 * low level panic to be displayed if they occurr. A temp file is used
+	 * as opposed to /dev/null because it can't be assumed that /dev/null
+	 * exists on all platforms and thus a temp file seems more portable.
+	 */
+	log.SetAllLogLevel(log.FatalLevel)
+	saveStderr := os.Stderr
+	if tmpStderr, err := ioutil.TempFile("", ""); err == nil {
+		os.Stderr = tmpStderr
+		defer func() {
+			os.Stderr = saveStderr
+			// Ignore errors on clean up because we can't do
+			// anything anyway.
+			_ = tmpStderr.Close()
+			_ = os.Remove(tmpStderr.Name())
+		}()
+	}
+
+	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()))
+	if err != nil {
+		return nil, fmt.Errorf("Unable to create kvstore client %s", err)
+	}
+	defer client.Close()
+
+	// Already error checked during option processing
+	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
+	cm := config.NewConfigManager(client, supportedKvStoreType, host, port, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()))
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	defer cancel()
+
+	componentMetadata := cm.InitComponentConfig(componentName, config.ConfigTypeMetadata)
+
+	value, err := componentMetadata.Retrieve(ctx, logPackagesListKey)
+	if err != nil || value == "" {
+		return list, nil
+	}
+
+	var packageList []string
+	if err = json.Unmarshal([]byte(value), &packageList); err != nil {
+		return list, nil
+	}
+
+	list = append(list, packageList...)
+
+	return list, nil
+}
+
+func (ln *LevelName) Complete(match string) []flags.Completion {
+	levels := []string{"debug", "info", "warn", "error", "fatal"}
+
+	var list []flags.Completion
+	for _, name := range levels {
+		if strings.HasPrefix(name, strings.ToLower(match)) {
+			list = append(list, flags.Completion{Item: name})
+		}
+	}
+
+	return list
+}
+
+func (cn *ComponentAndPackageName) Complete(match string) []flags.Completion {
+
+	componentNames := getVolthaComponentNames()
+
+	// Return nil if no component names could be fetched
+	if len(componentNames) == 0 {
+		return nil
+	}
+
+	// Check to see if #was specified, and if so, we know we have
+	// to split component name and package
+	parts := strings.SplitN(match, "#", 2)
+
+	var list []flags.Completion
+	for _, name := range componentNames {
+		if strings.HasPrefix(name, parts[0]) {
+			list = append(list, flags.Completion{Item: name})
+		}
+	}
+
+	// If the possible completions > 1 then we have to stop here
+	// as we can't suggest packages
+	if len(parts) == 1 || len(list) > 1 {
+		return list
+	}
+
+	// Ok, we have a valid, unambiguous component name and there
+	// is a package separator, so lets try to expand the package
+	// and in this case we will replace the list we have so
+	// far with the new list
+	cname := list[0].Item
+	base := []flags.Completion{{Item: fmt.Sprintf("%s#%s", cname, parts[1])}}
+	packages, err := getPackageNames(cname)
+	if err != nil || len(packages) == 0 {
+		return base
+	}
+
+	list = []flags.Completion{}
+	for _, pname := range packages {
+		if strings.HasPrefix(pname, parts[1]) {
+			list = append(list, flags.Completion{Item: fmt.Sprintf("%s#%s", cname, pname)})
+		}
+	}
+
+	// if package part is present and still no match found based on prefix, user may be using
+	// short-hand notation for package name. Attempt text search if minimum characters are present
+	if len(list) == 0 && len(parts[1]) >= 3 {
+		for _, pname := range packages {
+			if strings.Contains(pname, parts[1]) {
+				list = append(list, flags.Completion{Item: fmt.Sprintf("%s#%s", cname, pname)})
+			}
+		}
+	}
+
+	return list
+}
+
+func (cn *ComponentName) Complete(match string) []flags.Completion {
+
+	componentNames := getVolthaComponentNames()
+
+	// Return nil if no component names could be fetched
+	if len(componentNames) == 0 {
+		return nil
+	}
+
+	var list []flags.Completion
+	for _, name := range componentNames {
+		if strings.HasPrefix(name, match) {
+			list = append(list, flags.Completion{Item: name})
+		}
+	}
+
+	return list
+}
+
+// Return nil if no component names could be fetched
 // processComponentListArgs stores  the component name and package names given in command arguments to LogLevel
 // It checks the given argument has # key or not, if # is present then split the argument for # then stores first part as component name
 // and second part as package name
@@ -166,12 +402,12 @@ func (options *SetLogLevelOpts) Execute(args []string) error {
 	}
 
 	if options.Args.Level != "" {
-		if _, err := log.StringToLogLevel(options.Args.Level); err != nil {
+		if _, err := log.StringToLogLevel(string(options.Args.Level)); err != nil {
 			return fmt.Errorf("Unknown log level '%s'. Allowed values are  DEBUG, INFO, WARN, ERROR, FATAL", options.Args.Level)
 		}
 	}
 
-	logLevelConfig, err = processComponentListArgs(options.Args.Component)
+	logLevelConfig, err = processComponentListArgs(toStringArray(options.Args.Component))
 	if err != nil {
 		return fmt.Errorf(err.Error())
 	}
@@ -194,7 +430,7 @@ func (options *SetLogLevelOpts) Execute(args []string) error {
 	for _, lConfig := range logLevelConfig {
 
 		logConfig := cm.InitComponentConfig(lConfig.ComponentName, config.ConfigTypeLogLevel)
-		err := logConfig.Save(ctx, lConfig.PackageName, strings.ToUpper(options.Args.Level))
+		err := logConfig.Save(ctx, lConfig.PackageName, strings.ToUpper(string(options.Args.Level)))
 		if err != nil {
 			output = append(output, LogLevelOutput{ComponentName: lConfig.ComponentName, Status: "Failure", Error: err.Error()})
 		} else {
@@ -205,7 +441,7 @@ func (options *SetLogLevelOpts) Execute(args []string) error {
 
 	outputFormat := CharReplacer.Replace(options.Format)
 	if outputFormat == "" {
-		outputFormat = GetCommandOptionWithDefault("loglevel-set", "format", DEFAULT_LOGLEVEL_RESULT_FORMAT)
+		outputFormat = GetCommandOptionWithDefault("log-level-set", "format", DEFAULT_LOG_RESULT_FORMAT)
 	}
 	result := CommandResult{
 		Format:    format.Format(outputFormat),
@@ -282,7 +518,7 @@ func (options *ListLogLevelsOpts) Execute(args []string) error {
 			return fmt.Errorf("Unable to retrieve list of voltha components : %s ", err)
 		}
 	} else {
-		componentList = options.Args.Component
+		componentList = toStringArray(options.Args.Component)
 	}
 
 	for _, componentName := range componentList {
@@ -307,11 +543,11 @@ func (options *ListLogLevelsOpts) Execute(args []string) error {
 
 	outputFormat := CharReplacer.Replace(options.Format)
 	if outputFormat == "" {
-		outputFormat = GetCommandOptionWithDefault("loglevel-list", "format", DEFAULT_LOGLEVELS_FORMAT)
+		outputFormat = GetCommandOptionWithDefault("log-level-list", "format", DEFAULT_LOG_LEVELS_FORMAT)
 	}
 	orderBy := options.OrderBy
 	if orderBy == "" {
-		orderBy = GetCommandOptionWithDefault("loglevel-list", "order", "")
+		orderBy = GetCommandOptionWithDefault("log-level-list", "order", "")
 	}
 
 	result := CommandResult{
@@ -367,7 +603,7 @@ func (options *ClearLogLevelsOpts) Execute(args []string) error {
 		}()
 	}
 
-	logLevelConfig, err = processComponentListArgs(options.Args.Component)
+	logLevelConfig, err = processComponentListArgs(toStringArray(options.Args.Component))
 	if err != nil {
 		return fmt.Errorf("%s", err)
 	}
@@ -405,7 +641,7 @@ func (options *ClearLogLevelsOpts) Execute(args []string) error {
 
 	outputFormat := CharReplacer.Replace(options.Format)
 	if outputFormat == "" {
-		outputFormat = GetCommandOptionWithDefault("loglevel-clear", "format", DEFAULT_LOGLEVEL_RESULT_FORMAT)
+		outputFormat = GetCommandOptionWithDefault("log-level-clear", "format", DEFAULT_LOG_RESULT_FORMAT)
 	}
 
 	result := CommandResult{
@@ -415,6 +651,122 @@ func (options *ClearLogLevelsOpts) Execute(args []string) error {
 		Data:      output,
 	}
 
+	GenerateOutput(&result)
+	return nil
+}
+
+// This method lists registered log packages for components.
+// For example, available log packages can be listed for specific component using below command
+// voltctl loglevel listpackage  <componentName>
+// For example, available log packages can be listed for all the components using below command (omitting component name)
+// voltctl loglevel listpackage
+func (options *ListLogPackagesOpts) Execute(args []string) error {
+
+	var (
+		// Initialize to empty as opposed to nil so that -o json will
+		// display empty list and not null VOL-2742
+		data          []model.LogLevel = []model.LogLevel{}
+		componentList []string
+		err           error
+	)
+
+	ProcessGlobalOptions()
+
+	/*
+	 * TODO: VOL-2738
+	 * EVIL HACK ALERT
+	 * ===============
+	 * It would be nice if we could squelch all but fatal log messages from
+	 * the underlying libraries because as a CLI client we don't want a
+	 * bunch of logs and stack traces output and instead want to deal with
+	 * simple error propagation. To work around this, voltha-lib-go logging
+	 * is set to fatal and we redirect etcd client logging to a temp file.
+	 *
+	 * Replacing os.Stderr is used here as opposed to Dup2 because we want
+	 * low level panic to be displayed if they occurr. A temp file is used
+	 * as opposed to /dev/null because it can't be assumed that /dev/null
+	 * exists on all platforms and thus a temp file seems more portable.
+	 */
+	log.SetAllLogLevel(log.FatalLevel)
+	saveStderr := os.Stderr
+	if tmpStderr, err := ioutil.TempFile("", ""); err == nil {
+		os.Stderr = tmpStderr
+		defer func() {
+			os.Stderr = saveStderr
+			// Ignore errors on clean up because we can't do
+			// anything anyway.
+			_ = tmpStderr.Close()
+			_ = os.Remove(tmpStderr.Name())
+		}()
+	}
+
+	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()))
+	if err != nil {
+		return fmt.Errorf("Unable to create kvstore client %s", err)
+	}
+	defer client.Close()
+
+	// Already error checked during option processing
+	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
+	cm := config.NewConfigManager(client, supportedKvStoreType, host, port, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()))
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	defer cancel()
+
+	if len(options.Args.Component) == 0 {
+		componentList, err = cm.RetrieveComponentList(ctx, config.ConfigTypeLogLevel)
+		if err != nil {
+			return fmt.Errorf("Unable to retrieve list of voltha components : %s ", err)
+		}
+
+		// Include default global package as well when displaying packages for all components
+		logLevel := model.LogLevel{}
+		logLevel.PopulateFrom(defaultComponentName, defaultPackageName, "")
+		data = append(data, logLevel)
+	} else {
+		for _, name := range options.Args.Component {
+			componentList = append(componentList, string(name))
+		}
+	}
+
+	for _, componentName := range componentList {
+		componentMetadata := cm.InitComponentConfig(componentName, config.ConfigTypeMetadata)
+
+		value, err := componentMetadata.Retrieve(ctx, logPackagesListKey)
+		if err != nil || value == "" {
+			// Ignore any error in retrieval for log package list; some components may not store it
+			continue
+		}
+
+		var packageList []string
+		if err = json.Unmarshal([]byte(value), &packageList); err != nil {
+			continue
+		}
+
+		for _, packageName := range packageList {
+			logLevel := model.LogLevel{}
+			logLevel.PopulateFrom(componentName, packageName, "")
+			data = append(data, logLevel)
+		}
+	}
+
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("log-package-list", "format", DEFAULT_LOG_PACKAGES_FORMAT)
+	}
+	orderBy := options.OrderBy
+	if orderBy == "" {
+		orderBy = GetCommandOptionWithDefault("log-package-list", "order", "ComponentName,PackageName")
+	}
+
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		Filter:    options.Filter,
+		OrderBy:   orderBy,
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      data,
+	}
 	GenerateOutput(&result)
 	return nil
 }
