@@ -66,7 +66,7 @@ func main() {
 	commands.RegisterCompletionCommands(parser)
 	commands.RegisterConfigCommands(parser)
 	commands.RegisterComponentCommands(parser)
-	commands.RegisterLogLevelCommands(parser)
+	commands.RegisterLogCommands(parser)
 	commands.RegisterEventCommands(parser)
 	commands.RegisterMessageCommands(parser)
 
