@@ -18,14 +18,14 @@ package commands
 import (
 	"context"
 	"github.com/fullstorydev/grpcurl"
-	flags "github.com/jessevdk/go-flags"
+	"github.com/jessevdk/go-flags"
 	"github.com/jhump/protoreflect/dynamic"
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltctl/pkg/model"
 )
 
 const (
-	DEFAULT_OUTPUT_FORMAT = "table{{ .Id }}\t{{ .Vendor }}\t{{ .Version }}\t{{ .SinceLastCommunication }}"
+	DEFAULT_OUTPUT_FORMAT = "table{{ .Id }}\t{{ .Vendor }}\t{{ .Type }}\t{{ .Endpoint }}\t{{ .Version }}\t{{ .CurrentReplica }}\t{{ .TotalReplicas }}\t{{ .SinceLastCommunication }}"
 )
 
 type AdapterList struct {
@@ -73,6 +73,7 @@ func (options *AdapterList) Execute(args []string) error {
 	if err != nil {
 		return err
 	}
+
 	items, err := d.TryGetFieldByName("items")
 	if err != nil {
 		return err
