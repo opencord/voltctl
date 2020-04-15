@@ -17,6 +17,7 @@ package commands
 
 import (
 	"context"
+	"fmt"
 	"github.com/fullstorydev/grpcurl"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/jhump/protoreflect/dynamic"
@@ -25,7 +26,7 @@ import (
 )
 
 const (
-	DEFAULT_OUTPUT_FORMAT = "table{{ .Id }}\t{{ .Vendor }}\t{{ .Version }}\t{{ .SinceLastCommunication }}"
+	DEFAULT_OUTPUT_FORMAT = "table{{ .Id }}\t{{ .Vendor }}\t{{ .Type }}\t{{ .Version }}\t{{ .SinceLastCommunication }}"
 )
 
 type AdapterList struct {
@@ -69,14 +70,21 @@ func (options *AdapterList) Execute(args []string) error {
 		return h.Status.Err()
 	}
 
+	fmt.Println(h.Response)
+
 	d, err := dynamic.AsDynamicMessage(h.Response)
 	if err != nil {
 		return err
 	}
+
+	fmt.Println(d)
+
 	items, err := d.TryGetFieldByName("items")
 	if err != nil {
 		return err
 	}
+
+	fmt.Println(items)
 
 	outputFormat := CharReplacer.Replace(options.Format)
 	if outputFormat == "" {
@@ -94,6 +102,8 @@ func (options *AdapterList) Execute(args []string) error {
 	for i, item := range items.([]interface{}) {
 		data[i].PopulateFrom(item.(*dynamic.Message))
 	}
+
+	fmt.Print(data)
 
 	result := CommandResult{
 		Format:    format.Format(outputFormat),

@@ -29,12 +29,20 @@ type Adapter struct {
 	LogLevel               string
 	LastCommunication      string
 	SinceLastCommunication string
+	CurrentReplica         int32
+	TotalReplicas          int32
+	Endpoint               string
+	Type                   string
 }
 
 func (adapter *Adapter) PopulateFrom(val *dynamic.Message) {
 	adapter.Id = val.GetFieldByName("id").(string)
 	adapter.Vendor = val.GetFieldByName("vendor").(string)
 	adapter.Version = val.GetFieldByName("version").(string)
+	//adapter.CurrentReplica = val.GetFieldByName("currentReplica").(int32)
+	//adapter.TotalReplicas = val.GetFieldByName("totalReplicas").(int32)
+	adapter.Endpoint = val.GetFieldByName("endpoint").(string)
+	//adapter.Type = val.GetFieldByName("type").(string)
 
 	if lastCommunication, err := val.TryGetFieldByName("last_communication"); err != nil {
 		adapter.LastCommunication = "UNKNOWN"
