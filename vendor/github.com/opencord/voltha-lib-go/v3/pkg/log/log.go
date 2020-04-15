@@ -232,6 +232,10 @@ func getDefaultConfig(outputType string, level LogLevel, defaultFields Fields) z
 	}
 }
 
+func ConstructZapConfig(outputType string, level LogLevel, fields Fields) zp.Config {
+	return getDefaultConfig(outputType, level, fields)
+}
+
 // SetLogger needs to be invoked before the logger API can be invoked.  This function
 // initialize the default logger (zap's sugaredlogger)
 func SetDefaultLogger(outputType string, level LogLevel, defaultFields Fields) (Logger, error) {
@@ -499,11 +503,11 @@ func getCallerInfo() (string, string, string, int) {
 }
 
 func getPackageLevelSugaredLogger() *zp.SugaredLogger {
-	pkgName, fileName, funcName, line := getCallerInfo()
+	pkgName, _, _, _ := getCallerInfo()
 	if _, exist := loggers[pkgName]; exist {
-		return loggers[pkgName].log.With("caller", fmt.Sprintf("%s.%s:%d", fileName, funcName, line))
+		return loggers[pkgName].log
 	}
-	return defaultLogger.log.With("caller", fmt.Sprintf("%s.%s:%d", fileName, funcName, line))
+	return defaultLogger.log
 }
 
 func getPackageLevelLogger() Logger {
