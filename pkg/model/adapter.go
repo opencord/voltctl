@@ -29,12 +29,38 @@ type Adapter struct {
 	LogLevel               string
 	LastCommunication      string
 	SinceLastCommunication string
+	CurrentReplica         int32
+	TotalReplicas          int32
+	Endpoint               string
+	Type                   string
 }
 
 func (adapter *Adapter) PopulateFrom(val *dynamic.Message) {
+
 	adapter.Id = val.GetFieldByName("id").(string)
 	adapter.Vendor = val.GetFieldByName("vendor").(string)
 	adapter.Version = val.GetFieldByName("version").(string)
+
+	if value, err := val.TryGetFieldByName("currentReplica"); err != nil {
+		adapter.CurrentReplica = 0
+	} else {
+		adapter.CurrentReplica = value.(int32)
+	}
+	if value, err := val.TryGetFieldByName("totalReplicas"); err != nil {
+		adapter.TotalReplicas = 0
+	} else {
+		adapter.TotalReplicas = value.(int32)
+	}
+	if value, err := val.TryGetFieldByName("endpoint"); err != nil {
+		adapter.Endpoint = "UNKNOWN"
+	} else {
+		adapter.Endpoint = value.(string)
+	}
+	if value, err := val.TryGetFieldByName("type"); err != nil {
+		adapter.Type = "UNKNOWN"
+	} else {
+		adapter.Type = value.(string)
+	}
 
 	if lastCommunication, err := val.TryGetFieldByName("last_communication"); err != nil {
 		adapter.LastCommunication = "UNKNOWN"
@@ -49,8 +75,4 @@ func (adapter *Adapter) PopulateFrom(val *dynamic.Message) {
 		}
 	}
 
-	var config *dynamic.Message = val.GetFieldByName("config").(*dynamic.Message)
-	if config != nil {
-		adapter.LogLevel = GetEnumValue(config, "log_level")
-	}
 }
