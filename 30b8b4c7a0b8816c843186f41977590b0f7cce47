@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3876cbb3_6412ea89",
+        "filename": "voltctl.config",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1000016
+      },
+      "writtenOn": "2020-04-15T16:02:49Z",
+      "side": 1,
+      "message": "these hostnames and ports assume a particular deployment, particularly with Kafka, which might be deployed in an operator-specific way. Is it useful to have these hostnames/ports here, or should we leave them purposely unspecified?",
+      "range": {
+        "startLine": 2,
+        "startChar": 8,
+        "endLine": 2,
+        "endChar": 49
+      },
+      "revId": "30b8b4c7a0b8816c843186f41977590b0f7cce47",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}
