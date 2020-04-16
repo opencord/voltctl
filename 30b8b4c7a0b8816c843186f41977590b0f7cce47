@@ -22,6 +22,30 @@
       "revId": "30b8b4c7a0b8816c843186f41977590b0f7cce47",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "64e41775_c3a5c9d4",
+        "filename": "voltctl.config",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1000526
+      },
+      "writtenOn": "2020-04-16T18:59:01Z",
+      "side": 1,
+      "message": "alright. changed to use localhost",
+      "parentUuid": "3876cbb3_6412ea89",
+      "range": {
+        "startLine": 2,
+        "startChar": 8,
+        "endLine": 2,
+        "endChar": 49
+      },
+      "revId": "30b8b4c7a0b8816c843186f41977590b0f7cce47",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }
