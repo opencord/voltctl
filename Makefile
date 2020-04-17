@@ -89,8 +89,14 @@ release:
 	    echo "$$OUT_PATH"; \
 	    GOOS=$${x%-*} GOARCH=$${x#*-} go build -mod=vendor -v $(LDFLAGS) -o "$$OUT_PATH" cmd/voltctl/voltctl.go; \
 	  done'
+## Local Development Helpers
+local-lib-go:
+ifdef LOCAL_LIB_GO
+	mkdir -p vendor/github.com/opencord/voltha-lib-go/v3/pkg
+	cp -r ${LOCAL_LIB_GO}/pkg/* vendor/github.com/opencord/voltha-lib-go/v3/pkg/
+endif
 
-build:
+build: local-lib-go
 	go build -mod=vendor $(LDFLAGS) cmd/voltctl/voltctl.go
 
 install:
