@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b560723_8b772024",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-04-18T22:48:04Z",
+      "side": 1,
+      "message": "i think this can be `var componentList []string`",
+      "range": {
+        "startLine": 122,
+        "startChar": 1,
+        "endLine": 122,
+        "endChar": 35
+      },
+      "revId": "b1b04ab64b89adbaf8a26abdd2ddb7bfafca09cb",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f33bfd38_3caa4ec8",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-04-18T22:48:04Z",
+      "side": 1,
+      "message": "this can be `var list []flags.Completion`. this should be changed in other completion funds as well, such as in devices.go",
+      "range": {
+        "startLine": 160,
+        "startChar": 1,
+        "endLine": 160,
+        "endChar": 36
+      },
+      "revId": "b1b04ab64b89adbaf8a26abdd2ddb7bfafca09cb",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}
