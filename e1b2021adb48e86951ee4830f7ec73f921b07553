@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "84b55dbd_3adb0004",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 7
+      },
+      "lineNbr": 769,
+      "author": {
+        "id": 1000016
+      },
+      "writtenOn": "2020-04-20T17:43:33Z",
+      "side": 1,
+      "message": "Filed VOL-2946",
+      "range": {
+        "startLine": 769,
+        "startChar": 4,
+        "endLine": 769,
+        "endChar": 32
+      },
+      "revId": "e1b2021adb48e86951ee4830f7ec73f921b07553",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8841b932_aaf52435",
+        "filename": "voltctl.config",
+        "patchSetId": 7
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1000016
+      },
+      "writtenOn": "2020-04-20T17:43:33Z",
+      "side": 1,
+      "message": "not sure if this change was intentional",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 2,
+        "endChar": 49
+      },
+      "revId": "e1b2021adb48e86951ee4830f7ec73f921b07553",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}
