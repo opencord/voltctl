@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9bc5a4f3_6f335552",
+        "filename": "internal/pkg/commands/loglevel.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-04-21T04:26:48Z",
+      "side": 1,
+      "message": "if the hack is gone then so should the comment be",
+      "range": {
+        "startLine": 138,
+        "startChar": 0,
+        "endLine": 152,
+        "endChar": 4
+      },
+      "revId": "1609acd50514bd4d64824d8330b0a37fbc44e999",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8ac69f8e_271d461c",
+        "filename": "internal/pkg/commands/loglevel.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-04-21T04:26:48Z",
+      "side": 1,
+      "message": "the hack is gone, might want to remove the comment",
+      "range": {
+        "startLine": 225,
+        "startChar": 0,
+        "endLine": 239,
+        "endChar": 4
+      },
+      "revId": "1609acd50514bd4d64824d8330b0a37fbc44e999",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2f7d0dce_4226a9b9",
+        "filename": "internal/pkg/commands/loglevel.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-04-21T04:26:48Z",
+      "side": 1,
+      "message": "the evil hack is gone, likely want to remove the comment",
+      "range": {
+        "startLine": 318,
+        "startChar": 1,
+        "endLine": 332,
+        "endChar": 4
+      },
+      "revId": "1609acd50514bd4d64824d8330b0a37fbc44e999",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}
