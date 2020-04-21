@@ -56,6 +56,7 @@ type LevelName string
 // LogLevelOutput represents the  output structure for the loglevel
 type LogLevelOutput struct {
 	ComponentName string
+	PackageName   string
 	Status        string
 	Error         string
 }
@@ -116,7 +117,7 @@ var logOpts = LogOpts{}
 const (
 	DEFAULT_LOG_LEVELS_FORMAT   = "table{{ .ComponentName }}\t{{.PackageName}}\t{{.Level}}"
 	DEFAULT_LOG_PACKAGES_FORMAT = "table{{ .ComponentName }}\t{{.PackageName}}"
-	DEFAULT_LOG_RESULT_FORMAT   = "table{{ .ComponentName }}\t{{.Status}}\t{{.Error}}"
+	DEFAULT_LOG_RESULT_FORMAT   = "table{{ .ComponentName }}\t{{.PackageName}}\t{{.Status}}\t{{.Error}}"
 )
 
 func toStringArray(arg interface{}) []string {
@@ -178,6 +179,8 @@ func getVolthaComponentNames() []string {
 	return componentList
 }
 
+// Method to get list of allowed Package Names for a given component. This list
+// is saved into etcd kvstore by each active component at startup as a json array
 func getPackageNames(componentName string) ([]string, error) {
 	list := []string{defaultPackageName}
 
@@ -449,12 +452,17 @@ func processComponentListArgs(Components []string) ([]model.LogLevel, error) {
 			return nil, errors.New("the component name '" + val[0] + "' contains an invalid character '/'")
 		}
 
+		// Breakup into component and package name; consider default package name if it is blank (e.g. read-write-core#)
 		if len(val) > 1 {
 			if val[0] == defaultComponentName {
 				return nil, errors.New("global level doesn't support packageName")
 			}
+
 			logConfig.ComponentName = val[0]
-			logConfig.PackageName = strings.ReplaceAll(val[1], "/", "#")
+			logConfig.PackageName = val[1]
+			if logConfig.PackageName == "" {
+				logConfig.PackageName = defaultPackageName
+			}
 		} else {
 			logConfig.ComponentName = component
 			logConfig.PackageName = defaultPackageName
@@ -506,14 +514,60 @@ func (options *SetLogLevelOpts) Execute(args []string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
 	defer cancel()
 
+	validComponents := getVolthaComponentNames()
+
 	for _, lConfig := range logLevelConfig {
 
 		logConfig := cm.InitComponentConfig(lConfig.ComponentName, config.ConfigTypeLogLevel)
-		err := logConfig.Save(ctx, lConfig.PackageName, strings.ToUpper(string(options.Args.Level)))
+		err := logConfig.Save(ctx, strings.ReplaceAll(lConfig.PackageName, "/", "#"), strings.ToUpper(string(options.Args.Level)))
+
 		if err != nil {
-			output = append(output, LogLevelOutput{ComponentName: lConfig.ComponentName, Status: "Failure", Error: err.Error()})
+			output = append(output, LogLevelOutput{ComponentName: lConfig.ComponentName, PackageName: lConfig.PackageName, Status: "Failure", Error: err.Error()})
 		} else {
-			output = append(output, LogLevelOutput{ComponentName: lConfig.ComponentName, Status: "Success"})
+			var outmsg string
+			cvalid := false
+			pvalid := false
+
+			// Validate if component and package name being set are correct. Add a * against the invalid value
+
+			// For global level, only default package is valid
+			if lConfig.ComponentName == defaultComponentName {
+				if lConfig.PackageName != defaultPackageName {
+					lConfig.PackageName = "*" + lConfig.PackageName
+					outmsg = "Only default package is valid for global"
+				}
+			} else {
+
+				for _, cname := range validComponents {
+					if lConfig.ComponentName == cname {
+						cvalid = true
+						break
+					}
+				}
+
+				// If component is valid, fetch and validate entered package name
+				if cvalid {
+					if validPackages, err := getPackageNames(lConfig.ComponentName); err == nil {
+						for _, pname := range validPackages {
+							if lConfig.PackageName == pname {
+								pvalid = true
+								break
+							}
+						}
+					}
+
+					if !pvalid {
+						lConfig.PackageName = "*" + lConfig.PackageName
+						outmsg = "Entered Package Name is not valid"
+					}
+				} else {
+
+					lConfig.ComponentName = "*" + lConfig.ComponentName
+					outmsg = "Entered Component Name is not Currently active in Voltha"
+				}
+			}
+
+			output = append(output, LogLevelOutput{ComponentName: lConfig.ComponentName, PackageName: lConfig.PackageName, Status: "Success", Error: outmsg})
 		}
 
 	}
@@ -574,6 +628,8 @@ func (options *ListLogLevelsOpts) Execute(args []string) error {
 		componentList = toStringArray(options.Args.Component)
 	}
 
+	validComponents := getVolthaComponentNames()
+
 	for _, componentName := range componentList {
 		logConfig := cm.InitComponentConfig(componentName, config.ConfigTypeLogLevel)
 
@@ -588,8 +644,45 @@ func (options *ListLogLevelsOpts) Execute(args []string) error {
 				continue
 			}
 
-			pName := strings.ReplaceAll(packageName, "#", "/")
-			logLevel.PopulateFrom(componentName, pName, level)
+			cvalid := false
+			pvalid := false
+			outPackageName := strings.ReplaceAll(packageName, "#", "/")
+			outComponentName := componentName
+
+			// Validate retrieved component and package names before printing. Add a * against the invalid value
+			if componentName == defaultComponentName {
+				if packageName != defaultPackageName {
+					outPackageName = "*" + outPackageName
+				}
+			} else {
+				for _, cname := range validComponents {
+					if componentName == cname {
+						cvalid = true
+						break
+					}
+				}
+
+				// For valid component, fetch and verify package name as well
+				if cvalid {
+					if validPackages, err := getPackageNames(componentName); err == nil {
+						for _, pname := range validPackages {
+							if outPackageName == pname {
+								pvalid = true
+								break
+							}
+						}
+					}
+
+					if !pvalid {
+						outPackageName = "*" + outPackageName
+					}
+				} else {
+
+					outComponentName = "*" + componentName
+				}
+			}
+
+			logLevel.PopulateFrom(outComponentName, outPackageName, level)
 			data = append(data, logLevel)
 		}
 	}
@@ -658,11 +751,11 @@ func (options *ClearLogLevelsOpts) Execute(args []string) error {
 
 		logConfig := cm.InitComponentConfig(lConfig.ComponentName, config.ConfigTypeLogLevel)
 
-		err := logConfig.Delete(ctx, lConfig.PackageName)
+		err := logConfig.Delete(ctx, strings.ReplaceAll(lConfig.PackageName, "/", "#"))
 		if err != nil {
-			output = append(output, LogLevelOutput{ComponentName: lConfig.ComponentName, Status: "Failure", Error: err.Error()})
+			output = append(output, LogLevelOutput{ComponentName: lConfig.ComponentName, PackageName: lConfig.PackageName, Status: "Failure", Error: err.Error()})
 		} else {
-			output = append(output, LogLevelOutput{ComponentName: lConfig.ComponentName, Status: "Success"})
+			output = append(output, LogLevelOutput{ComponentName: lConfig.ComponentName, PackageName: lConfig.PackageName, Status: "Success"})
 		}
 	}
 
