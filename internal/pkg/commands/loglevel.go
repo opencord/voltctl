@@ -25,8 +25,6 @@ import (
 	"github.com/opencord/voltha-lib-go/v3/pkg/config"
 	"github.com/opencord/voltha-lib-go/v3/pkg/db/kvstore"
 	"github.com/opencord/voltha-lib-go/v3/pkg/log"
-	"io/ioutil"
-	"os"
 	"strings"
 )
 
@@ -137,33 +135,7 @@ func (options *SetLogLevelOpts) Execute(args []string) error {
 	)
 	ProcessGlobalOptions()
 
-	/*
-	 * TODO: VOL-2738
-	 * EVIL HACK ALERT
-	 * ===============
-	 * It would be nice if we could squelch all but fatal log messages from
-	 * the underlying libraries because as a CLI client we don't want a
-	 * bunch of logs and stack traces output and instead want to deal with
-	 * simple error propagation. To work around this, voltha-lib-go logging
-	 * is set to fatal and we redirect etcd client logging to a temp file.
-	 *
-	 * Replacing os.Stderr is used here as opposed to Dup2 because we want
-	 * low level panic to be displayed if they occurr. A temp file is used
-	 * as opposed to /dev/null because it can't be assumed that /dev/null
-	 * exists on all platforms and thus a temp file seems more portable.
-	 */
 	log.SetAllLogLevel(log.FatalLevel)
-	saveStderr := os.Stderr
-	if tmpStderr, err := ioutil.TempFile("", ""); err == nil {
-		os.Stderr = tmpStderr
-		defer func() {
-			os.Stderr = saveStderr
-			// Ignore errors on clean up because we can't do
-			// anything anyway.
-			_ = tmpStderr.Close()
-			_ = os.Remove(tmpStderr.Name())
-		}()
-	}
 
 	if options.Args.Level != "" {
 		if _, err := log.StringToLogLevel(options.Args.Level); err != nil {
@@ -176,7 +148,7 @@ func (options *SetLogLevelOpts) Execute(args []string) error {
 		return fmt.Errorf(err.Error())
 	}
 
-	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()))
+	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()), log.FatalLevel)
 	if err != nil {
 		return fmt.Errorf("Unable to create kvstore client %s", err)
 	}
@@ -235,35 +207,9 @@ func (options *ListLogLevelsOpts) Execute(args []string) error {
 	)
 	ProcessGlobalOptions()
 
-	/*
-	 * TODO: VOL-2738
-	 * EVIL HACK ALERT
-	 * ===============
-	 * It would be nice if we could squelch all but fatal log messages from
-	 * the underlying libraries because as a CLI client we don't want a
-	 * bunch of logs and stack traces output and instead want to deal with
-	 * simple error propagation. To work around this, voltha-lib-go logging
-	 * is set to fatal and we redirect etcd client logging to a temp file.
-	 *
-	 * Replacing os.Stderr is used here as opposed to Dup2 because we want
-	 * low level panic to be displayed if they occurr. A temp file is used
-	 * as opposed to /dev/null because it can't be assumed that /dev/null
-	 * exists on all platforms and thus a temp file seems more portable.
-	 */
 	log.SetAllLogLevel(log.FatalLevel)
-	saveStderr := os.Stderr
-	if tmpStderr, err := ioutil.TempFile("", ""); err == nil {
-		os.Stderr = tmpStderr
-		defer func() {
-			os.Stderr = saveStderr
-			// Ignore errors on clean up because we can't do
-			// anything anyway.
-			_ = tmpStderr.Close()
-			_ = os.Remove(tmpStderr.Name())
-		}()
-	}
 
-	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()))
+	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()), log.FatalLevel)
 	if err != nil {
 		return fmt.Errorf("Unable to create kvstore client %s", err)
 	}
@@ -339,40 +285,14 @@ func (options *ClearLogLevelsOpts) Execute(args []string) error {
 	)
 	ProcessGlobalOptions()
 
-	/*
-	 * TODO: VOL-2738
-	 * EVIL HACK ALERT
-	 * ===============
-	 * It would be nice if we could squelch all but fatal log messages from
-	 * the underlying libraries because as a CLI client we don't want a
-	 * bunch of logs and stack traces output and instead want to deal with
-	 * simple error propagation. To work around this, voltha-lib-go logging
-	 * is set to fatal and we redirect etcd client logging to a temp file.
-	 *
-	 * Replacing os.Stderr is used here as opposed to Dup2 because we want
-	 * low level panic to be displayed if they occurr. A temp file is used
-	 * as opposed to /dev/null because it can't be assumed that /dev/null
-	 * exists on all platforms and thus a temp file seems more portable.
-	 */
 	log.SetAllLogLevel(log.FatalLevel)
-	saveStderr := os.Stderr
-	if tmpStderr, err := ioutil.TempFile("", ""); err == nil {
-		os.Stderr = tmpStderr
-		defer func() {
-			os.Stderr = saveStderr
-			// Ignore errors on clean up because we can't do
-			// anything anyway.
-			_ = tmpStderr.Close()
-			_ = os.Remove(tmpStderr.Name())
-		}()
-	}
 
 	logLevelConfig, err = processComponentListArgs(options.Args.Component)
 	if err != nil {
 		return fmt.Errorf("%s", err)
 	}
 
-	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()))
+	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, int(GlobalConfig.KvStoreConfig.Timeout.Seconds()), log.FatalLevel)
 	if err != nil {
 		return fmt.Errorf("Unable to create kvstore client %s", err)
 	}
