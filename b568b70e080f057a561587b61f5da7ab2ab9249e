@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ebd7dce_b0c67ab5",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 794,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-04-23T21:57:08Z",
+      "side": 1,
+      "message": "Please create JIRAs for these issues and put the JIRA ID in the comment",
+      "range": {
+        "startLine": 793,
+        "startChar": 0,
+        "endLine": 794,
+        "endChar": 70
+      },
+      "revId": "b568b70e080f057a561587b61f5da7ab2ab9249e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "47aad315_59a16076",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 834,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-04-23T21:57:08Z",
+      "side": 1,
+      "message": "i thought this was meant to be a bit set and as such a loop isn\u0027t needed just a if check for each bit",
+      "range": {
+        "startLine": 814,
+        "startChar": 0,
+        "endLine": 834,
+        "endChar": 2
+      },
+      "revId": "b568b70e080f057a561587b61f5da7ab2ab9249e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}
