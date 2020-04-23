@@ -45,6 +45,30 @@
       "revId": "b568b70e080f057a561587b61f5da7ab2ab9249e",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "965fe166_e76227ed",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 834,
+      "author": {
+        "id": 1000016
+      },
+      "writtenOn": "2020-04-23T22:09:52Z",
+      "side": 1,
+      "message": "The loop is to check for each bit. We can get a list of valid bits from the dynamic protos via `valueTypeTypeDescriptor.GetValues()`. That way we don\u0027t have to hardcode knowledge of the bits into voltctl.",
+      "parentUuid": "47aad315_59a16076",
+      "range": {
+        "startLine": 814,
+        "startChar": 0,
+        "endLine": 834,
+        "endChar": 2
+      },
+      "revId": "b568b70e080f057a561587b61f5da7ab2ab9249e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }
