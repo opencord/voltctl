@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "75198ab5_1ca7c95f",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-04-23T22:47:01Z",
+      "side": 1,
+      "message": "should we accept a list of Valueflag arguments so you could do a `voltctl get X Y Z`? also do we have a `Complete` function for ValueFlag?",
+      "revId": "b568b70e080f057a561587b61f5da7ab2ab9249e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7ebd7dce_b0c67ab5",
         "filename": "internal/pkg/commands/devices.go",
         "patchSetId": 13
@@ -19,6 +36,23 @@
         "endLine": 794,
         "endChar": 70
       },
+      "revId": "b568b70e080f057a561587b61f5da7ab2ab9249e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "36f33609_5c02211e",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 814,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-04-23T22:47:01Z",
+      "side": 1,
+      "message": "given that we accept multiple arguments for get we should think about the return format a bit more as oppose to just fmt.Printf, i.e. a JSON struct of some sort. I know the TODO above referenced this, but should we put that in this patchset.",
       "revId": "b568b70e080f057a561587b61f5da7ab2ab9249e",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
@@ -60,6 +94,30 @@
       "side": 1,
       "message": "The loop is to check for each bit. We can get a list of valid bits from the dynamic protos via `valueTypeTypeDescriptor.GetValues()`. That way we don\u0027t have to hardcode knowledge of the bits into voltctl.",
       "parentUuid": "47aad315_59a16076",
+      "range": {
+        "startLine": 814,
+        "startChar": 0,
+        "endLine": 834,
+        "endChar": 2
+      },
+      "revId": "b568b70e080f057a561587b61f5da7ab2ab9249e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d6a15032_998a4b52",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 834,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-04-23T22:47:01Z",
+      "side": 1,
+      "message": "ok, i understand. i think this output likely needs modified as per the TODO above to a model structure.",
+      "parentUuid": "965fe166_e76227ed",
       "range": {
         "startLine": 814,
         "startChar": 0,
