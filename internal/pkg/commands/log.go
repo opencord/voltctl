@@ -20,6 +20,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net"
+	"strconv"
 	"strings"
 
 	flags "github.com/jessevdk/go-flags"
@@ -196,7 +198,7 @@ func getPackageNames(componentName string) ([]string, error) {
 
 	// Already error checked during option processing
 	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
-	cm := config.NewConfigManager(client, supportedKvStoreType, host, port, GlobalConfig.KvStoreConfig.Timeout)
+	cm := config.NewConfigManager(client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
 
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
 	defer cancel()
@@ -321,7 +323,7 @@ func (ccpn *ConfiguredComponentAndPackageName) Complete(match string) []flags.Co
 
 	// Already error checked during option processing
 	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
-	cm := config.NewConfigManager(client, supportedKvStoreType, host, port, GlobalConfig.KvStoreConfig.Timeout)
+	cm := config.NewConfigManager(client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
 
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
 	defer cancel()
@@ -507,7 +509,7 @@ func (options *SetLogLevelOpts) Execute(args []string) error {
 
 	// Already error checked during option processing
 	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
-	cm := config.NewConfigManager(client, supportedKvStoreType, host, port, GlobalConfig.KvStoreConfig.Timeout)
+	cm := config.NewConfigManager(client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
 
 	var output []LogLevelOutput
 
@@ -614,7 +616,7 @@ func (options *ListLogLevelsOpts) Execute(args []string) error {
 
 	// Already error checked during option processing
 	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
-	cm := config.NewConfigManager(client, supportedKvStoreType, host, port, GlobalConfig.KvStoreConfig.Timeout)
+	cm := config.NewConfigManager(client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
 
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
 	defer cancel()
@@ -736,7 +738,7 @@ func (options *ClearLogLevelsOpts) Execute(args []string) error {
 
 	// Already error checked during option processing
 	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
-	cm := config.NewConfigManager(client, supportedKvStoreType, host, port, GlobalConfig.KvStoreConfig.Timeout)
+	cm := config.NewConfigManager(client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
 
 	var output []LogLevelOutput
 
@@ -802,7 +804,7 @@ func (options *ListLogPackagesOpts) Execute(args []string) error {
 
 	// Already error checked during option processing
 	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
-	cm := config.NewConfigManager(client, supportedKvStoreType, host, port, GlobalConfig.KvStoreConfig.Timeout)
+	cm := config.NewConfigManager(client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
 
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
 	defer cancel()
