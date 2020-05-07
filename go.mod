@@ -9,7 +9,7 @@ require (
 	github.com/imdario/mergo v0.3.7 // indirect
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/jhump/protoreflect v1.5.0
-	github.com/opencord/voltha-lib-go/v3 v3.1.9
+	github.com/opencord/voltha-lib-go/v3 v3.1.13
 	github.com/opencord/voltha-protos/v3 v3.3.3
 	github.com/stretchr/testify v1.4.0
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45 // indirect
