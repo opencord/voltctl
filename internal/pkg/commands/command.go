@@ -25,6 +25,7 @@ import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
+	"math"
 	"net"
 	"os"
 	"path/filepath"
@@ -337,7 +338,11 @@ func ProcessGlobalOptions() {
 
 func NewConnection() (*grpc.ClientConn, error) {
 	ProcessGlobalOptions()
-	return grpc.Dial(GlobalConfig.Server, grpc.WithInsecure())
+	return grpc.Dial(
+		GlobalConfig.Server,
+		grpc.WithInsecure(),
+		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(math.MaxInt32)),
+	)
 }
 
 func GenerateOutput(result *CommandResult) {
