@@ -270,9 +270,24 @@ func DecodeHeader(md *desc.MessageDescriptor, b []byte, ts time.Time) (*EventHea
 		i++
 	}
 
-	evHeader := EventHeader{Category: model.GetEnumString(header, "category", cat),
-		SubCategory: model.GetEnumString(header, "sub_category", subCat),
-		Type:        model.GetEnumString(header, "type", evType),
+	header_category, err := model.GetEnumString(header, "category", cat)
+	if err != nil {
+		return nil, err
+	}
+
+	header_subcategory, err := model.GetEnumString(header, "sub_category", subCat)
+	if err != nil {
+		return nil, err
+	}
+
+	header_type, err := model.GetEnumString(header, "type", evType)
+	if err != nil {
+		return nil, err
+	}
+
+	evHeader := EventHeader{Category: header_category,
+		SubCategory: header_subcategory,
+		Type:        header_type,
 		Raised_ts:   raised,
 		Reported_ts: reported,
 		Device_ids:  device_id_keys,
