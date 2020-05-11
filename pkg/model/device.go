@@ -115,10 +115,23 @@ func (d *Device) PopulateFrom(val *dynamic.Message) {
 			d.ProxyAddress.ChannelTermination = v.(string)
 		}
 	}
-	d.AdminState = GetEnumValue(val, "admin_state")
-	d.OperStatus = GetEnumValue(val, "oper_status")
+
+	var err error
+	d.AdminState, err = GetEnumValue(val, "admin_state")
+	if err != nil {
+		d.AdminState = "UNKNOWN"
+	}
+
+	d.OperStatus, err = GetEnumValue(val, "oper_status")
+	if err != nil {
+		d.OperStatus = "UNKNOWN"
+	}
+
 	d.Reason = val.GetFieldByName("reason").(string)
-	d.ConnectStatus = GetEnumValue(val, "connect_status")
+	d.ConnectStatus, err = GetEnumValue(val, "connect_status")
+	if err != nil {
+		d.ConnectStatus = "UNKNOWN"
+	}
 
 	ports := val.GetFieldByName("ports").([]interface{})
 	d.Ports = make([]DevicePort, len(ports))
@@ -138,11 +151,22 @@ func (d *Device) PopulateFrom(val *dynamic.Message) {
 }
 
 func (port *DevicePort) PopulateFrom(val *dynamic.Message) {
+	var err error
 	port.PortNo = val.GetFieldByName("port_no").(uint32)
-	port.Type = GetEnumValue(val, "type")
+	port.Type, err = GetEnumValue(val, "type")
+	if err != nil {
+		port.Type = "UNKNOWN"
+	}
 	port.Label = val.GetFieldByName("label").(string)
-	port.AdminState = GetEnumValue(val, "admin_state")
-	port.OperStatus = GetEnumValue(val, "oper_status")
+	port.AdminState, err = GetEnumValue(val, "admin_state")
+	if err != nil {
+		port.AdminState = "UNKNOWN"
+	}
+
+	port.OperStatus, err = GetEnumValue(val, "oper_status")
+	if err != nil {
+		port.OperStatus = "UNKNOWN"
+	}
 	port.DeviceId = val.GetFieldByName("device_id").(string)
 	peers := val.GetFieldByName("peers").([]interface{})
 	port.Peers = make([]PeerPort, len(peers))

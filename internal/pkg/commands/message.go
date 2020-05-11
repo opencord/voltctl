@@ -257,7 +257,10 @@ func DecodeInterContainerHeader(icFile *desc.FileDescriptor, md *desc.MessageDes
 						return nil, err
 					}
 					iaMessageType := iaMessageTypeIntf.(int32)
-					iaMessageTypeStr = model.GetEnumString(iaHeader, "type", iaMessageType)
+					iaMessageTypeStr, err = model.GetEnumString(iaHeader, "type", iaMessageType)
+					if err != nil {
+						return nil, err
+					}
 
 					toDeviceIdIntf, err := iaHeader.TryGetFieldByName("to_device_id")
 					if err != nil {
@@ -274,9 +277,13 @@ func DecodeInterContainerHeader(icFile *desc.FileDescriptor, md *desc.MessageDes
 			}
 		}
 	}
+	messageHeaderType, err := model.GetEnumString(header, "type", msgType)
+	if err != nil {
+		return nil, err
+	}
 
 	icHeader := MessageHeader{Id: id,
-		Type:             model.GetEnumString(header, "type", msgType),
+		Type:             messageHeaderType,
 		FromTopic:        fromTopic,
 		ToTopic:          toTopic,
 		KeyTopic:         keyTopic,
