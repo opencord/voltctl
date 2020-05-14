@@ -80,8 +80,9 @@ Available commands:
   device         device commands
   devicegroup    device group commands
   event          event commands
+  log            log config commands
   logicaldevice  logical device commands
-  loglevel       loglevel commands
+  message        message commands
   version        display version
 ```
 
@@ -174,7 +175,7 @@ $ voltctl device list --outputas json
 Check the current log levels:
 
 ```shell
-$ voltctl loglevel list
+$ voltctl log level list
 COMPONENTNAME       PACKAGENAME    LEVEL
 read-write-core     default        DEBUG
 adapter-open-olt    default        DEBUG
@@ -185,15 +186,44 @@ open-flow-agent     default        DEBUG
 Configure the global log level:
 
 ```shell
-$ voltctl loglevel set INFO
-COMPONENTNAME    STATUS     ERROR
-global           Success
+$ voltctl log level set INFO
+COMPONENTNAME    PACKAGENAME    STATUS     ERROR
+global           default        Success
+```
+
+Configure the default log level of a component:
+
+```shell
+$ voltctl log level set ERROR read-write-core
+COMPONENTNAME      PACKAGENAME    STATUS     ERROR
+read-write-core    default        Success
 ```
 
 Set the log level of a specific package within a component:
 
 ```shell
-$ voltctl loglevel set WARN adapter-open-olt#github.com/opencord/voltha-lib-go/kafka
-COMPONENTNAME       STATUS     ERROR
-adapter-open-olt    Success
+$ voltctl log level set WARN adapter-open-olt#github.com/opencord/voltha-lib-go/kafka
+COMPONENTNAME       PACKAGENAME                                 STATUS     ERROR
+adapter-open-olt    github.com/opencord/voltha-lib-go/kafka    Success
+```
+
+Get list of valid log packages for a component:
+
+```shell
+$ voltctl log package list adapter-open-olt
+COMPONENTNAME       PACKAGENAME
+adapter-open-olt    default
+adapter-open-olt    github.com/opencord/voltha-lib-go/v3/pkg/adapters/common
+adapter-open-olt    github.com/opencord/voltha-lib-go/v3/pkg/config
+adapter-open-olt    github.com/opencord/voltha-lib-go/v3/pkg/db
+adapter-open-olt    github.com/opencord/voltha-lib-go/v3/pkg/db/kvstore
+adapter-open-olt    github.com/opencord/voltha-lib-go/v3/pkg/flows
+adapter-open-olt    github.com/opencord/voltha-lib-go/v3/pkg/kafka
+adapter-open-olt    github.com/opencord/voltha-lib-go/v3/pkg/ponresourcemanager
+adapter-open-olt    github.com/opencord/voltha-lib-go/v3/pkg/probe
+adapter-open-olt    github.com/opencord/voltha-lib-go/v3/pkg/techprofile
+adapter-open-olt    github.com/opencord/voltha-openolt-adapter/internal/pkg/config
+adapter-open-olt    github.com/opencord/voltha-openolt-adapter/internal/pkg/core
+adapter-open-olt    github.com/opencord/voltha-openolt-adapter/internal/pkg/resourcemanager
+adapter-open-olt    main
 ```
