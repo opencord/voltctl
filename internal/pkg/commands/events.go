@@ -21,14 +21,14 @@ import (
 	"fmt"
 	"github.com/Shopify/sarama"
 	"github.com/fullstorydev/grpcurl"
+	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	flags "github.com/jessevdk/go-flags"
-	"github.com/jhump/protoreflect/desc"
 	"github.com/jhump/protoreflect/dynamic"
 	"github.com/opencord/voltctl/pkg/filter"
 	"github.com/opencord/voltctl/pkg/format"
-	"github.com/opencord/voltctl/pkg/model"
+	"github.com/opencord/voltha-protos/v3/go/voltha"
 	"log"
 	"os"
 	"os/signal"
@@ -146,52 +146,21 @@ func DecodeTimestamp(tsIntf interface{}) (time.Time, error) {
 }
 
 // Extract the header, as well as a few other items that might be of interest
-func DecodeHeader(md *desc.MessageDescriptor, b []byte, ts time.Time) (*EventHeader, error) {
-	m := dynamic.NewMessage(md)
-	err := m.Unmarshal(b)
-	if err != nil {
+func DecodeHeader(b []byte, ts time.Time) (*EventHeader, error) {
+	m := &voltha.Event{}
+	if err := proto.Unmarshal(b, m); err != nil {
 		return nil, err
 	}
 
-	headerIntf, err := m.TryGetFieldByName("header")
+	header := m.Header
+	cat := voltha.EventCategory_Types_name[int32(header.Category)]
+	subCat := voltha.EventSubCategory_Types_name[int32(header.SubCategory)]
+	evType := voltha.EventType_Types_name[int32(header.Type)]
+	raised, err := DecodeTimestamp(header.RaisedTs)
 	if err != nil {
 		return nil, err
 	}
-
-	header := headerIntf.(*dynamic.Message)
-
-	catIntf, err := header.TryGetFieldByName("category")
-	if err != nil {
-		return nil, err
-	}
-	cat := catIntf.(int32)
-
-	subCatIntf, err := header.TryGetFieldByName("sub_category")
-	if err != nil {
-		return nil, err
-	}
-	subCat := subCatIntf.(int32)
-
-	typeIntf, err := header.TryGetFieldByName("type")
-	if err != nil {
-		return nil, err
-	}
-	evType := typeIntf.(int32)
-
-	raisedIntf, err := header.TryGetFieldByName("raised_ts")
-	if err != nil {
-		return nil, err
-	}
-	raised, err := DecodeTimestamp(raisedIntf)
-	if err != nil {
-		return nil, err
-	}
-
-	reportedIntf, err := header.TryGetFieldByName("reported_ts")
-	if err != nil {
-		return nil, err
-	}
-	reported, err := DecodeTimestamp(reportedIntf)
+	reported, err := DecodeTimestamp(header.ReportedTs)
 	if err != nil {
 		return nil, err
 	}
@@ -202,32 +171,18 @@ func DecodeHeader(md *desc.MessageDescriptor, b []byte, ts time.Time) (*EventHea
 	device_ids := make(map[string]interface{})
 	titles := make(map[string]interface{})
 
-	kpiIntf, err := m.TryGetFieldByName("kpi_event2")
-	if err == nil {
-		kpi, ok := kpiIntf.(*dynamic.Message)
-		if ok && kpi != nil {
-			sliceListIntf, err := kpi.TryGetFieldByName("slice_data")
-			if err == nil {
-				sliceIntf, ok := sliceListIntf.([]interface{})
-				if ok && len(sliceIntf) > 0 {
-					slice, ok := sliceIntf[0].(*dynamic.Message)
-					if ok && slice != nil {
-						metadataIntf, err := slice.TryGetFieldByName("metadata")
-						if err == nil {
-							metadata, ok := metadataIntf.(*dynamic.Message)
-							if ok && metadata != nil {
-								deviceIdIntf, err := metadataIntf.(*dynamic.Message).TryGetFieldByName("device_id")
-								if err == nil {
-									device_ids[deviceIdIntf.(string)] = slice
-								}
-								titleIntf, err := metadataIntf.(*dynamic.Message).TryGetFieldByName("title")
-								if err == nil {
-									titles[titleIntf.(string)] = slice
-								}
-							}
-						}
-					}
-				}
+	kpi := m.GetKpiEvent2()
+	if kpi != nil {
+		sliceList := kpi.SliceData
+		if len(sliceList) > 0 {
+			slice := sliceList[0]
+			if slice != nil {
+				metadata := slice.Metadata
+				deviceId := metadata.DeviceId
+				device_ids[deviceId] = slice
+
+				title := metadata.Title
+				titles[title] = slice
 			}
 		}
 	}
@@ -235,25 +190,10 @@ func DecodeHeader(md *desc.MessageDescriptor, b []byte, ts time.Time) (*EventHea
 	// Opportunistically try to pull a resource_id and title from a DeviceEvent
 	// There can only be one resource_id and title from a DeviceEvent, so it's easier
 	// than dealing with KPI_EVENT2.
-	deviceEventIntf, err := m.TryGetFieldByName("device_event")
-	if err == nil {
-		deviceEvent, ok := deviceEventIntf.(*dynamic.Message)
-		if ok && deviceEvent != nil {
-			deviceEventNameIntf, err := deviceEvent.TryGetFieldByName("device_event_name")
-			if err == nil {
-				deviceEventName, ok := deviceEventNameIntf.(string)
-				if ok {
-					titles[deviceEventName] = deviceEvent
-				}
-			}
-			resourceIdIntf, err := deviceEvent.TryGetFieldByName("resource_id")
-			if err == nil {
-				resourceId, ok := resourceIdIntf.(string)
-				if ok {
-					device_ids[resourceId] = deviceEvent
-				}
-			}
-		}
+	deviceEvent := m.GetDeviceEvent()
+	if deviceEvent != nil {
+		titles[deviceEvent.DeviceEventName] = deviceEvent
+		device_ids[deviceEvent.ResourceId] = deviceEvent
 	}
 
 	device_id_keys := make([]string, len(device_ids))
@@ -270,24 +210,9 @@ func DecodeHeader(md *desc.MessageDescriptor, b []byte, ts time.Time) (*EventHea
 		i++
 	}
 
-	header_category, err := model.GetEnumString(header, "category", cat)
-	if err != nil {
-		return nil, err
-	}
-
-	header_subcategory, err := model.GetEnumString(header, "sub_category", subCat)
-	if err != nil {
-		return nil, err
-	}
-
-	header_type, err := model.GetEnumString(header, "type", evType)
-	if err != nil {
-		return nil, err
-	}
-
-	evHeader := EventHeader{Category: header_category,
-		SubCategory: header_subcategory,
-		Type:        header_type,
+	evHeader := EventHeader{Category: cat,
+		SubCategory: subCat,
+		Type:        evType,
 		Raised_ts:   raised,
 		Reported_ts: reported,
 		Device_ids:  device_id_keys,
@@ -299,12 +224,19 @@ func DecodeHeader(md *desc.MessageDescriptor, b []byte, ts time.Time) (*EventHea
 
 // Print the full message, either in JSON or in GRPCURL-human-readable format,
 // depending on which grpcurl formatter is passed in.
-func PrintMessage(f grpcurl.Formatter, md *desc.MessageDescriptor, b []byte) error {
-	m := dynamic.NewMessage(md)
-	err := m.Unmarshal(b)
+func PrintMessage(f grpcurl.Formatter, b []byte) error {
+	ms := &voltha.Event{}
+	if err := proto.Unmarshal(b, ms); err != nil {
+		return err
+	}
+
+	// for now, turn the static message into a dynamic, so we can hand it off
+	// to grpcurl's formatters just like before.
+	m, err := dynamic.AsDynamicMessage(ms)
 	if err != nil {
 		return err
 	}
+
 	s, err := f(m)
 	if err != nil {
 		return err
@@ -334,32 +266,6 @@ func PrintEventHeader(outputAs string, outputFormat string, hdr *EventHeader) er
 	return nil
 }
 
-func GetEventMessageDesc() (*desc.MessageDescriptor, error) {
-	// This is a very long-winded way to get a message descriptor
-
-	descriptor, err := GetDescriptorSource()
-	if err != nil {
-		return nil, err
-	}
-
-	// get the symbol for voltha.events
-	eventSymbol, err := descriptor.FindSymbol("voltha.Event")
-	if err != nil {
-		return nil, err
-	}
-
-	/*
-	 * EventSymbol is a Descriptor, but not a MessageDescrptior,
-	 * so we can't look at it's fields yet. Go back to the file,
-	 * call FindMessage to get the Message, then ...
-	 */
-
-	eventFile := eventSymbol.GetFile()
-	eventMessage := eventFile.FindMessage("voltha.Event")
-
-	return eventMessage, nil
-}
-
 // Start output, print any column headers or other start characters
 func (options *EventListenOpts) StartOutput(outputFormat string) error {
 	if options.OutputAs == "json" {
@@ -386,11 +292,6 @@ func (options *EventListenOpts) Execute(args []string) error {
 	ProcessGlobalOptions()
 	if GlobalConfig.Kafka == "" {
 		return errors.New("Kafka address is not specified")
-	}
-
-	eventMessage, err := GetEventMessageDesc()
-	if err != nil {
-		return err
 	}
 
 	config := sarama.NewConfig()
@@ -479,7 +380,7 @@ func (options *EventListenOpts) Execute(args []string) error {
 			select {
 			case msg := <-consumer:
 				consumeCount++
-				hdr, err := DecodeHeader(eventMessage, msg.Value, msg.Timestamp)
+				hdr, err := DecodeHeader(msg.Value, msg.Timestamp)
 				if err != nil {
 					log.Printf("Error decoding header %v\n", err)
 					continue
@@ -498,7 +399,7 @@ func (options *EventListenOpts) Execute(args []string) error {
 
 					// Print it
 					if options.ShowBody {
-						if err := PrintMessage(grpcurlFormatter, eventMessage, msg.Value); err != nil {
+						if err := PrintMessage(grpcurlFormatter, msg.Value); err != nil {
 							log.Printf("%v\n", err)
 						}
 					} else {
