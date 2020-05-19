@@ -24,10 +24,12 @@ import (
 	"strings"
 
 	"github.com/fullstorydev/grpcurl"
+	"github.com/golang/protobuf/ptypes/empty"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/jhump/protoreflect/dynamic"
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltctl/pkg/model"
+	"github.com/opencord/voltha-protos/v3/go/voltha"
 )
 
 const (
@@ -286,30 +288,12 @@ func (options *DeviceList) Execute(args []string) error {
 	}
 	defer conn.Close()
 
-	descriptor, method, err := GetMethod("device-list")
-	if err != nil {
-		return err
-	}
+	client := voltha.NewVolthaServiceClient(conn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
 	defer cancel()
 
-	h := &RpcEventHandler{}
-	err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
-	if err != nil {
-		return err
-	}
-
-	if h.Status != nil && h.Status.Err() != nil {
-		return h.Status.Err()
-	}
-
-	d, err := dynamic.AsDynamicMessage(h.Response)
-	if err != nil {
-		return err
-	}
-
-	items, err := d.TryGetFieldByName("items")
+	devices, err := client.ListDevices(ctx, &empty.Empty{})
 	if err != nil {
 		return err
 	}
@@ -327,19 +311,13 @@ func (options *DeviceList) Execute(args []string) error {
 		orderBy = GetCommandOptionWithDefault("device-list", "order", "")
 	}
 
-	data := make([]model.Device, len(items.([]interface{})))
-	for i, item := range items.([]interface{}) {
-		val := item.(*dynamic.Message)
-		data[i].PopulateFrom(val)
-	}
-
 	result := CommandResult{
 		Format:    format.Format(outputFormat),
 		Filter:    options.Filter,
 		OrderBy:   orderBy,
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
-		Data:      data,
+		Data:      devices.Items,
 	}
 
 	GenerateOutput(&result)
@@ -348,17 +326,17 @@ func (options *DeviceList) Execute(args []string) error {
 
 func (options *DeviceCreate) Execute(args []string) error {
 
-	dm := make(map[string]interface{})
+	device := voltha.Device{}
 	if options.HostAndPort != "" {
-		dm["host_and_port"] = options.HostAndPort
+		device.Address = &voltha.Device_HostAndPort{HostAndPort: options.HostAndPort}
 	} else if options.IPAddress != "" {
-		dm["ipv4_address"] = options.IPAddress
+		device.Address = &voltha.Device_Ipv4Address{Ipv4Address: options.IPAddress}
 	}
 	if options.MACAddress != "" {
-		dm["mac_address"] = strings.ToLower(options.MACAddress)
+		device.MacAddress = strings.ToLower(options.MACAddress)
 	}
 	if options.DeviceType != "" {
-		dm["type"] = options.DeviceType
+		device.Type = options.DeviceType
 	}
 
 	conn, err := NewConnection()
@@ -367,29 +345,17 @@ func (options *DeviceCreate) Execute(args []string) error {
 	}
 	defer conn.Close()
 
-	descriptor, method, err := GetMethod("device-create")
-	if err != nil {
-		return err
-	}
+	client := voltha.NewVolthaServiceClient(conn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
 	defer cancel()
 
-	h := &RpcEventHandler{
-		Fields: map[string]map[string]interface{}{"voltha.Device": dm},
-	}
-	err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
+	createdDevice, err := client.CreateDevice(ctx, &device)
 	if err != nil {
 		return err
-	} else if h.Status != nil && h.Status.Err() != nil {
-		return h.Status.Err()
 	}
 
-	resp, err := dynamic.AsDynamicMessage(h.Response)
-	if err != nil {
-		return err
-	}
-	fmt.Printf("%s\n", resp.GetFieldByName("id").(string))
+	fmt.Printf("%s\n", createdDevice.Id)
 
 	return nil
 }
@@ -402,28 +368,23 @@ func (options *DeviceDelete) Execute(args []string) error {
 	}
 	defer conn.Close()
 
-	descriptor, method, err := GetMethod("device-delete")
-	if err != nil {
-		return err
-	}
+	client := voltha.NewVolthaServiceClient(conn)
 
 	var lastErr error
 	for _, i := range options.Args.Ids {
-
-		h := &RpcEventHandler{
-			Fields: map[string]map[string]interface{}{ParamNames[GlobalConfig.ApiVersion]["ID"]: {"id": i}},
-		}
 		ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
 		defer cancel()
 
-		err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
+		id := voltha.ID{Id: string(i)}
+
+		_, err := client.DeleteDevice(ctx, &id)
+		if err != nil {
+			return err
+		}
+
 		if err != nil {
 			Error.Printf("Error while deleting '%s': %s\n", i, err)
 			lastErr = err
-			continue
-		} else if h.Status != nil && h.Status.Err() != nil {
-			Error.Printf("Error while deleting '%s': %s\n", i, ErrorToString(h.Status.Err()))
-			lastErr = h.Status.Err()
 			continue
 		}
 		fmt.Printf("%s\n", i)
