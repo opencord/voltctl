@@ -17,7 +17,7 @@ package model
 
 import (
 	"fmt"
-	"github.com/jhump/protoreflect/dynamic"
+	"github.com/opencord/voltha-protos/v3/go/openflow_13"
 )
 
 type FlowFieldFlag uint64
@@ -294,72 +294,69 @@ func appendUint32(base string, val uint32) string {
 	return fmt.Sprintf("%d", val)
 }
 
-func (f *Flow) PopulateFrom(val *dynamic.Message) {
+func (f *Flow) PopulateFromProto(flow openflow_13.OfpFlowStats) {
 
 	f.Reset()
-	f.Id = fmt.Sprintf("%016x", val.GetFieldByName("id").(uint64))
-	f.TableId = val.GetFieldByName("table_id").(uint32)
-	f.Priority = val.GetFieldByName("priority").(uint32)
+	f.Id = fmt.Sprintf("%016x", flow.Id)
+	f.TableId = flow.TableId
+	f.Priority = flow.Priority
 	// mask the lower 8 for the cookie, why?
-	cookie := val.GetFieldByName("cookie").(uint64)
+	cookie := flow.Cookie
 	if cookie == 0 {
 		f.Cookie = "0"
 	} else {
-		f.Cookie = fmt.Sprintf("~%08x", val.GetFieldByName("cookie").(uint64)&0xffffffff)
+		f.Cookie = fmt.Sprintf("~%08x", flow.Cookie&0xffffffff)
 	}
-	f.DurationSec = val.GetFieldByName("duration_sec").(uint32)
-	f.DurationNsec = val.GetFieldByName("duration_nsec").(uint32)
-	f.IdleTimeout = val.GetFieldByName("idle_timeout").(uint32)
-	f.HardTimeout = val.GetFieldByName("hard_timeout").(uint32)
-	f.PacketCount = val.GetFieldByName("packet_count").(uint64)
-	f.ByteCount = val.GetFieldByName("byte_count").(uint64)
+	f.DurationSec = flow.DurationSec
+	f.DurationNsec = flow.DurationNsec
+	f.IdleTimeout = flow.IdleTimeout
+	f.HardTimeout = flow.HardTimeout
+	f.PacketCount = flow.PacketCount
+	f.ByteCount = flow.ByteCount
 	f.Set(FLOW_FIELD_HEADER | FLOW_FIELD_STATS)
 
-	match := val.GetFieldByName("match").(*dynamic.Message)
-	fields := match.GetFieldByName("oxm_fields")
-	for _, ifield := range fields.([]interface{}) {
-		field := ifield.(*dynamic.Message)
-
+	for _, field := range flow.Match.OxmFields {
 		// Only support OFPXMC_OPENFLOW_BASIC (0x8000)
-		if field.GetFieldByName("oxm_class").(int32) != 0x8000 {
+		if field.OxmClass != 0x8000 {
 			continue
 		}
 
-		basic := field.GetFieldByName("ofb_field").(*dynamic.Message)
-		switch basic.GetFieldByName("type").(int32) {
+		basic := field.GetOfbField()
+
+		switch basic.Type {
 		case 0: // IN_PORT
 			f.Set(FLOW_FIELD_IN_PORT)
-			f.InPort = fmt.Sprintf("%d", basic.GetFieldByName("port").(uint32))
+			f.InPort = fmt.Sprintf("%d", basic.GetPort())
 		case 2: // METADATA
 			f.Set(FLOW_FIELD_METADATA)
-			f.Metadata = fmt.Sprintf("0x%016x", basic.GetFieldByName("table_metadata").(uint64))
+			f.Metadata = fmt.Sprintf("0x%016x", basic.GetTableMetadata())
 		case 5: // ETH_TYPE
 			f.Set(FLOW_FIELD_ETH_TYPE)
-			f.EthType = fmt.Sprintf("0x%04x", basic.GetFieldByName("eth_type").(uint32))
+			f.EthType = fmt.Sprintf("0x%04x", basic.GetEthType())
 		case 6: // VLAN_ID
 			f.Set(FLOW_FIELD_VLAN_ID)
-			vid := basic.GetFieldByName("vlan_vid").(uint32)
-			mask, errMaskGet := basic.TryGetFieldByName("vlan_vid_mask")
-			if vid == ReservedTransparentVlan && errMaskGet == nil && mask.(uint32) == ReservedTransparentVlan {
+			vid := basic.GetVlanVid()
+			mask := basic.GetVlanVidMask() // TODO: can this fail?
+			if vid == ReservedTransparentVlan && mask == ReservedTransparentVlan {
 				f.VlanId = "any"
 			} else {
 				f.VlanId = toVlanId(vid)
 			}
 		case 7: // VLAN_PCP
 			f.Set(FLOW_FIELD_VLAN_PCP)
-			f.VlanPcp = fmt.Sprintf("%d", basic.GetFieldByName("vlan_pcp").(uint32))
+			f.VlanPcp = fmt.Sprintf("%d", basic.GetVlanPcp())
 		case 10: // IP_PROTO
 			f.Set(FLOW_FIELD_IP_PROTO)
-			f.IpProto = fmt.Sprintf("%d", basic.GetFieldByName("ip_proto").(uint32))
+			f.IpProto = fmt.Sprintf("%d", basic.GetIpProto())
 		case 15: // UDP_SRC
 			f.Set(FLOW_FIELD_UDP_SRC)
-			f.UdpSrc = fmt.Sprintf("%d", basic.GetFieldByName("udp_src").(uint32))
+			f.UdpSrc = fmt.Sprintf("%d", basic.GetUdpSrc())
 		case 16: // UDP_DST
 			f.Set(FLOW_FIELD_UDP_DST)
-			f.UdpDst = fmt.Sprintf("%d", basic.GetFieldByName("udp_dst").(uint32))
+			f.UdpDst = fmt.Sprintf("%d", basic.GetUdpDst())
 		case 38: // TUNNEL_ID
 			f.Set(FLOW_FIELD_TUNNEL_ID)
-			f.TunnelId = fmt.Sprintf("%d", basic.GetFieldByName("tunnel_id").(uint64))
+			f.TunnelId = fmt.Sprintf("%d", basic.GetTunnelId())
 		default:
 			/*
 			 * For unsupported match types put them into an
@@ -368,35 +365,32 @@ func (f *Flow) PopulateFrom(val *dynamic.Message) {
 			 * having log messages.
 			 */
 			f.Set(FLOW_FIELD_UNSUPPORTED_MATCH)
-			f.UnsupportedMatch = appendInt32(f.UnsupportedMatch, basic.GetFieldByName("type").(int32))
+			f.UnsupportedMatch = appendInt32(f.UnsupportedMatch, int32(basic.Type))
 		}
 	}
-	for _, instruction := range val.GetFieldByName("instructions").([]interface{}) {
-		inst := instruction.(*dynamic.Message)
-		switch inst.GetFieldByName("type").(uint32) {
+	for _, inst := range flow.Instructions {
+		switch inst.Type {
 		case 1: // GOTO_TABLE
 			f.Set(FLOW_FIELD_GOTO_TABLE)
-			goto_table := inst.GetFieldByName("goto_table").(*dynamic.Message)
-			f.GotoTable = fmt.Sprintf("%d", goto_table.GetFieldByName("table_id").(uint32))
+			goto_table := inst.GetGotoTable()
+			f.GotoTable = fmt.Sprintf("%d", goto_table.TableId)
 		case 2: // WRITE_METADATA
 			f.Set(FLOW_FIELD_WRITE_METADATA)
-			meta := inst.GetFieldByName("write_metadata").(*dynamic.Message)
-			val := meta.GetFieldByName("metadata").(uint64)
-			mask := meta.GetFieldByName("metadata_mask").(uint64)
+			meta := inst.GetWriteMetadata()
+			val := meta.Metadata
+			mask := meta.MetadataMask
 			if mask != 0 {
 				f.WriteMetadata = fmt.Sprintf("0x%016x/0x%016x", val, mask)
 			} else {
 				f.WriteMetadata = fmt.Sprintf("0x%016x", val)
 			}
 		case 4: // APPLY_ACTIONS
-			actions := inst.GetFieldByName("actions").(*dynamic.Message)
-			for _, action := range actions.GetFieldByName("actions").([]interface{}) {
-				a := action.(*dynamic.Message)
-				switch a.GetFieldByName("type").(int32) {
+			for _, action := range inst.GetActions().Actions {
+				switch action.Type {
 				case 0: // OUTPUT
 					f.Set(FLOW_FIELD_OUTPUT)
-					output := a.GetFieldByName("output").(*dynamic.Message)
-					out := output.GetFieldByName("port").(uint32)
+					output := action.GetOutput()
+					out := output.Port
 					switch out & 0x7fffffff {
 					case 0:
 						f.Output = "INVALID"
@@ -417,28 +411,28 @@ func (f *Flow) PopulateFrom(val *dynamic.Message) {
 					case 0x7fffffff:
 						f.Output = "ANY"
 					default:
-						f.Output = fmt.Sprintf("%d", output.GetFieldByName("port").(uint32))
+						f.Output = fmt.Sprintf("%d", output.Port)
 					}
 				case 17: // PUSH_VLAN
 					f.Set(FLOW_FIELD_PUSH_VLAN_ID)
-					push := a.GetFieldByName("push").(*dynamic.Message)
-					f.PushVlanId = fmt.Sprintf("0x%x", push.GetFieldByName("ethertype").(uint32))
+					push := action.GetPush()
+					f.PushVlanId = fmt.Sprintf("0x%x", push.Ethertype)
 				case 18: // POP_VLAN
 					f.Set(FLOW_FIELD_POP_VLAN)
 					f.PopVlan = "yes"
 				case 25: // SET_FIELD
-					set := a.GetFieldByName("set_field").(*dynamic.Message).GetFieldByName("field").(*dynamic.Message)
+					set := action.GetSetField().Field
 
 					// Only support OFPXMC_OPENFLOW_BASIC (0x8000)
-					if set.GetFieldByName("oxm_class").(int32) != 0x8000 {
+					if set.OxmClass != 0x8000 {
 						continue
 					}
-					basic := set.GetFieldByName("ofb_field").(*dynamic.Message)
+					basic := set.GetOfbField()
 
-					switch basic.GetFieldByName("type").(int32) {
+					switch basic.Type {
 					case 6: // VLAN_ID
 						f.Set(FLOW_FIELD_SET_VLAN_ID)
-						f.SetVlanId = toVlanId(basic.GetFieldByName("vlan_vid").(uint32))
+						f.SetVlanId = toVlanId(basic.GetVlanVid())
 					default: // Unsupported
 						/*
 						 * For unsupported match types put them into an
@@ -448,7 +442,7 @@ func (f *Flow) PopulateFrom(val *dynamic.Message) {
 						 */
 						f.Set(FLOW_FIELD_UNSUPPORTED_SET_FIELD)
 						f.UnsupportedSetField = appendInt32(f.UnsupportedSetField,
-							basic.GetFieldByName("type").(int32))
+							int32(basic.Type))
 					}
 				default: // Unsupported
 					/*
@@ -459,7 +453,7 @@ func (f *Flow) PopulateFrom(val *dynamic.Message) {
 					 */
 					f.Set(FLOW_FIELD_UNSUPPORTED_ACTION)
 					f.UnsupportedAction = appendInt32(f.UnsupportedAction,
-						a.GetFieldByName("type").(int32))
+						int32(action.Type))
 				}
 			}
 		case 5: // CLEAR_ACTIONS
@@ -467,9 +461,9 @@ func (f *Flow) PopulateFrom(val *dynamic.Message) {
 			f.Set(FLOW_FIELD_CLEAR_ACTIONS)
 			f.ClearActions = "[]"
 		case 6: // METER
-			meter := inst.GetFieldByName("meter").(*dynamic.Message)
+			meter := inst.GetMeter()
 			f.Set(FLOW_FIELD_METER)
-			f.MeterId = fmt.Sprintf("%d", meter.GetFieldByName("meter_id").(uint32))
+			f.MeterId = fmt.Sprintf("%d", meter.MeterId)
 		default: // Unsupported
 			/*
 			 * For unsupported match types put them into an
@@ -479,7 +473,7 @@ func (f *Flow) PopulateFrom(val *dynamic.Message) {
 			 */
 			f.Set(FLOW_FIELD_UNSUPPORTED_INSTRUCTION)
 			f.UnsupportedInstruction = appendUint32(f.UnsupportedInstruction,
-				inst.GetFieldByName("type").(uint32))
+				uint32(inst.Type))
 		}
 	}
 }
