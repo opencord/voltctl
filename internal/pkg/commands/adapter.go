@@ -17,15 +17,14 @@ package commands
 
 import (
 	"context"
-	"github.com/fullstorydev/grpcurl"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/jessevdk/go-flags"
-	"github.com/jhump/protoreflect/dynamic"
 	"github.com/opencord/voltctl/pkg/format"
-	"github.com/opencord/voltctl/pkg/model"
+	"github.com/opencord/voltha-protos/v3/go/voltha"
 )
 
 const (
-	DEFAULT_OUTPUT_FORMAT = "table{{ .Id }}\t{{ .Vendor }}\t{{ .Type }}\t{{ .Endpoint }}\t{{ .Version }}\t{{ .CurrentReplica }}\t{{ .TotalReplicas }}\t{{ .SinceLastCommunication }}"
+	DEFAULT_OUTPUT_FORMAT = "table{{ .Id }}\t{{ .Vendor }}\t{{ .Type }}\t{{ .Endpoint }}\t{{ .Version }}\t{{ .CurrentReplica }}\t{{ .TotalReplicas }}\t{{ since .LastCommunication}}"
 )
 
 type AdapterList struct {
@@ -51,30 +50,12 @@ func (options *AdapterList) Execute(args []string) error {
 	}
 	defer conn.Close()
 
-	descriptor, method, err := GetMethod("adapter-list")
-	if err != nil {
-		return err
-	}
+	client := voltha.NewVolthaServiceClient(conn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
 	defer cancel()
 
-	h := &RpcEventHandler{}
-	err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
-	if err != nil {
-		return err
-	}
-
-	if h.Status != nil && h.Status.Err() != nil {
-		return h.Status.Err()
-	}
-
-	d, err := dynamic.AsDynamicMessage(h.Response)
-	if err != nil {
-		return err
-	}
-
-	items, err := d.TryGetFieldByName("items")
+	adapters, err := client.ListAdapters(ctx, &empty.Empty{})
 	if err != nil {
 		return err
 	}
@@ -91,10 +72,8 @@ func (options *AdapterList) Execute(args []string) error {
 		orderBy = GetCommandOptionWithDefault("adapter-list", "order", "")
 	}
 
-	data := make([]model.Adapter, len(items.([]interface{})))
-	for i, item := range items.([]interface{}) {
-		data[i].PopulateFrom(item.(*dynamic.Message))
-	}
+	// TODO: lastCommunication ends up formatted as `seconds:1589415656 nanos:775740000`
+	//   need to think through where to do presentation formatting.
 
 	result := CommandResult{
 		Format:    format.Format(outputFormat),
@@ -102,7 +81,7 @@ func (options *AdapterList) Execute(args []string) error {
 		OrderBy:   orderBy,
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
-		Data:      data,
+		Data:      adapters.Items,
 	}
 	GenerateOutput(&result)
 
