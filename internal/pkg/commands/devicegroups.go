@@ -17,11 +17,10 @@ package commands
 
 import (
 	"context"
-	"github.com/fullstorydev/grpcurl"
+	"github.com/golang/protobuf/ptypes/empty"
 	flags "github.com/jessevdk/go-flags"
-	"github.com/jhump/protoreflect/dynamic"
 	"github.com/opencord/voltctl/pkg/format"
-	"github.com/opencord/voltctl/pkg/model"
+	"github.com/opencord/voltha-protos/v3/go/voltha"
 )
 
 const (
@@ -53,30 +52,12 @@ func (options *DeviceGroupList) Execute(args []string) error {
 	}
 	defer conn.Close()
 
-	descriptor, method, err := GetMethod("device-group-list")
-	if err != nil {
-		return err
-	}
+	client := voltha.NewVolthaServiceClient(conn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
 	defer cancel()
 
-	h := &RpcEventHandler{}
-	err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
-	if err != nil {
-		return err
-	}
-
-	if h.Status != nil && h.Status.Err() != nil {
-		return h.Status.Err()
-	}
-
-	d, err := dynamic.AsDynamicMessage(h.Response)
-	if err != nil {
-		return err
-	}
-
-	items, err := d.TryGetFieldByName("items")
+	deviceGroups, err := client.ListDeviceGroups(ctx, &empty.Empty{})
 	if err != nil {
 		return err
 	}
@@ -93,19 +74,13 @@ func (options *DeviceGroupList) Execute(args []string) error {
 		orderBy = GetCommandOptionWithDefault("device-group-list", "order", "")
 	}
 
-	data := make([]model.DeviceGroup, len(items.([]interface{})))
-	for i, item := range items.([]interface{}) {
-		val := item.(*dynamic.Message)
-		data[i].PopulateFrom(val)
-	}
-
 	result := CommandResult{
 		Format:    format.Format(outputFormat),
 		Filter:    options.Filter,
 		OrderBy:   orderBy,
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
-		Data:      data,
+		Data:      deviceGroups.Items,
 	}
 
 	GenerateOutput(&result)
