@@ -141,6 +141,11 @@ func testField(v FilterTerm, field reflect.Value) bool {
 func (f Filter) Evaluate(item interface{}) bool {
 	val := reflect.ValueOf(item)
 
+	// If we have been given a pointer, then deference it
+	if val.Kind() == reflect.Ptr {
+		val = reflect.Indirect(val)
+	}
+
 	for k, v := range f {
 		field := val.FieldByName(k)
 		if !field.IsValid() {
