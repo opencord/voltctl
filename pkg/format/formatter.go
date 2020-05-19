@@ -92,7 +92,11 @@ func (f Format) Execute(writer io.Writer, withHeaders bool, nameLimit int, data 
 		format = Format(strings.TrimPrefix(string(f), "table"))
 	}
 
-	tmpl, err := template.New("output").Parse(string(format))
+	funcmap := template.FuncMap{
+		"timestamp": formatTimestamp,
+		"since":     formatSince}
+
+	tmpl, err := template.New("output").Funcs(funcmap).Parse(string(format))
 	if err != nil {
 		return err
 	}
