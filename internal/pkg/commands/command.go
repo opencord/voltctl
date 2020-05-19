@@ -17,7 +17,10 @@ package commands
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/golang/protobuf/jsonpb"
+	"github.com/golang/protobuf/proto"
 	"github.com/opencord/voltctl/pkg/filter"
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltctl/pkg/order"
@@ -28,6 +31,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -340,6 +344,40 @@ func NewConnection() (*grpc.ClientConn, error) {
 	return grpc.Dial(GlobalConfig.Server, grpc.WithInsecure())
 }
 
+func ConvertJsonProtobufArray(data_in interface{}) (string, error) {
+	result := ""
+
+	slice := reflect.ValueOf(data_in)
+	if slice.Kind() != reflect.Slice {
+		return "", errors.New("Not a slice")
+	}
+
+	result = result + "["
+
+	marshaler := jsonpb.Marshaler{EmitDefaults: true}
+	for i := 0; i < slice.Len(); i++ {
+		item := slice.Index(i).Interface()
+		protoMessage, okay := item.(proto.Message)
+		if !okay {
+			return "", errors.New("Failed to convert item to a proto.Message")
+		}
+		asJson, err := marshaler.MarshalToString(protoMessage)
+		if err != nil {
+			return "", fmt.Errorf("Failed to marshal the json: %s", err)
+		}
+
+		result = result + asJson
+
+		if i < slice.Len()-1 {
+			result = result + ","
+		}
+	}
+
+	result = result + "]"
+
+	return result, nil
+}
+
 func GenerateOutput(result *CommandResult) {
 	if result != nil && result.Data != nil {
 		data := result.Data
@@ -369,9 +407,15 @@ func GenerateOutput(result *CommandResult) {
 				Error.Fatalf("Unexpected error while attempting to format results as table : %s", err.Error())
 			}
 		} else if result.OutputAs == OUTPUT_JSON {
-			asJson, err := json.Marshal(&data)
+			// first try to convert it as an array of protobufs
+			asJson, err := ConvertJsonProtobufArray(data)
 			if err != nil {
-				Error.Fatalf("Unexpected error while processing command results to JSON: %s", err.Error())
+				// if that fails, then just do a standard json conversion
+				asJsonB, err := json.Marshal(&data)
+				if err != nil {
+					Error.Fatalf("Unexpected error while processing command results to JSON: %s", err.Error())
+				}
+				asJson = string(asJsonB)
 			}
 			fmt.Printf("%s", asJson)
 		} else if result.OutputAs == OUTPUT_YAML {
