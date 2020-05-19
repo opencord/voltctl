@@ -18,10 +18,10 @@ package commands
 import (
 	"context"
 	"fmt"
-	"github.com/fullstorydev/grpcurl"
-	"github.com/jhump/protoreflect/dynamic"
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltctl/pkg/model"
+	"github.com/opencord/voltha-protos/v3/go/openflow_13"
+	"github.com/opencord/voltha-protos/v3/go/voltha"
 	"sort"
 	"strings"
 )
@@ -113,51 +113,37 @@ func (options *FlowList) Execute(args []string) error {
 	}
 	defer conn.Close()
 
-	switch options.Method {
-	case "device-flows":
-	case "logical-device-flows":
-	default:
-		Error.Fatalf("Unknown method name: '%s'", options.Method)
-	}
-
-	descriptor, method, err := GetMethod(options.Method)
-	if err != nil {
-		return err
-	}
+	client := voltha.NewVolthaServiceClient(conn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
 	defer cancel()
 
-	h := &RpcEventHandler{
-		Fields: map[string]map[string]interface{}{ParamNames[GlobalConfig.ApiVersion]["ID"]: {"id": options.Args.Id}},
-	}
-	err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
-	if err != nil {
-		return err
-	} else if h.Status != nil && h.Status.Err() != nil {
-		return h.Status.Err()
+	id := voltha.ID{Id: string(options.Args.Id)}
+
+	var flows *openflow_13.Flows
+
+	switch options.Method {
+	case "device-flows":
+		flows, err = client.ListDeviceFlows(ctx, &id)
+	case "logical-device-flows":
+		flows, err = client.ListLogicalDeviceFlows(ctx, &id)
+	default:
+		Error.Fatalf("Unknown method name: '%s'", options.Method)
 	}
 
-	d, err := dynamic.AsDynamicMessage(h.Response)
-	if err != nil {
-		return err
-	}
-	items, err := d.TryGetFieldByName("items")
 	if err != nil {
 		return err
 	}
 
-	if toOutputType(options.OutputAs) == OUTPUT_TABLE && (items == nil || len(items.([]interface{})) == 0) {
+	if toOutputType(options.OutputAs) == OUTPUT_TABLE && (flows == nil || len(flows.Items) == 0) {
 		fmt.Println("*** NO FLOWS ***")
 		return nil
 	}
 
-	// Walk the flows and populate the output table
-	data := make([]model.Flow, len(items.([]interface{})))
+	data := make([]model.Flow, len(flows.Items))
 	var fieldset model.FlowFieldFlag
-	for i, item := range items.([]interface{}) {
-		val := item.(*dynamic.Message)
-		data[i].PopulateFrom(val)
+	for i, item := range flows.Items {
+		data[i].PopulateFromProto(item)
 		fieldset |= data[i].Populated()
 	}
 
