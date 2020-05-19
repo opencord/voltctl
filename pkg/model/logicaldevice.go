@@ -83,7 +83,9 @@ func (device *LogicalDevice) PopulateFrom(val *dynamic.Message) {
 		items := flows.GetFieldByName("items").([]interface{})
 		device.Flows = make([]Flow, len(items))
 		for i, flow := range items {
-			device.Flows[i].PopulateFrom(flow.(*dynamic.Message))
+			_ = i
+			_ = flow
+			//device.Flows[i].PopulateFrom(flow.(*dynamic.Message))
 		}
 	}
 }
