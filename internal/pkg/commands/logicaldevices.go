@@ -18,11 +18,10 @@ package commands
 import (
 	"context"
 	"fmt"
-	"github.com/fullstorydev/grpcurl"
+	"github.com/golang/protobuf/ptypes/empty"
 	flags "github.com/jessevdk/go-flags"
-	"github.com/jhump/protoreflect/dynamic"
 	"github.com/opencord/voltctl/pkg/format"
-	"github.com/opencord/voltctl/pkg/model"
+	"github.com/opencord/voltha-protos/v3/go/voltha"
 	"strings"
 )
 
@@ -86,40 +85,20 @@ func (i *LogicalDeviceId) Complete(match string) []flags.Completion {
 	}
 	defer conn.Close()
 
-	descriptor, method, err := GetMethod("logical-device-list")
-	if err != nil {
-		return nil
-	}
+	client := voltha.NewVolthaServiceClient(conn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
 	defer cancel()
 
-	h := &RpcEventHandler{}
-	err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
-	if err != nil {
-		return nil
-	}
-
-	if h.Status != nil && h.Status.Err() != nil {
-		return nil
-	}
-
-	d, err := dynamic.AsDynamicMessage(h.Response)
-	if err != nil {
-		return nil
-	}
-
-	items, err := d.TryGetFieldByName("items")
+	logicalDevices, err := client.ListLogicalDevices(ctx, &empty.Empty{})
 	if err != nil {
 		return nil
 	}
 
 	list := make([]flags.Completion, 0)
-	for _, item := range items.([]interface{}) {
-		val := item.(*dynamic.Message)
-		id := val.GetFieldByName("id").(string)
-		if strings.HasPrefix(id, match) {
-			list = append(list, flags.Completion{Item: id})
+	for _, item := range logicalDevices.Items {
+		if strings.HasPrefix(item.Id, match) {
+			list = append(list, flags.Completion{Item: item.Id})
 		}
 	}
 
@@ -134,30 +113,12 @@ func (options *LogicalDeviceList) Execute(args []string) error {
 	}
 	defer conn.Close()
 
-	descriptor, method, err := GetMethod("logical-device-list")
-	if err != nil {
-		return err
-	}
+	client := voltha.NewVolthaServiceClient(conn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
 	defer cancel()
 
-	h := &RpcEventHandler{}
-	err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
-	if err != nil {
-		return err
-	}
-
-	if h.Status != nil && h.Status.Err() != nil {
-		return h.Status.Err()
-	}
-
-	d, err := dynamic.AsDynamicMessage(h.Response)
-	if err != nil {
-		return err
-	}
-
-	items, err := d.TryGetFieldByName("items")
+	logicalDevices, err := client.ListLogicalDevices(ctx, &empty.Empty{})
 	if err != nil {
 		return err
 	}
@@ -174,18 +135,13 @@ func (options *LogicalDeviceList) Execute(args []string) error {
 		orderBy = GetCommandOptionWithDefault("local-device-list", "order", "")
 	}
 
-	data := make([]model.LogicalDevice, len(items.([]interface{})))
-	for i, item := range items.([]interface{}) {
-		data[i].PopulateFrom(item.(*dynamic.Message))
-	}
-
 	result := CommandResult{
 		Format:    format.Format(outputFormat),
 		Filter:    options.Filter,
 		OrderBy:   orderBy,
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
-		Data:      data,
+		Data:      logicalDevices.Items,
 	}
 
 	GenerateOutput(&result)
@@ -200,32 +156,14 @@ func (options *LogicalDevicePortList) Execute(args []string) error {
 	}
 	defer conn.Close()
 
-	descriptor, method, err := GetMethod("logical-device-ports")
-	if err != nil {
-		return err
-	}
+	client := voltha.NewVolthaServiceClient(conn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
 	defer cancel()
 
-	h := &RpcEventHandler{
-		Fields: map[string]map[string]interface{}{ParamNames[GlobalConfig.ApiVersion]["ID"]: {"id": options.Args.Id}},
-	}
-	err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{}, h, h.GetParams)
-	if err != nil {
-		return err
-	}
+	id := voltha.ID{Id: string(options.Args.Id)}
 
-	if h.Status != nil && h.Status.Err() != nil {
-		return h.Status.Err()
-	}
-
-	d, err := dynamic.AsDynamicMessage(h.Response)
-	if err != nil {
-		return err
-	}
-
-	items, err := d.TryGetFieldByName("items")
+	ports, err := client.ListLogicalDevicePorts(ctx, &id)
 	if err != nil {
 		return err
 	}
@@ -242,18 +180,13 @@ func (options *LogicalDevicePortList) Execute(args []string) error {
 		orderBy = GetCommandOptionWithDefault("logical-device-ports", "order", "")
 	}
 
-	data := make([]model.LogicalPort, len(items.([]interface{})))
-	for i, item := range items.([]interface{}) {
-		data[i].PopulateFrom(item.(*dynamic.Message))
-	}
-
 	result := CommandResult{
 		Format:    format.Format(outputFormat),
 		Filter:    options.Filter,
 		OrderBy:   orderBy,
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
-		Data:      data,
+		Data:      ports.Items,
 	}
 
 	GenerateOutput(&result)
@@ -279,31 +212,17 @@ func (options *LogicalDeviceInspect) Execute(args []string) error {
 	}
 	defer conn.Close()
 
-	descriptor, method, err := GetMethod("logical-device-inspect")
-	if err != nil {
-		return err
-	}
+	client := voltha.NewVolthaServiceClient(conn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
 	defer cancel()
 
-	h := &RpcEventHandler{
-		Fields: map[string]map[string]interface{}{ParamNames[GlobalConfig.ApiVersion]["ID"]: {"id": options.Args.Id}},
-	}
-	err = grpcurl.InvokeRPC(ctx, descriptor, conn, method, []string{"Get-Depth: 2"}, h, h.GetParams)
-	if err != nil {
-		return err
-	} else if h.Status != nil && h.Status.Err() != nil {
-		return h.Status.Err()
-	}
+	id := voltha.ID{Id: string(options.Args.Id)}
 
-	d, err := dynamic.AsDynamicMessage(h.Response)
+	logicalDevice, err := client.GetLogicalDevice(ctx, &id)
 	if err != nil {
 		return err
 	}
-
-	device := &model.LogicalDevice{}
-	device.PopulateFrom(d)
 
 	outputFormat := CharReplacer.Replace(options.Format)
 	if outputFormat == "" {
@@ -317,7 +236,7 @@ func (options *LogicalDeviceInspect) Execute(args []string) error {
 		Format:    format.Format(outputFormat),
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
-		Data:      device,
+		Data:      logicalDevice,
 	}
 	GenerateOutput(&result)
 	return nil
