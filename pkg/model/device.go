@@ -61,6 +61,7 @@ type Device struct {
 }
 
 type DevicePort struct {
+	Id         string     `json:"id"`
 	PortNo     uint32     `json:"portno"`
 	Label      string     `json:"label"`
 	Type       string     `json:"type"`
@@ -152,6 +153,8 @@ func (d *Device) PopulateFrom(val *dynamic.Message) {
 
 func (port *DevicePort) PopulateFrom(val *dynamic.Message) {
 	var err error
+
+	port.Id = val.GetFieldByName("id").(string)
 	port.PortNo = val.GetFieldByName("port_no").(uint32)
 	port.Type, err = GetEnumValue(val, "type")
 	if err != nil {
