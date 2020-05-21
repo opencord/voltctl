@@ -32,7 +32,7 @@ import (
 
 const (
 	DEFAULT_DEVICE_FORMAT         = "table{{ .Id }}\t{{.Type}}\t{{.Root}}\t{{.ParentId}}\t{{.SerialNumber}}\t{{.AdminState}}\t{{.OperStatus}}\t{{.ConnectStatus}}\t{{.Reason}}"
-	DEFAULT_DEVICE_PORTS_FORMAT   = "table{{.PortNo}}\t{{.Label}}\t{{.Type}}\t{{.AdminState}}\t{{.OperStatus}}\t{{.DeviceId}}\t{{.Peers}}"
+	DEFAULT_DEVICE_PORTS_FORMAT   = "table{{ .Id }}\t{{.PortNo}}\t{{.Label}}\t{{.Type}}\t{{.AdminState}}\t{{.OperStatus}}\t{{.DeviceId}}\t{{.Peers}}"
 	DEFAULT_DEVICE_INSPECT_FORMAT = `ID: {{.Id}}
   TYPE:          {{.Type}}
   ROOT:          {{.Root}}
