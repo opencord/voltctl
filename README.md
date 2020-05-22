@@ -67,6 +67,7 @@ Global Options:
   -8, --k8sconfig=FILE                  Location of Kubernetes config file [$KUBECONFIG]
       --kvstoretimeout=DURATION         timeout for calls to KV store [$KVSTORE_TIMEOUT]
   -o, --command-options=FILE            Location of command options default configuration file [$VOLTCTL_COMMAND_OPTIONS]
+  -m, --maxCallRecvMsgSize=SIZE         Max GRPC client message receive size in bytes
 
 Help Options:
   -h, --help                            Show this help message
