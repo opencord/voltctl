@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/Shopify/sarama v1.25.0
+	github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf
 	github.com/golang/protobuf v1.3.2
 	github.com/googleapis/gnostic v0.3.0 // indirect
 	github.com/imdario/mergo v0.3.7 // indirect
