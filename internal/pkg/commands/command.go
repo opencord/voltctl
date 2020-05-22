@@ -19,13 +19,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/golang/protobuf/jsonpb"
-	"github.com/golang/protobuf/proto"
-	"github.com/opencord/voltctl/pkg/filter"
-	"github.com/opencord/voltctl/pkg/format"
-	"github.com/opencord/voltctl/pkg/order"
-	"google.golang.org/grpc"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
 	"net"
@@ -35,6 +28,14 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/golang/protobuf/jsonpb"
+	"github.com/golang/protobuf/proto"
+	"github.com/opencord/voltctl/pkg/filter"
+	"github.com/opencord/voltctl/pkg/format"
+	"github.com/opencord/voltctl/pkg/order"
+	"google.golang.org/grpc"
+	"gopkg.in/yaml.v2"
 )
 
 type OutputType uint8
@@ -55,11 +56,13 @@ const (
 	defaultKvPort        = 2379
 	defaultKvTimeout     = time.Second * 5
 
-	defaultGrpcTimeout = time.Minute * 5
+	defaultGrpcTimeout            = time.Minute * 5
+	defaultGrpcMaxCallRecvMsgSize = 4 * 1024 * 1024
 )
 
 type GrpcConfigSpec struct {
-	Timeout time.Duration `yaml:"timeout"`
+	Timeout            time.Duration `yaml:"timeout"`
+	MaxCallRecvMsgSize int           `yaml:"maxCallRecvMsgSize"`
 }
 
 type KvStoreConfigSpec struct {
@@ -109,7 +112,8 @@ var (
 			UseTls: false,
 		},
 		Grpc: GrpcConfigSpec{
-			Timeout: defaultGrpcTimeout,
+			Timeout:            defaultGrpcTimeout,
+			MaxCallRecvMsgSize: defaultGrpcMaxCallRecvMsgSize,
 		},
 		KvStoreConfig: KvStoreConfigSpec{
 			Timeout: defaultKvTimeout,
@@ -125,16 +129,17 @@ var (
 		KvStore string `short:"e" long:"kvstore" env:"KVSTORE" value-name:"SERVER:PORT" description:"IP/Host and port of KV store (etcd)"`
 
 		// nolint: staticcheck
-		Debug          bool   `short:"d" long:"debug" description:"Enable debug mode"`
-		Timeout        string `short:"t" long:"timeout" description:"API call timeout duration" value-name:"DURATION" default:""`
-		UseTLS         bool   `long:"tls" description:"Use TLS"`
-		CACert         string `long:"tlscacert" value-name:"CA_CERT_FILE" description:"Trust certs signed only by this CA"`
-		Cert           string `long:"tlscert" value-name:"CERT_FILE" description:"Path to TLS vertificate file"`
-		Key            string `long:"tlskey" value-name:"KEY_FILE" description:"Path to TLS key file"`
-		Verify         bool   `long:"tlsverify" description:"Use TLS and verify the remote"`
-		K8sConfig      string `short:"8" long:"k8sconfig" env:"KUBECONFIG" value-name:"FILE" default:"" description:"Location of Kubernetes config file"`
-		KvStoreTimeout string `long:"kvstoretimeout" env:"KVSTORE_TIMEOUT" value-name:"DURATION" default:"" description:"timeout for calls to KV store"`
-		CommandOptions string `short:"o" long:"command-options" env:"VOLTCTL_COMMAND_OPTIONS" value-name:"FILE" default:"" description:"Location of command options default configuration file"`
+		Debug              bool   `short:"d" long:"debug" description:"Enable debug mode"`
+		Timeout            string `short:"t" long:"timeout" description:"API call timeout duration" value-name:"DURATION" default:""`
+		UseTLS             bool   `long:"tls" description:"Use TLS"`
+		CACert             string `long:"tlscacert" value-name:"CA_CERT_FILE" description:"Trust certs signed only by this CA"`
+		Cert               string `long:"tlscert" value-name:"CERT_FILE" description:"Path to TLS vertificate file"`
+		Key                string `long:"tlskey" value-name:"KEY_FILE" description:"Path to TLS key file"`
+		Verify             bool   `long:"tlsverify" description:"Use TLS and verify the remote"`
+		K8sConfig          string `short:"8" long:"k8sconfig" env:"KUBECONFIG" value-name:"FILE" default:"" description:"Location of Kubernetes config file"`
+		KvStoreTimeout     string `long:"kvstoretimeout" env:"KVSTORE_TIMEOUT" value-name:"DURATION" default:"" description:"timeout for calls to KV store"`
+		CommandOptions     string `short:"o" long:"command-options" env:"VOLTCTL_COMMAND_OPTIONS" value-name:"FILE" default:"" description:"Location of command options default configuration file"`
+		MaxCallRecvMsgSize string `short:"m" long:"maxcallrecvmsgsize" description:"Max GRPC Client request size limit in bytes" value-name:"SIZE" default:""`
 	}
 
 	Debug = log.New(os.Stdout, "DEBUG: ", 0)
@@ -298,6 +303,15 @@ func ProcessGlobalOptions() {
 		GlobalConfig.Grpc.Timeout = timeout
 	}
 
+	if GlobalOptions.MaxCallRecvMsgSize != "" {
+		size, err := strconv.Atoi(GlobalOptions.MaxCallRecvMsgSize)
+		if err != nil {
+			Error.Fatalf("Unable to parse specified maxcallrecvmsgsize '%s': %s",
+				GlobalOptions.MaxCallRecvMsgSize, err.Error())
+		}
+		GlobalConfig.Grpc.MaxCallRecvMsgSize = size
+	}
+
 	// If a k8s cert/key were not specified, then attempt to read it from
 	// any $HOME/.kube/config if it exists
 	if len(GlobalOptions.K8sConfig) == 0 {
@@ -333,7 +347,7 @@ func ProcessGlobalOptions() {
 
 func NewConnection() (*grpc.ClientConn, error) {
 	ProcessGlobalOptions()
-	return grpc.Dial(GlobalConfig.Server, grpc.WithInsecure())
+	return grpc.Dial(GlobalConfig.Server, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(GlobalConfig.Grpc.MaxCallRecvMsgSize)))
 }
 
 func ConvertJsonProtobufArray(data_in interface{}) (string, error) {
