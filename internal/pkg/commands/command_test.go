@@ -90,3 +90,24 @@ func TestSplitHostPort(t *testing.T) {
 		})
 	}
 }
+
+func TestParseSize(t *testing.T) {
+	var res uint64
+	var err error
+
+	res, err = parseSize("8M")
+	assert.Nil(t, err)
+	assert.Equal(t, uint64(8388608), res)
+
+	res, err = parseSize("8MB")
+	assert.Nil(t, err)
+	assert.Equal(t, uint64(8388608), res)
+
+	res, err = parseSize("8MiB")
+	assert.Nil(t, err)
+	assert.Equal(t, uint64(8388608), res)
+
+	res, err = parseSize("foobar")
+	assert.NotNil(t, err)
+	assert.Equal(t, uint64(0), res)
+}
