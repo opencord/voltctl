@@ -67,6 +67,7 @@ Global Options:
   -8, --k8sconfig=FILE                  Location of Kubernetes config file [$KUBECONFIG]
       --kvstoretimeout=DURATION         timeout for calls to KV store [$KVSTORE_TIMEOUT]
   -o, --command-options=FILE            Location of command options default configuration file [$VOLTCTL_COMMAND_OPTIONS]
+  -m, --maxcallrecvmsgsize=SIZE         Max GRPC Client request size limit in bytes (eg: 4MB)
 
 Help Options:
   -h, --help                            Show this help message
@@ -225,4 +226,20 @@ adapter-open-olt    github.com/opencord/voltha-openolt-adapter/internal/pkg/conf
 adapter-open-olt    github.com/opencord/voltha-openolt-adapter/internal/pkg/core
 adapter-open-olt    github.com/opencord/voltha-openolt-adapter/internal/pkg/resourcemanager
 adapter-open-olt    main
+```
+
+### Configuring the message size
+
+When you run VOLTHA with a high number of OLTs/ONUs is possible that the gRPC response exceeds the default 4MB in size.
+This will be addressed on the server side in a future release, but you have the option to exceed the allowed response size
+using the `-m, --maxcallrecvmsgsize=SIZE` option.
+
+The common error message when this happens is:
+```shell
+ERROR: RESOURCEEXHAUSTED: grpc: received message larger than max (4241141 vs. 4194304)
+```
+
+If that happens, retry the command passing the -m option, eg:
+```shell
+$ voltctl device list -m 8M
 ```
