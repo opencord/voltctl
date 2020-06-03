@@ -28,6 +28,7 @@ import (
 	"github.com/jhump/protoreflect/dynamic"
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltctl/pkg/model"
+	"github.com/opencord/voltha-protos/v3/go/voltha"
 )
 
 const (
@@ -42,7 +43,10 @@ const (
   ADMINSTATE:    {{.AdminState}}
   OPERSTATUS:    {{.OperStatus}}
   CONNECTSTATUS: {{.ConnectStatus}}`
-	DEFAULT_DEVICE_VALUE_GET_FORMAT = "table{{.Name}}\t{{.Result}}"
+	DEFAULT_DEVICE_PM_CONFIG_SHOW_FORMAT        = "table{{.DefaultFreq}}\t{{.Grouped}}\t{{.FreqOverride}}"
+	DEFAULT_DEVICE_PM_CONFIG_METRIC_LIST_FORMAT = "table{{.Name}}\t{{.Type}}\t{{.Enabled}}\t{{.SampleFreq}}"
+	DEFAULT_DEVICE_PM_CONFIG_GROUP_LIST_FORMAT  = "table{{.GroupName}}\t{{.Enabled}}\t{{.GroupFreq}}"
+	DEFAULT_DEVICE_VALUE_GET_FORMAT             = "table{{.Name}}\t{{.Result}}"
 )
 
 type DeviceList struct {
@@ -58,6 +62,8 @@ type DeviceCreate struct {
 
 type DeviceId string
 
+type MetricName string
+type GroupName string
 type PortNum uint32
 type ValueFlag string
 
@@ -120,6 +126,71 @@ type DevicePortDisable struct {
 	} `positional-args:"yes"`
 }
 
+type DevicePmConfigsShow struct {
+	ListOutputOptions
+	Args struct {
+		Id DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+	} `positional-args:"yes"`
+}
+
+type DevicePmConfigMetricList struct {
+	ListOutputOptions
+	Args struct {
+		Id DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+	} `positional-args:"yes"`
+}
+
+type DevicePmConfigGroupList struct {
+	ListOutputOptions
+	Args struct {
+		Id DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+	} `positional-args:"yes"`
+}
+
+type DevicePmConfigGroupMetricList struct {
+	ListOutputOptions
+	Args struct {
+		Id    DeviceId  `positional-arg-name:"DEVICE_ID" required:"yes"`
+		Group GroupName `positional-arg-name:"GROUP_NAME" required:"yes"`
+	} `positional-args:"yes"`
+}
+
+type DevicePmConfigFrequencySet struct {
+	OutputOptions
+	Args struct {
+		Frequency uint32   `positional-arg-name:"FREQUENCY" required:"yes"`
+		Id        DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+	} `positional-args:"yes"`
+}
+
+type DevicePmConfigMetricEnable struct {
+	Args struct {
+		Id      DeviceId     `positional-arg-name:"DEVICE_ID" required:"yes"`
+		Metrics []MetricName `positional-arg-name:"METRIC_NAME" required:"yes"`
+	} `positional-args:"yes"`
+}
+
+type DevicePmConfigMetricDisable struct {
+	Args struct {
+		Id      DeviceId     `positional-arg-name:"DEVICE_ID" required:"yes"`
+		Metrics []MetricName `positional-arg-name:"METRIC_NAME" required:"yes"`
+	} `positional-args:"yes"`
+}
+
+type DevicePmConfigGroupEnable struct {
+	Args struct {
+		Id     DeviceId    `positional-arg-name:"DEVICE_ID" required:"yes"`
+		Groups []GroupName `positional-arg-name:"GROUP_NAME" required:"yes"`
+	} `positional-args:"yes"`
+}
+
+type DevicePmConfigGroupDisable struct {
+	Args struct {
+		Id     DeviceId    `positional-arg-name:"DEVICE_ID" required:"yes"`
+		Groups []GroupName `positional-arg-name:"GROUP_NAME" required:"yes"`
+	} `positional-args:"yes"`
+}
+
 type DeviceGetExtValue struct {
 	ListOutputOptions
 	Args struct {
@@ -144,6 +215,25 @@ type DeviceOpts struct {
 	Value   struct {
 		Get DeviceGetExtValue `command:"get"`
 	} `command:"value"`
+	PmConfig struct {
+		Show      DevicePmConfigsShow `command:"show"`
+		Frequency struct {
+			Set DevicePmConfigFrequencySet `command:"set"`
+		} `command:"frequency"`
+		Metric struct {
+			List    DevicePmConfigMetricList    `command:"list"`
+			Enable  DevicePmConfigMetricEnable  `command:"enable"`
+			Disable DevicePmConfigMetricDisable `command:"disable"`
+		} `command:"metric"`
+		Group struct {
+			List    DevicePmConfigGroupList    `command:"list"`
+			Enable  DevicePmConfigGroupEnable  `command:"enable"`
+			Disable DevicePmConfigGroupDisable `command:"disable"`
+		} `command:"group"`
+		GroupMetric struct {
+			List DevicePmConfigGroupMetricList `command:"list"`
+		} `command:"groupmetric"`
+	} `command:"pmconfig"`
 }
 
 var deviceOpts = DeviceOpts{}
@@ -152,6 +242,107 @@ func RegisterDeviceCommands(parser *flags.Parser) {
 	if _, err := parser.AddCommand("device", "device commands", "Commands to query and manipulate VOLTHA devices", &deviceOpts); err != nil {
 		Error.Fatalf("Unexpected error while attempting to register device commands : %s", err)
 	}
+}
+
+func (i *MetricName) Complete(match string) []flags.Completion {
+	conn, err := NewConnection()
+	if err != nil {
+		return nil
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	var deviceId string
+found:
+	for i := len(os.Args) - 1; i >= 0; i -= 1 {
+		switch os.Args[i] {
+		case "enable":
+			fallthrough
+		case "disable":
+			if len(os.Args) > i+1 {
+				deviceId = os.Args[i+1]
+			} else {
+				return nil
+			}
+			break found
+		default:
+		}
+	}
+
+	if len(deviceId) == 0 {
+		return nil
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+
+	id := voltha.ID{Id: string(deviceId)}
+
+	pmconfigs, err := client.ListDevicePmConfigs(ctx, &id)
+
+	if err != nil {
+		return nil
+	}
+
+	list := make([]flags.Completion, 0)
+	for _, metrics := range pmconfigs.Metrics {
+		if strings.HasPrefix(metrics.Name, match) {
+			list = append(list, flags.Completion{Item: metrics.Name})
+		}
+	}
+
+	return list
+}
+
+func (i *GroupName) Complete(match string) []flags.Completion {
+	conn, err := NewConnection()
+	if err != nil {
+		return nil
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	var deviceId string
+found:
+	for i := len(os.Args) - 1; i >= 0; i -= 1 {
+		switch os.Args[i] {
+		case "enable":
+			fallthrough
+		case "disable":
+			if len(os.Args) > i+1 {
+				deviceId = os.Args[i+1]
+			} else {
+				return nil
+			}
+			break found
+		default:
+		}
+	}
+
+	if len(deviceId) == 0 {
+		return nil
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+
+	id := voltha.ID{Id: string(deviceId)}
+
+	pmconfigs, err := client.ListDevicePmConfigs(ctx, &id)
+
+	if err != nil {
+		return nil
+	}
+
+	list := make([]flags.Completion, 0)
+	for _, group := range pmconfigs.Groups {
+		if strings.HasPrefix(group.GroupName, match) {
+			list = append(list, flags.Completion{Item: group.GroupName})
+		}
+	}
+	return list
 }
 
 func (i *PortNum) Complete(match string) []flags.Completion {
@@ -742,6 +933,411 @@ func (options *DevicePortDisable) Execute(args []string) error {
 		return h.Status.Err()
 	}
 	return nil
+}
+
+func (options *DevicePmConfigsShow) Execute(args []string) error {
+
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+
+	id := voltha.ID{Id: string(options.Args.Id)}
+
+	pmConfigs, err := client.ListDevicePmConfigs(ctx, &id)
+	if err != nil {
+		return err
+	}
+
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("device-pm-configs", "format", DEFAULT_DEVICE_PM_CONFIG_SHOW_FORMAT)
+	}
+	if options.Quiet {
+		outputFormat = "{{.Id}}"
+	}
+
+	orderBy := options.OrderBy
+	if orderBy == "" {
+		orderBy = GetCommandOptionWithDefault("device-pm-configs", "order", "")
+	}
+
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		Filter:    options.Filter,
+		OrderBy:   orderBy,
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      pmConfigs,
+	}
+
+	GenerateOutput(&result)
+	return nil
+
+}
+
+func (options *DevicePmConfigMetricList) Execute(args []string) error {
+
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+
+	id := voltha.ID{Id: string(options.Args.Id)}
+
+	pmConfigs, err := client.ListDevicePmConfigs(ctx, &id)
+	if err != nil {
+		return err
+	}
+
+	if !pmConfigs.Grouped {
+		for _, metric := range pmConfigs.Metrics {
+			if metric.SampleFreq == 0 {
+				metric.SampleFreq = pmConfigs.DefaultFreq
+			}
+		}
+
+	}
+
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("device-pm-configs", "format", DEFAULT_DEVICE_PM_CONFIG_METRIC_LIST_FORMAT)
+	}
+	if options.Quiet {
+		outputFormat = "{{.Id}}"
+	}
+
+	orderBy := options.OrderBy
+	if orderBy == "" {
+		orderBy = GetCommandOptionWithDefault("device-pm-configs", "order", "")
+	}
+
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		Filter:    options.Filter,
+		OrderBy:   orderBy,
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      pmConfigs.Metrics,
+	}
+
+	GenerateOutput(&result)
+	return nil
+
+}
+
+func (options *DevicePmConfigMetricEnable) Execute(args []string) error {
+
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+
+	id := voltha.ID{Id: string(options.Args.Id)}
+
+	pmConfigs, err := client.ListDevicePmConfigs(ctx, &id)
+	if err != nil {
+		return err
+	}
+
+	if !pmConfigs.Grouped {
+		for _, metric := range pmConfigs.Metrics {
+			for _, mName := range options.Args.Metrics {
+				if string(mName) == metric.Name && !metric.Enabled {
+					metric.Enabled = true
+					_, err := client.UpdateDevicePmConfigs(ctx, pmConfigs)
+					if err != nil {
+						return err
+					}
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func (options *DevicePmConfigMetricDisable) Execute(args []string) error {
+
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+
+	id := voltha.ID{Id: string(options.Args.Id)}
+
+	pmConfigs, err := client.ListDevicePmConfigs(ctx, &id)
+	if err != nil {
+		return err
+	}
+
+	if !pmConfigs.Grouped {
+		for _, metric := range pmConfigs.Metrics {
+			for _, mName := range options.Args.Metrics {
+				if string(mName) == metric.Name && metric.Enabled {
+					metric.Enabled = false
+					_, err := client.UpdateDevicePmConfigs(ctx, pmConfigs)
+					if err != nil {
+						return err
+					}
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func (options *DevicePmConfigGroupEnable) Execute(args []string) error {
+
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+
+	id := voltha.ID{Id: string(options.Args.Id)}
+
+	pmConfigs, err := client.ListDevicePmConfigs(ctx, &id)
+	if err != nil {
+		return err
+	}
+
+	if pmConfigs.Grouped {
+		for _, group := range pmConfigs.Groups {
+			for _, gName := range options.Args.Groups {
+				if string(gName) == group.GroupName && !group.Enabled {
+					group.Enabled = true
+					_, err := client.UpdateDevicePmConfigs(ctx, pmConfigs)
+					if err != nil {
+						return err
+					}
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func (options *DevicePmConfigGroupDisable) Execute(args []string) error {
+
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+
+	id := voltha.ID{Id: string(options.Args.Id)}
+
+	pmConfigs, err := client.ListDevicePmConfigs(ctx, &id)
+	if err != nil {
+		return err
+	}
+
+	if pmConfigs.Grouped {
+		for _, group := range pmConfigs.Groups {
+			for _, gName := range options.Args.Groups {
+				if string(gName) == group.GroupName && group.Enabled {
+					group.Enabled = false
+					_, err := client.UpdateDevicePmConfigs(ctx, pmConfigs)
+					if err != nil {
+						return err
+					}
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func (options *DevicePmConfigGroupList) Execute(args []string) error {
+
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+
+	id := voltha.ID{Id: string(options.Args.Id)}
+
+	pmConfigs, err := client.ListDevicePmConfigs(ctx, &id)
+	if err != nil {
+		return err
+	}
+
+	if pmConfigs.Grouped {
+		for _, group := range pmConfigs.Groups {
+			if group.GroupFreq == 0 {
+				group.GroupFreq = pmConfigs.DefaultFreq
+			}
+		}
+
+	}
+
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("device-pm-configs", "format", DEFAULT_DEVICE_PM_CONFIG_GROUP_LIST_FORMAT)
+	}
+	if options.Quiet {
+		outputFormat = "{{.Id}}"
+	}
+
+	orderBy := options.OrderBy
+	if orderBy == "" {
+		orderBy = GetCommandOptionWithDefault("device-pm-configs", "order", "")
+	}
+
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		Filter:    options.Filter,
+		OrderBy:   orderBy,
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      pmConfigs.Groups,
+	}
+
+	GenerateOutput(&result)
+	return nil
+
+}
+
+func (options *DevicePmConfigGroupMetricList) Execute(args []string) error {
+
+	var metrics []*voltha.PmConfig
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+
+	id := voltha.ID{Id: string(options.Args.Id)}
+
+	pmConfigs, err := client.ListDevicePmConfigs(ctx, &id)
+	if err != nil {
+		return err
+	}
+
+	for _, groups := range pmConfigs.Groups {
+
+		if string(options.Args.Group) == groups.GroupName {
+			metrics = groups.Metrics
+		}
+	}
+
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("device-pm-configs", "format", DEFAULT_DEVICE_PM_CONFIG_METRIC_LIST_FORMAT)
+	}
+	if options.Quiet {
+		outputFormat = "{{.Id}}"
+	}
+
+	orderBy := options.OrderBy
+	if orderBy == "" {
+		orderBy = GetCommandOptionWithDefault("device-pm-configs", "order", "")
+	}
+
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		Filter:    options.Filter,
+		OrderBy:   orderBy,
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      metrics,
+	}
+
+	GenerateOutput(&result)
+	return nil
+
+}
+
+func (options *DevicePmConfigFrequencySet) Execute(args []string) error {
+
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+
+	id := voltha.ID{Id: string(options.Args.Id)}
+
+	pmConfigs, err := client.ListDevicePmConfigs(ctx, &id)
+	if err != nil {
+		return err
+	}
+
+	pmConfigs.DefaultFreq = options.Args.Frequency
+
+	_, err = client.UpdateDevicePmConfigs(ctx, pmConfigs)
+	if err != nil {
+		return err
+	}
+
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("device-pm-configs", "format", DEFAULT_DEVICE_PM_CONFIG_SHOW_FORMAT)
+	}
+	if options.Quiet {
+		outputFormat = "{{.Id}}"
+	}
+
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      pmConfigs,
+	}
+
+	GenerateOutput(&result)
+	return nil
+
 }
 
 /*Device  get Onu Distance */
