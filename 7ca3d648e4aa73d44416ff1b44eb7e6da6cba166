@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e4fcde2a_d5fff797",
+        "filename": "internal/pkg/commands/adapter.go",
+        "patchSetId": 20
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-06-04T16:06:07Z",
+      "side": 1,
+      "message": "looks like this was addressed as i am seeing this in hms",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 64
+      },
+      "revId": "7ca3d648e4aa73d44416ff1b44eb7e6da6cba166",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}
