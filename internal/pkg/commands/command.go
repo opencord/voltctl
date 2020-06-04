@@ -75,7 +75,6 @@ type TlsConfigSpec struct {
 }
 
 type GlobalConfigSpec struct {
-	ApiVersion    string            `yaml:"apiVersion"`
 	Server        string            `yaml:"server"`
 	Kafka         string            `yaml:"kafka"`
 	KvStore       string            `yaml:"kvstore"`
@@ -103,10 +102,9 @@ var (
 	CharReplacer = strings.NewReplacer("\\t", "\t", "\\n", "\n")
 
 	GlobalConfig = GlobalConfigSpec{
-		ApiVersion: "v3",
-		Server:     "localhost:55555",
-		Kafka:      "",
-		KvStore:    "localhost:2379",
+		Server:  "localhost:55555",
+		Kafka:   "",
+		KvStore: "localhost:2379",
 		Tls: TlsConfigSpec{
 			UseTls: false,
 		},
@@ -126,9 +124,7 @@ var (
 		Kafka   string `short:"k" long:"kafka" default:"" value-name:"SERVER:PORT" description:"IP/Host and port of Kafka"`
 		KvStore string `short:"e" long:"kvstore" env:"KVSTORE" value-name:"SERVER:PORT" description:"IP/Host and port of KV store (etcd)"`
 
-		// Do not set the default for the API version here, else it will override the value read in the config
 		// nolint: staticcheck
-		ApiVersion     string `short:"a" long:"apiversion" description:"API version" value-name:"VERSION" choice:"v1" choice:"v2" choice:"v3"`
 		Debug          bool   `short:"d" long:"debug" description:"Enable debug mode"`
 		Timeout        string `short:"t" long:"timeout" description:"API call timeout duration" value-name:"DURATION" default:""`
 		UseTLS         bool   `long:"tls" description:"Use TLS"`
@@ -283,10 +279,6 @@ func ProcessGlobalOptions() {
 			GlobalConfig.KvStore, err)
 	}
 	GlobalConfig.KvStore = net.JoinHostPort(host, strconv.Itoa(port))
-
-	if GlobalOptions.ApiVersion != "" {
-		GlobalConfig.ApiVersion = GlobalOptions.ApiVersion
-	}
 
 	if GlobalOptions.KvStoreTimeout != "" {
 		timeout, err := time.ParseDuration(GlobalOptions.KvStoreTimeout)

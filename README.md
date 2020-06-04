@@ -57,7 +57,6 @@ Global Options:
   -s, --server=SERVER:PORT              IP/Host and port of VOLTHA
   -k, --kafka=SERVER:PORT               IP/Host and port of Kafka
   -e, --kvstore=SERVER:PORT             IP/Host and port of KV store (etcd) [$KVSTORE]
-  -a, --apiversion=VERSION[v1|v2|v3]    API version
   -d, --debug                           Enable debug mode
   -t, --timeout=DURATION                API call timeout duration
       --tls                             Use TLS

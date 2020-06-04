@@ -23,7 +23,9 @@ import (
 	"testing"
 )
 
-func TestDefaultVersion(t *testing.T) {
+// Test that ProcessGlobalOptions does not interfere with GlobalConfig
+// default.
+func TestProcessGlobalOptionsWithDefaults(t *testing.T) {
 	os.Setenv("VOLTCONFIG", "__DOES_NOT_EXIST__")
 
 	parser := flags.NewNamedParser(path.Base(os.Args[0]), flags.Default|flags.PassAfterNonOption)
@@ -34,7 +36,7 @@ func TestDefaultVersion(t *testing.T) {
 	assert.Nil(t, err, "unexpected error paring arguments")
 	ProcessGlobalOptions()
 
-	assert.Equal(t, "v3", GlobalConfig.ApiVersion, "wrong default version for API version")
+	assert.Equal(t, "localhost:55555", GlobalConfig.Server, "wrong default hostname for server")
 }
 
 func TestSplitHostPort(t *testing.T) {
