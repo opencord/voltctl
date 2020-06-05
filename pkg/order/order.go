@@ -92,6 +92,15 @@ func (s Sorter) Process(data interface{}) (interface{}, error) {
 	sort.SliceStable(data, func(i, j int) bool {
 		left := reflect.ValueOf(slice.Index(i).Interface())
 		right := reflect.ValueOf(slice.Index(j).Interface())
+
+		if left.Kind() == reflect.Ptr {
+			left = reflect.Indirect(left)
+		}
+
+		if right.Kind() == reflect.Ptr {
+			right = reflect.Indirect(right)
+		}
+
 		for _, term := range s {
 			fleft := left.FieldByName(term.Name)
 			fright := right.FieldByName(term.Name)
