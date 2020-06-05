@@ -17,6 +17,7 @@ package filter
 
 import (
 	"fmt"
+	"log"
 	"reflect"
 	"regexp"
 	"strings"
@@ -138,37 +139,66 @@ func testField(v FilterTerm, field reflect.Value) bool {
 	return true
 }
 
-func (f Filter) Evaluate(item interface{}) bool {
-	val := reflect.ValueOf(item)
+func (f Filter) EvaluateTerm(k string, v FilterTerm, val reflect.Value, recurse bool) bool {
+	//fmt.Printf("EvaluateTerm %v %v %v\n", k, v, val)
 
 	// If we have been given a pointer, then deference it
 	if val.Kind() == reflect.Ptr {
 		val = reflect.Indirect(val)
 	}
 
-	for k, v := range f {
-		field := val.FieldByName(k)
+	// If the user gave us an explicitly named dotted field, then split it
+	if strings.Contains(k, ".") {
+		parts := strings.SplitN(k, ".", 2)
+		field := val.FieldByName(parts[0])
 		if !field.IsValid() {
+			log.Printf("Failed to find dotted field %s\n", parts[0])
 			return false
 		}
+		return f.EvaluateTerm(parts[1], v, field, false)
+	}
 
-		if (field.Kind() == reflect.Slice) || (field.Kind() == reflect.Array) {
-			// For an array, check to see if any item matches
-			someMatch := false
-			for i := 0; i < field.Len(); i++ {
-				arrayElem := field.Index(i)
-				if testField(v, arrayElem) {
-					someMatch = true
-				}
-			}
-			if !someMatch {
-				return false
-			}
-		} else {
-			if !testField(v, field) {
-				return false
+	field := val.FieldByName(k)
+	if !field.IsValid() {
+		log.Printf("Failed to find field %s\n", k)
+		return false
+	}
+
+	if (field.Kind() == reflect.Slice) || (field.Kind() == reflect.Array) {
+		// For an array, check to see if any item matches
+		someMatch := false
+		for i := 0; i < field.Len(); i++ {
+			arrayElem := field.Index(i)
+			if testField(v, arrayElem) {
+				someMatch = true
 			}
 		}
+		if !someMatch {
+			if recurse && val.Kind() == reflect.Struct {
+				// TODO: see if we can do a recursive match
+
+			}
+			return false
+		}
+	} else {
+		if !testField(v, field) {
+			return false
+		}
 	}
+
+	return true
+}
+
+func (f Filter) Evaluate(item interface{}) bool {
+	val := reflect.ValueOf(item)
+
+	for k, v := range f {
+		matches := f.EvaluateTerm(k, v, val, true)
+		if !matches {
+			// If any of the filter fail, the overall match fails
+			return false
+		}
+	}
+
 	return true
 }
