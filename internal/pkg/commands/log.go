@@ -622,7 +622,7 @@ func (options *ListLogLevelsOpts) Execute(args []string) error {
 	if len(options.Args.Component) == 0 {
 		componentList, err = cm.RetrieveComponentList(ctx, config.ConfigTypeLogLevel)
 		if err != nil {
-			return fmt.Errorf("Unable to retrieve list of voltha components : %s ", err)
+			return fmt.Errorf("Unable to retrieve list of voltha components : %s \nIs ETCD available at %s:%d?", err, host, port)
 		}
 	} else {
 		componentList = toStringArray(options.Args.Component)
