@@ -83,11 +83,43 @@ func Parse(spec string) (Sorter, error) {
 	return s, nil
 }
 
+func (s Sorter) GetField(val reflect.Value, name string) (reflect.Value, error) {
+	// If the user gave us an explicitly named dotted field, then split it
+	if strings.Contains(name, ".") {
+		parts := strings.SplitN(name, ".", 2)
+
+		if val.Kind() != reflect.Struct {
+			return val, fmt.Errorf("Dotted field name specified in filter did not resolve to a valid field")
+		}
+
+		field := val.FieldByName(parts[0])
+		if !field.IsValid() {
+			return field, fmt.Errorf("Failed to find dotted field %s while sorting", parts[0])
+		}
+		if field.Kind() == reflect.Ptr {
+			field = reflect.Indirect(field)
+		}
+		return s.GetField(field, parts[1])
+	}
+
+	if val.Kind() != reflect.Struct {
+		return val, fmt.Errorf("Dotted field name specified in filter did not resolve to a valid field")
+	}
+
+	field := val.FieldByName(name)
+	if !field.IsValid() {
+		return field, fmt.Errorf("Failed to find field %s while sorting", name)
+	}
+	return field, nil
+}
+
 func (s Sorter) Process(data interface{}) (interface{}, error) {
 	slice := reflect.ValueOf(data)
 	if slice.Kind() != reflect.Slice {
 		return data, nil
 	}
+
+	var sortError error = nil
 
 	sort.SliceStable(data, func(i, j int) bool {
 		left := reflect.ValueOf(slice.Index(i).Interface())
@@ -102,8 +134,18 @@ func (s Sorter) Process(data interface{}) (interface{}, error) {
 		}
 
 		for _, term := range s {
-			fleft := left.FieldByName(term.Name)
-			fright := right.FieldByName(term.Name)
+			fleft, err := s.GetField(left, term.Name)
+			if err != nil {
+				sortError = err
+				return false
+			}
+
+			fright, err := s.GetField(right, term.Name)
+			if err != nil {
+				sortError = err
+				return false
+			}
+
 			switch fleft.Kind() {
 			case reflect.Uint:
 				fallthrough
@@ -156,8 +198,8 @@ func (s Sorter) Process(data interface{}) (interface{}, error) {
 					}
 				}
 			default:
-				sleft := fmt.Sprintf("%v", left.FieldByName(term.Name))
-				sright := fmt.Sprintf("%v", right.FieldByName(term.Name))
+				sleft := fmt.Sprintf("%v", fleft)
+				sright := fmt.Sprintf("%v", fright)
 				diff := strings.Compare(sleft, sright)
 				if term.Op != DSC {
 					if diff == -1 {
@@ -176,6 +218,10 @@ func (s Sorter) Process(data interface{}) (interface{}, error) {
 		}
 		return false
 	})
+
+	if sortError != nil {
+		return nil, sortError
+	}
 
 	return data, nil
 }

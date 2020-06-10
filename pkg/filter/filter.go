@@ -17,7 +17,6 @@ package filter
 
 import (
 	"fmt"
-	"log"
 	"reflect"
 	"regexp"
 	"strings"
@@ -97,7 +96,11 @@ func Parse(spec string) (Filter, error) {
 func (f Filter) Process(data interface{}) (interface{}, error) {
 	slice := reflect.ValueOf(data)
 	if slice.Kind() != reflect.Slice {
-		if f.Evaluate(data) {
+		match, err := f.Evaluate(data)
+		if err != nil {
+			return nil, err
+		}
+		if match {
 			return data, nil
 		}
 		return nil, nil
@@ -106,7 +109,11 @@ func (f Filter) Process(data interface{}) (interface{}, error) {
 	var result []interface{}
 
 	for i := 0; i < slice.Len(); i++ {
-		if f.Evaluate(slice.Index(i).Interface()) {
+		match, err := f.Evaluate(slice.Index(i).Interface())
+		if err != nil {
+			return nil, err
+		}
+		if match {
 			result = append(result, slice.Index(i).Interface())
 		}
 	}
@@ -139,7 +146,7 @@ func testField(v FilterTerm, field reflect.Value) bool {
 	return true
 }
 
-func (f Filter) EvaluateTerm(k string, v FilterTerm, val reflect.Value, recurse bool) bool {
+func (f Filter) EvaluateTerm(k string, v FilterTerm, val reflect.Value, recurse bool) (bool, error) {
 	// If we have been given a pointer, then deference it
 	if val.Kind() == reflect.Ptr {
 		val = reflect.Indirect(val)
@@ -148,18 +155,23 @@ func (f Filter) EvaluateTerm(k string, v FilterTerm, val reflect.Value, recurse 
 	// If the user gave us an explicitly named dotted field, then split it
 	if strings.Contains(k, ".") {
 		parts := strings.SplitN(k, ".", 2)
+		if val.Kind() != reflect.Struct {
+			return false, fmt.Errorf("Dotted field name specified in filter did not resolve to a valid field")
+		}
 		field := val.FieldByName(parts[0])
 		if !field.IsValid() {
-			log.Printf("Failed to find dotted field %s while filtering\n", parts[0])
-			return false
+			return false, fmt.Errorf("Failed to find dotted field %s while filtering", parts[0])
 		}
 		return f.EvaluateTerm(parts[1], v, field, false)
 	}
 
+	if val.Kind() != reflect.Struct {
+		return false, fmt.Errorf("Dotted field name specified in filter did not resolve to a valid field")
+	}
+
 	field := val.FieldByName(k)
 	if !field.IsValid() {
-		log.Printf("Failed to find field %s while filtering\n", k)
-		return false
+		return false, fmt.Errorf("Failed to find field %s while filtering", k)
 	}
 
 	if (field.Kind() == reflect.Slice) || (field.Kind() == reflect.Array) {
@@ -177,27 +189,30 @@ func (f Filter) EvaluateTerm(k string, v FilterTerm, val reflect.Value, recurse 
 			//          use a dotted notation. Go through the list of fields
 			//          in the struct, recursively check each one.
 			//}
-			return false
+			return false, nil
 		}
 	} else {
 		if !testField(v, field) {
-			return false
+			return false, nil
 		}
 	}
 
-	return true
+	return true, nil
 }
 
-func (f Filter) Evaluate(item interface{}) bool {
+func (f Filter) Evaluate(item interface{}) (bool, error) {
 	val := reflect.ValueOf(item)
 
 	for k, v := range f {
-		matches := f.EvaluateTerm(k, v, val, true)
+		matches, err := f.EvaluateTerm(k, v, val, true)
+		if err != nil {
+			return false, err
+		}
 		if !matches {
 			// If any of the filter fail, the overall match fails
-			return false
+			return false, nil
 		}
 	}
 
-	return true
+	return true, nil
 }

@@ -435,7 +435,18 @@ func (options *MessageListenOpts) Execute(args []string) error {
 					log.Printf("Error decoding header %v\n", err)
 					continue
 				}
-				if headerFilter != nil && !headerFilter.Evaluate(*hdr) {
+
+				match := false
+				if headerFilter != nil {
+					var err error
+					if match, err = headerFilter.Evaluate(*hdr); err != nil {
+						log.Printf("%v\n", err)
+					}
+				} else {
+					match = true
+				}
+
+				if !match {
 					// skip printing message
 				} else if since != nil && hdr.Timestamp.Before(*since) {
 					// it's too old
