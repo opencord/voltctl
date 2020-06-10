@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71bb2090_4edbaeca",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 901,
+      "author": {
+        "id": 1000016
+      },
+      "writtenOn": "2020-06-10T15:31:06Z",
+      "side": 1,
+      "message": "On this and similar code,\n1) Consider reporting an error if a grouped command is executed on a device that does not have grouped metrics.\n2) Consider reporting an error if the device does support grouped metrics, but the group is not found.\nI think this error reporting could be taken on as a future patch.",
+      "range": {
+        "startLine": 901,
+        "startChar": 1,
+        "endLine": 901,
+        "endChar": 23
+      },
+      "revId": "9228d2fb641ebfbd37417f39fb77ab51fa2fba7a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}
