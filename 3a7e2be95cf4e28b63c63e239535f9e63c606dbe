@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "398c7703_10ea996a",
+        "filename": "pkg/order/order.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-06-10T15:06:15Z",
+      "side": 1,
+      "message": "is this debug code?",
+      "range": {
+        "startLine": 129,
+        "startChar": 0,
+        "endLine": 129,
+        "endChar": 27
+      },
+      "revId": "3a7e2be95cf4e28b63c63e239535f9e63c606dbe",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3b59662d_c1461f5e",
+        "filename": "pkg/order/order.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-06-10T15:06:15Z",
+      "side": 1,
+      "message": "and this?",
+      "revId": "3a7e2be95cf4e28b63c63e239535f9e63c606dbe",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    }
+  ]
+}
