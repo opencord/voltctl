@@ -17,17 +17,23 @@
 package filter
 
 import (
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
+
+type TestFilterIncludedStruct struct {
+	Six string
+}
 
 type TestFilterStruct struct {
 	One   string
 	Two   string
 	Three string
+	Five  TestFilterIncludedStruct
 }
 
 func TestFilterList(t *testing.T) {
-	f, err := Parse("One=a,Two=b")
+	f, err := Parse("One=a,Two=b,Five.Six=d")
 	if err != nil {
 		t.Errorf("Unable to parse filter: %s", err.Error())
 	}
@@ -37,16 +43,19 @@ func TestFilterList(t *testing.T) {
 			One:   "a",
 			Two:   "b",
 			Three: "c",
+			Five:  TestFilterIncludedStruct{Six: "d"},
 		},
 		TestFilterStruct{
 			One:   "1",
 			Two:   "2",
 			Three: "3",
+			Five:  TestFilterIncludedStruct{Six: "4"},
 		},
 		TestFilterStruct{
 			One:   "a",
 			Two:   "b",
 			Three: "z",
+			Five:  TestFilterIncludedStruct{Six: "d"},
 		},
 	}
 
@@ -166,8 +175,7 @@ func TestSingleRecord(t *testing.T) {
 	}
 }
 
-// Invalid fields are ignored (i.e. an error is returned, but need to
-// cover the code path in tests
+// Invalid fields will throw an exception.
 func TestInvalidField(t *testing.T) {
 	f, err := Parse("Four=a")
 	if err != nil {
@@ -181,9 +189,70 @@ func TestInvalidField(t *testing.T) {
 	}
 
 	r, err := f.Process(data)
-	if err != nil {
-		t.Errorf("Error processing data")
+	assert.EqualError(t, err, "Failed to find field Four while filtering")
+
+	if r != nil {
+		t.Errorf("expected no results, got some")
 	}
+}
+
+func TestInvalidDotted(t *testing.T) {
+	f, err := Parse("Five.NonExistent=a")
+	if err != nil {
+		t.Errorf("Unable to parse filter: %s", err.Error())
+	}
+
+	data := TestFilterStruct{
+		One:   "a",
+		Two:   "b",
+		Three: "c",
+		Five:  TestFilterIncludedStruct{Six: "w"},
+	}
+
+	r, err := f.Process(data)
+	assert.EqualError(t, err, "Failed to find field NonExistent while filtering")
+
+	if r != nil {
+		t.Errorf("expected no results, got some")
+	}
+}
+
+func TestTrailingDot(t *testing.T) {
+	f, err := Parse("Five.Six.=a")
+	if err != nil {
+		t.Errorf("Unable to parse filter: %s", err.Error())
+	}
+
+	data := TestFilterStruct{
+		One:   "a",
+		Two:   "b",
+		Three: "c",
+		Five:  TestFilterIncludedStruct{Six: "w"},
+	}
+
+	r, err := f.Process(data)
+	assert.EqualError(t, err, "Dotted field name specified in filter did not resolve to a valid field")
+
+	if r != nil {
+		t.Errorf("expected no results, got some")
+	}
+}
+
+func TestDottedOnString(t *testing.T) {
+	f, err := Parse("One.IsNotAStruct=a")
+	if err != nil {
+		t.Errorf("Unable to parse filter: %s", err.Error())
+	}
+
+	data := TestFilterStruct{
+		One:   "a",
+		Two:   "b",
+		Three: "c",
+		Five:  TestFilterIncludedStruct{Six: "w"},
+	}
+
+	r, err := f.Process(data)
+	assert.EqualError(t, err, "Dotted field name specified in filter did not resolve to a valid field")
 
 	if r != nil {
 		t.Errorf("expected no results, got some")

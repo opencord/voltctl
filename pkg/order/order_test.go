@@ -17,8 +17,13 @@
 package order
 
 import (
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
+
+type SortIncludedStruct struct {
+	Seven string
+}
 
 type SortTestStruct struct {
 	Id    int
@@ -26,6 +31,7 @@ type SortTestStruct struct {
 	Two   string
 	Three uint
 	Four  int
+	Six   SortIncludedStruct
 }
 
 var testSetOne = []SortTestStruct{
@@ -35,6 +41,7 @@ var testSetOne = []SortTestStruct{
 		Two:   "x",
 		Three: 10,
 		Four:  1,
+		Six:   SortIncludedStruct{Seven: "o"},
 	},
 	{
 		Id:    1,
@@ -42,6 +49,7 @@ var testSetOne = []SortTestStruct{
 		Two:   "c",
 		Three: 1,
 		Four:  10,
+		Six:   SortIncludedStruct{Seven: "p"},
 	},
 	{
 		Id:    2,
@@ -49,6 +57,7 @@ var testSetOne = []SortTestStruct{
 		Two:   "b",
 		Three: 2,
 		Four:  1000,
+		Six:   SortIncludedStruct{Seven: "q"},
 	},
 	{
 		Id:    3,
@@ -56,6 +65,7 @@ var testSetOne = []SortTestStruct{
 		Two:   "a",
 		Three: 3,
 		Four:  100,
+		Six:   SortIncludedStruct{Seven: "r"},
 	},
 	{
 		Id:    4,
@@ -63,6 +73,7 @@ var testSetOne = []SortTestStruct{
 		Two:   "a",
 		Three: 3,
 		Four:  0,
+		Six:   SortIncludedStruct{Seven: "s"},
 	},
 }
 
@@ -243,5 +254,56 @@ func TestSortSingle(t *testing.T) {
 
 	if r.Id != testSetOne[0].Id {
 		t.Errorf("results don't match input")
+	}
+}
+
+func TestSortDotted(t *testing.T) {
+	s, err := Parse("+Six.Seven")
+	if err != nil {
+		t.Errorf("Unable to parse sort specification")
+	}
+	o, err := s.Process(testSetOne)
+	if err != nil {
+		t.Errorf("Sort failed: %s", err.Error())
+	}
+
+	if !Verify(o.([]SortTestStruct), []int{0, 1, 2, 3, 4}) {
+		t.Errorf("incorrect sort")
+	}
+}
+
+func TestInvaliodDotted(t *testing.T) {
+	s, err := Parse("+Six.Nonexistent")
+	if err != nil {
+		t.Errorf("Unable to parse sort specification")
+	}
+	o, err := s.Process(testSetOne)
+	assert.EqualError(t, err, "Failed to find field Nonexistent while sorting")
+	if o != nil {
+		t.Errorf("expected no results, got some")
+	}
+}
+
+func TestDotOnString(t *testing.T) {
+	s, err := Parse("+One.IsNotAStruct")
+	if err != nil {
+		t.Errorf("Unable to parse sort specification")
+	}
+	o, err := s.Process(testSetOne)
+	assert.EqualError(t, err, "Dotted field name specified in filter did not resolve to a valid field")
+	if o != nil {
+		t.Errorf("expected no results, got some")
+	}
+}
+
+func TestTrailingDot(t *testing.T) {
+	s, err := Parse("+Six.Seven.")
+	if err != nil {
+		t.Errorf("Unable to parse sort specification")
+	}
+	o, err := s.Process(testSetOne)
+	assert.EqualError(t, err, "Dotted field name specified in filter did not resolve to a valid field")
+	if o != nil {
+		t.Errorf("expected no results, got some")
 	}
 }
