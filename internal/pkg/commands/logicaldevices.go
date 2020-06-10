@@ -21,13 +21,14 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/opencord/voltctl/pkg/format"
+	"github.com/opencord/voltha-protos/v3/go/openflow_13"
 	"github.com/opencord/voltha-protos/v3/go/voltha"
 	"strings"
 )
 
 const (
 	DEFAULT_LOGICAL_DEVICE_FORMAT         = "table{{ .Id }}\t{{printf \"%016x\" .DatapathId}}\t{{.RootDeviceId}}\t{{.Desc.SerialNum}}\t{{.SwitchFeatures.NBuffers}}\t{{.SwitchFeatures.NTables}}\t{{printf \"0x%08x\" .SwitchFeatures.Capabilities}}"
-	DEFAULT_LOGICAL_DEVICE_PORT_FORMAT    = "table{{.Id}}\t{{.DeviceId}}\t{{.DevicePortNo}}\t{{.RootPort}}\t{{.Openflow.PortNo}}\t{{.Openflow.HwAddr}}\t{{.Openflow.Name}}\t{{.Openflow.State}}\t{{.Openflow.Features.Current}}\t{{.Openflow.Bitrate.Current}}"
+	DEFAULT_LOGICAL_DEVICE_PORT_FORMAT    = "table{{.Id}}\t{{.DeviceId}}\t{{.DevicePortNo}}\t{{.RootPort}}\t{{.OfpPortStats.PortNo}}\t{{.OfpPort.HwAddr}}\t{{.OfpPort.Name}}\t{{printf \"0x%08x\" .OfpPort.State}}\t{{printf \"0x%08x\" .OfpPort.Curr}}\t{{.OfpPort.CurrSpeed}}"
 	DEFAULT_LOGICAL_DEVICE_INSPECT_FORMAT = `ID: {{.Id}}
   DATAPATHID: {{.DatapathId}}
   ROOTDEVICEID: {{.RootDeviceId}}
@@ -171,6 +172,16 @@ func (options *LogicalDevicePortList) Execute(args []string) error {
 	ports, err := client.ListLogicalDevicePorts(ctx, &id)
 	if err != nil {
 		return err
+	}
+
+	// ensure no nil pointers
+	for _, v := range ports.Items {
+		if v.OfpPortStats == nil {
+			v.OfpPortStats = &openflow_13.OfpPortStats{}
+		}
+		if v.OfpPort == nil {
+			v.OfpPort = &openflow_13.OfpPort{}
+		}
 	}
 
 	outputFormat := CharReplacer.Replace(options.Format)
