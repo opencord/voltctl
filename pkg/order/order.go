@@ -17,6 +17,7 @@ package order
 
 import (
 	"fmt"
+	"log"
 	"reflect"
 	"sort"
 	"strings"
@@ -83,6 +84,27 @@ func Parse(spec string) (Sorter, error) {
 	return s, nil
 }
 
+func (s Sorter) GetField(val reflect.Value, name string) (reflect.Value, error) {
+	// If the user gave us an explicitly named dotted field, then split it
+	if strings.Contains(name, ".") {
+		parts := strings.SplitN(name, ".", 2)
+		field := val.FieldByName(parts[0])
+		if !field.IsValid() {
+			return field, fmt.Errorf("Failed to find dotted field %s while sorting\n", parts[0])
+		}
+		if field.Kind() == reflect.Ptr {
+			field = reflect.Indirect(field)
+		}
+		return s.GetField(field, parts[1])
+	}
+
+	field := val.FieldByName(name)
+	if !field.IsValid() {
+		return field, fmt.Errorf("Failed to find field %s while sorting\n", name)
+	}
+	return field, nil
+}
+
 func (s Sorter) Process(data interface{}) (interface{}, error) {
 	slice := reflect.ValueOf(data)
 	if slice.Kind() != reflect.Slice {
@@ -102,8 +124,20 @@ func (s Sorter) Process(data interface{}) (interface{}, error) {
 		}
 
 		for _, term := range s {
-			fleft := left.FieldByName(term.Name)
-			fright := right.FieldByName(term.Name)
+			fleft, err := s.GetField(left, term.Name)
+			if err != nil {
+				log.Printf("%v\n", err)
+				return false
+			}
+
+			fright, err := s.GetField(right, term.Name)
+			if err != nil {
+				log.Printf("%v\n", err)
+				return false
+			}
+
+			//fleft := left.FieldByName(term.Name)
+			//fright := right.FieldByName(term.Name)
 			switch fleft.Kind() {
 			case reflect.Uint:
 				fallthrough
