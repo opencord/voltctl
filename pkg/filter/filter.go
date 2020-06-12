@@ -174,6 +174,10 @@ func (f Filter) EvaluateTerm(k string, v FilterTerm, val reflect.Value, recurse 
 		return false, fmt.Errorf("Failed to find field %s while filtering", k)
 	}
 
+	if field.Kind() == reflect.Struct {
+		return false, fmt.Errorf("Cannot filter on a field that is a struct")
+	}
+
 	if (field.Kind() == reflect.Slice) || (field.Kind() == reflect.Array) {
 		// For an array, check to see if any item matches
 		someMatch := false

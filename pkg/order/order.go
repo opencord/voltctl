@@ -110,6 +110,15 @@ func (s Sorter) GetField(val reflect.Value, name string) (reflect.Value, error) 
 	if !field.IsValid() {
 		return field, fmt.Errorf("Failed to find field %s while sorting", name)
 	}
+
+	if field.Kind() == reflect.Ptr {
+		field = reflect.Indirect(field)
+	}
+
+	if field.Kind() == reflect.Struct {
+		return val, fmt.Errorf("Cannot sort on a field that is a struct")
+	}
+
 	return field, nil
 }
 

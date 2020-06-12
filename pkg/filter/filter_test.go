@@ -259,6 +259,27 @@ func TestDottedOnString(t *testing.T) {
 	}
 }
 
+func TestFilterOnStruct(t *testing.T) {
+	f, err := Parse("Five=a")
+	if err != nil {
+		t.Errorf("Unable to parse filter: %s", err.Error())
+	}
+
+	data := TestFilterStruct{
+		One:   "a",
+		Two:   "b",
+		Three: "c",
+		Five:  TestFilterIncludedStruct{Six: "w"},
+	}
+
+	r, err := f.Process(data)
+	assert.EqualError(t, err, "Cannot filter on a field that is a struct")
+
+	if r != nil {
+		t.Errorf("expected no results, got some")
+	}
+}
+
 func TestREFilter(t *testing.T) {
 	var f Filter
 	var err error

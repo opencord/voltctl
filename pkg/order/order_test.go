@@ -32,6 +32,7 @@ type SortTestStruct struct {
 	Three uint
 	Four  int
 	Six   SortIncludedStruct
+	Eight *SortIncludedStruct
 }
 
 var testSetOne = []SortTestStruct{
@@ -42,6 +43,7 @@ var testSetOne = []SortTestStruct{
 		Three: 10,
 		Four:  1,
 		Six:   SortIncludedStruct{Seven: "o"},
+		Eight: &SortIncludedStruct{Seven: "o"},
 	},
 	{
 		Id:    1,
@@ -50,6 +52,7 @@ var testSetOne = []SortTestStruct{
 		Three: 1,
 		Four:  10,
 		Six:   SortIncludedStruct{Seven: "p"},
+		Eight: &SortIncludedStruct{Seven: "p"},
 	},
 	{
 		Id:    2,
@@ -58,6 +61,7 @@ var testSetOne = []SortTestStruct{
 		Three: 2,
 		Four:  1000,
 		Six:   SortIncludedStruct{Seven: "q"},
+		Eight: &SortIncludedStruct{Seven: "q"},
 	},
 	{
 		Id:    3,
@@ -66,6 +70,7 @@ var testSetOne = []SortTestStruct{
 		Three: 3,
 		Four:  100,
 		Six:   SortIncludedStruct{Seven: "r"},
+		Eight: &SortIncludedStruct{Seven: "r"},
 	},
 	{
 		Id:    4,
@@ -74,6 +79,7 @@ var testSetOne = []SortTestStruct{
 		Three: 3,
 		Four:  0,
 		Six:   SortIncludedStruct{Seven: "s"},
+		Eight: &SortIncludedStruct{Seven: "s"},
 	},
 }
 
@@ -272,7 +278,22 @@ func TestSortDotted(t *testing.T) {
 	}
 }
 
-func TestInvaliodDotted(t *testing.T) {
+func TestSortDottedPointer(t *testing.T) {
+	s, err := Parse("+Eight.Seven")
+	if err != nil {
+		t.Errorf("Unable to parse sort specification")
+	}
+	o, err := s.Process(testSetOne)
+	if err != nil {
+		t.Errorf("Sort failed: %s", err.Error())
+	}
+
+	if !Verify(o.([]SortTestStruct), []int{0, 1, 2, 3, 4}) {
+		t.Errorf("incorrect sort")
+	}
+}
+
+func TestInvalidDotted(t *testing.T) {
 	s, err := Parse("+Six.Nonexistent")
 	if err != nil {
 		t.Errorf("Unable to parse sort specification")
@@ -291,6 +312,30 @@ func TestDotOnString(t *testing.T) {
 	}
 	o, err := s.Process(testSetOne)
 	assert.EqualError(t, err, "Dotted field name specified in filter did not resolve to a valid field")
+	if o != nil {
+		t.Errorf("expected no results, got some")
+	}
+}
+
+func TestSortOnStuct(t *testing.T) {
+	s, err := Parse("+Six")
+	if err != nil {
+		t.Errorf("Unable to parse sort specification")
+	}
+	o, err := s.Process(testSetOne)
+	assert.EqualError(t, err, "Cannot sort on a field that is a struct")
+	if o != nil {
+		t.Errorf("expected no results, got some")
+	}
+}
+
+func TestSortOnPointerStuct(t *testing.T) {
+	s, err := Parse("+Eight")
+	if err != nil {
+		t.Errorf("Unable to parse sort specification")
+	}
+	o, err := s.Process(testSetOne)
+	assert.EqualError(t, err, "Cannot sort on a field that is a struct")
 	if o != nil {
 		t.Errorf("expected no results, got some")
 	}
