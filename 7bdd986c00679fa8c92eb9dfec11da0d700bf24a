@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "79bf46a8_d16fafdd",
+        "filename": "internal/pkg/commands/command.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2020-06-12T21:58:09Z",
+      "side": 1,
+      "message": "should we print \"defaultGrpcMaxCallRecvMsgSize\" as default?",
+      "range": {
+        "startLine": 142,
+        "startChar": 149,
+        "endLine": 142,
+        "endChar": 151
+      },
+      "revId": "7bdd986c00679fa8c92eb9dfec11da0d700bf24a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}
