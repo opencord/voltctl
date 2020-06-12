@@ -296,6 +296,18 @@ func TestDotOnString(t *testing.T) {
 	}
 }
 
+func TestSortOnStuct(t *testing.T) {
+	s, err := Parse("+Six")
+	if err != nil {
+		t.Errorf("Unable to parse sort specification")
+	}
+	o, err := s.Process(testSetOne)
+	assert.EqualError(t, err, "Cannot sort on a field that is a struct")
+	if o != nil {
+		t.Errorf("expected no results, got some")
+	}
+}
+
 func TestTrailingDot(t *testing.T) {
 	s, err := Parse("+Six.Seven.")
 	if err != nil {
