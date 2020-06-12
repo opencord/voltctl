@@ -30,10 +30,11 @@ type TestFilterStruct struct {
 	Two   string
 	Three string
 	Five  TestFilterIncludedStruct
+	Seven *TestFilterIncludedStruct
 }
 
 func TestFilterList(t *testing.T) {
-	f, err := Parse("One=a,Two=b,Five.Six=d")
+	f, err := Parse("One=a,Two=b,Five.Six=d,Seven.Six=e")
 	if err != nil {
 		t.Errorf("Unable to parse filter: %s", err.Error())
 	}
@@ -44,18 +45,21 @@ func TestFilterList(t *testing.T) {
 			Two:   "b",
 			Three: "c",
 			Five:  TestFilterIncludedStruct{Six: "d"},
+			Seven: &TestFilterIncludedStruct{Six: "e"},
 		},
 		TestFilterStruct{
 			One:   "1",
 			Two:   "2",
 			Three: "3",
 			Five:  TestFilterIncludedStruct{Six: "4"},
+			Seven: &TestFilterIncludedStruct{Six: "5"},
 		},
 		TestFilterStruct{
 			One:   "a",
 			Two:   "b",
 			Three: "z",
 			Five:  TestFilterIncludedStruct{Six: "d"},
+			Seven: &TestFilterIncludedStruct{Six: "e"},
 		},
 	}
 
@@ -231,7 +235,7 @@ func TestTrailingDot(t *testing.T) {
 	}
 
 	r, err := f.Process(data)
-	assert.EqualError(t, err, "Dotted field name specified in filter did not resolve to a valid field")
+	assert.EqualError(t, err, "Field name specified in filter did not resolve to a valid field")
 
 	if r != nil {
 		t.Errorf("expected no results, got some")
@@ -252,7 +256,49 @@ func TestDottedOnString(t *testing.T) {
 	}
 
 	r, err := f.Process(data)
-	assert.EqualError(t, err, "Dotted field name specified in filter did not resolve to a valid field")
+	assert.EqualError(t, err, "Field name specified in filter did not resolve to a valid field")
+
+	if r != nil {
+		t.Errorf("expected no results, got some")
+	}
+}
+
+func TestFilterOnStruct(t *testing.T) {
+	f, err := Parse("Five=a")
+	if err != nil {
+		t.Errorf("Unable to parse filter: %s", err.Error())
+	}
+
+	data := TestFilterStruct{
+		One:   "a",
+		Two:   "b",
+		Three: "c",
+		Five:  TestFilterIncludedStruct{Six: "w"},
+	}
+
+	r, err := f.Process(data)
+	assert.EqualError(t, err, "Cannot filter on a field that is a struct")
+
+	if r != nil {
+		t.Errorf("expected no results, got some")
+	}
+}
+
+func TestFilterOnPointerStruct(t *testing.T) {
+	f, err := Parse("Five=a")
+	if err != nil {
+		t.Errorf("Unable to parse filter: %s", err.Error())
+	}
+
+	data := TestFilterStruct{
+		One:   "a",
+		Two:   "b",
+		Three: "c",
+		Seven: &TestFilterIncludedStruct{Six: "w"},
+	}
+
+	r, err := f.Process(data)
+	assert.EqualError(t, err, "Cannot filter on a field that is a struct")
 
 	if r != nil {
 		t.Errorf("expected no results, got some")

@@ -166,12 +166,21 @@ func (f Filter) EvaluateTerm(k string, v FilterTerm, val reflect.Value, recurse 
 	}
 
 	if val.Kind() != reflect.Struct {
-		return false, fmt.Errorf("Dotted field name specified in filter did not resolve to a valid field")
+		return false, fmt.Errorf("Field name specified in filter did not resolve to a valid field")
 	}
 
 	field := val.FieldByName(k)
 	if !field.IsValid() {
 		return false, fmt.Errorf("Failed to find field %s while filtering", k)
+	}
+
+	// we might have a pointer to a struct at this time, so dereference it
+	if val.Kind() == reflect.Ptr {
+		val = reflect.Indirect(val)
+	}
+
+	if field.Kind() == reflect.Struct {
+		return false, fmt.Errorf("Cannot filter on a field that is a struct")
 	}
 
 	if (field.Kind() == reflect.Slice) || (field.Kind() == reflect.Array) {
