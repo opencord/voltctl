@@ -22,6 +22,30 @@
       "revId": "7bdd986c00679fa8c92eb9dfec11da0d700bf24a",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c64767c5_a6b6b73a",
+        "filename": "internal/pkg/commands/command.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1000404
+      },
+      "writtenOn": "2020-06-15T18:23:06Z",
+      "side": 1,
+      "message": "Do you know how to embed a variable\u0027s value to the json here? Don\u0027t want to write the string representation of the value directly.",
+      "parentUuid": "79bf46a8_d16fafdd",
+      "range": {
+        "startLine": 142,
+        "startChar": 149,
+        "endLine": 142,
+        "endChar": 151
+      },
+      "revId": "7bdd986c00679fa8c92eb9dfec11da0d700bf24a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
     }
   ]
 }
