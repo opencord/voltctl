@@ -242,6 +242,15 @@ func RegisterDeviceCommands(parser *flags.Parser) {
 	}
 }
 
+func Find(metrics []string, name string) bool {
+	for _, val := range metrics {
+		if val == name {
+			return true
+		}
+	}
+	return false
+}
+
 func (i *MetricName) Complete(match string) []flags.Completion {
 	conn, err := NewConnection()
 	if err != nil {
@@ -851,31 +860,30 @@ func (options *DevicePmConfigMetricList) Execute(args []string) error {
 				metric.SampleFreq = pmConfigs.DefaultFreq
 			}
 		}
+		outputFormat := CharReplacer.Replace(options.Format)
+		if outputFormat == "" {
+			outputFormat = GetCommandOptionWithDefault("device-pm-configs", "format", DEFAULT_DEVICE_PM_CONFIG_METRIC_LIST_FORMAT)
+		}
 
+		orderBy := options.OrderBy
+		if orderBy == "" {
+			orderBy = GetCommandOptionWithDefault("device-pm-configs", "order", "")
+		}
+
+		result := CommandResult{
+			Format:    format.Format(outputFormat),
+			Filter:    options.Filter,
+			OrderBy:   orderBy,
+			OutputAs:  toOutputType(options.OutputAs),
+			NameLimit: options.NameLimit,
+			Data:      pmConfigs.Metrics,
+		}
+
+		GenerateOutput(&result)
+		return nil
+	} else {
+		return fmt.Errorf("Device '%s' does not have Non Grouped Metrics", options.Args.Id)
 	}
-
-	outputFormat := CharReplacer.Replace(options.Format)
-	if outputFormat == "" {
-		outputFormat = GetCommandOptionWithDefault("device-pm-configs", "format", DEFAULT_DEVICE_PM_CONFIG_METRIC_LIST_FORMAT)
-	}
-
-	orderBy := options.OrderBy
-	if orderBy == "" {
-		orderBy = GetCommandOptionWithDefault("device-pm-configs", "order", "")
-	}
-
-	result := CommandResult{
-		Format:    format.Format(outputFormat),
-		Filter:    options.Filter,
-		OrderBy:   orderBy,
-		OutputAs:  toOutputType(options.OutputAs),
-		NameLimit: options.NameLimit,
-		Data:      pmConfigs.Metrics,
-	}
-
-	GenerateOutput(&result)
-	return nil
-
 }
 
 func (options *DevicePmConfigMetricEnable) Execute(args []string) error {
@@ -899,8 +907,17 @@ func (options *DevicePmConfigMetricEnable) Execute(args []string) error {
 	}
 
 	if !pmConfigs.Grouped {
+		var metrics []string
+		for _, metric := range pmConfigs.Metrics {
+			metrics = append(metrics, string(metric.Name))
+		}
+
 		for _, metric := range pmConfigs.Metrics {
 			for _, mName := range options.Args.Metrics {
+				if exist := Find(metrics, string(mName)); !exist {
+					return fmt.Errorf("Metric Name '%s' does not exist", mName)
+				}
+
 				if string(mName) == metric.Name && !metric.Enabled {
 					metric.Enabled = true
 					_, err := client.UpdateDevicePmConfigs(ctx, pmConfigs)
@@ -910,6 +927,8 @@ func (options *DevicePmConfigMetricEnable) Execute(args []string) error {
 				}
 			}
 		}
+	} else {
+		return fmt.Errorf("Device '%s' does not have Non Grouped Metrics", options.Args.Id)
 	}
 	return nil
 }
@@ -935,17 +954,29 @@ func (options *DevicePmConfigMetricDisable) Execute(args []string) error {
 	}
 
 	if !pmConfigs.Grouped {
+		var metrics []string
+		for _, metric := range pmConfigs.Metrics {
+			metrics = append(metrics, string(metric.Name))
+		}
+
 		for _, metric := range pmConfigs.Metrics {
 			for _, mName := range options.Args.Metrics {
+				if exist := Find(metrics, string(mName)); !exist {
+					return fmt.Errorf("Metric Name '%s' does not exist", mName)
+				}
 				if string(mName) == metric.Name && metric.Enabled {
 					metric.Enabled = false
 					_, err := client.UpdateDevicePmConfigs(ctx, pmConfigs)
 					if err != nil {
 						return err
 					}
+				} else {
+					return fmt.Errorf("Metric '%s' cannot be disabled", string(mName))
 				}
 			}
 		}
+	} else {
+		return fmt.Errorf("Device '%s' does not have Non Grouped Metrics", options.Args.Id)
 	}
 	return nil
 }
@@ -971,8 +1002,15 @@ func (options *DevicePmConfigGroupEnable) Execute(args []string) error {
 	}
 
 	if pmConfigs.Grouped {
+		var groups []string
+		for _, group := range pmConfigs.Groups {
+			groups = append(groups, string(group.GroupName))
+		}
 		for _, group := range pmConfigs.Groups {
 			for _, gName := range options.Args.Groups {
+				if exist := Find(groups, string(gName)); !exist {
+					return fmt.Errorf("Group Name '%s' does not exist", gName)
+				}
 				if string(gName) == group.GroupName && !group.Enabled {
 					group.Enabled = true
 					_, err := client.UpdateDevicePmConfigs(ctx, pmConfigs)
@@ -982,6 +1020,8 @@ func (options *DevicePmConfigGroupEnable) Execute(args []string) error {
 				}
 			}
 		}
+	} else {
+		return fmt.Errorf("Device '%s' does not have Group Metrics", options.Args.Id)
 	}
 	return nil
 }
@@ -1007,8 +1047,17 @@ func (options *DevicePmConfigGroupDisable) Execute(args []string) error {
 	}
 
 	if pmConfigs.Grouped {
+		var groups []string
+		for _, group := range pmConfigs.Groups {
+			groups = append(groups, string(group.GroupName))
+		}
+
 		for _, group := range pmConfigs.Groups {
 			for _, gName := range options.Args.Groups {
+				if exist := Find(groups, string(gName)); !exist {
+					return fmt.Errorf("Group Name '%s' does not exist", gName)
+				}
+
 				if string(gName) == group.GroupName && group.Enabled {
 					group.Enabled = false
 					_, err := client.UpdateDevicePmConfigs(ctx, pmConfigs)
@@ -1018,6 +1067,8 @@ func (options *DevicePmConfigGroupDisable) Execute(args []string) error {
 				}
 			}
 		}
+	} else {
+		return fmt.Errorf("Device '%s' does not have Group Metrics", options.Args.Id)
 	}
 	return nil
 }
@@ -1048,31 +1099,30 @@ func (options *DevicePmConfigGroupList) Execute(args []string) error {
 				group.GroupFreq = pmConfigs.DefaultFreq
 			}
 		}
+		outputFormat := CharReplacer.Replace(options.Format)
+		if outputFormat == "" {
+			outputFormat = GetCommandOptionWithDefault("device-pm-configs", "format", DEFAULT_DEVICE_PM_CONFIG_GROUP_LIST_FORMAT)
+		}
 
+		orderBy := options.OrderBy
+		if orderBy == "" {
+			orderBy = GetCommandOptionWithDefault("device-pm-configs", "order", "")
+		}
+
+		result := CommandResult{
+			Format:    format.Format(outputFormat),
+			Filter:    options.Filter,
+			OrderBy:   orderBy,
+			OutputAs:  toOutputType(options.OutputAs),
+			NameLimit: options.NameLimit,
+			Data:      pmConfigs.Groups,
+		}
+
+		GenerateOutput(&result)
+	} else {
+		return fmt.Errorf("Device '%s' does not have Group Metrics", string(options.Args.Id))
 	}
-
-	outputFormat := CharReplacer.Replace(options.Format)
-	if outputFormat == "" {
-		outputFormat = GetCommandOptionWithDefault("device-pm-configs", "format", DEFAULT_DEVICE_PM_CONFIG_GROUP_LIST_FORMAT)
-	}
-
-	orderBy := options.OrderBy
-	if orderBy == "" {
-		orderBy = GetCommandOptionWithDefault("device-pm-configs", "order", "")
-	}
-
-	result := CommandResult{
-		Format:    format.Format(outputFormat),
-		Filter:    options.Filter,
-		OrderBy:   orderBy,
-		OutputAs:  toOutputType(options.OutputAs),
-		NameLimit: options.NameLimit,
-		Data:      pmConfigs.Groups,
-	}
-
-	GenerateOutput(&result)
 	return nil
-
 }
 
 func (options *DevicePmConfigGroupMetricList) Execute(args []string) error {
