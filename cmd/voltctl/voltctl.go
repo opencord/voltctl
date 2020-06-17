@@ -19,10 +19,41 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"strings"
 
 	flags "github.com/jessevdk/go-flags"
 	"github.com/opencord/voltctl/internal/pkg/commands"
 )
+
+/* Build up a list of aliases for each command, ensuring that aliases do
+ * not conflict with other commands.
+ *
+ * For example, "logicaldevice" can be aliased as
+ *    logi, logic, logica, logical, ...
+ * but because it conflicts with "log", it cannot be aliased as:
+ *    l, lo, log
+ */
+
+func BuildAliases(cmd *flags.Command) {
+	commandList := cmd.Commands()
+
+	for _, subCmd := range commandList {
+		for prefixLen := 1; prefixLen < len(subCmd.Name); prefixLen++ {
+			prefix := subCmd.Name[:prefixLen]
+
+			conflict := false
+			for _, otherSubCmd := range commandList {
+				if (otherSubCmd.Name != subCmd.Name) && strings.HasPrefix(otherSubCmd.Name, prefix) {
+					conflict = true
+				}
+			}
+			if !conflict {
+				subCmd.Aliases = append(subCmd.Aliases, prefix)
+			}
+		}
+		BuildAliases(subCmd)
+	}
+}
 
 func main() {
 
@@ -69,6 +100,8 @@ func main() {
 	commands.RegisterLogCommands(parser)
 	commands.RegisterEventCommands(parser)
 	commands.RegisterMessageCommands(parser)
+
+	BuildAliases(parser.Command)
 
 	_, err = parser.Parse()
 	if err != nil {
