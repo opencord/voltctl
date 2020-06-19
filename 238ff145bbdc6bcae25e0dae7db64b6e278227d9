@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ff09c17b_9d5a65d2",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 910,
+      "author": {
+        "id": 1000107
+      },
+      "writtenOn": "2020-06-19T14:38:30Z",
+      "side": 1,
+      "message": "Consider using a map[string]struct{} instead.\n\n(more like this)",
+      "range": {
+        "startLine": 910,
+        "startChar": 14,
+        "endLine": 910,
+        "endChar": 22
+      },
+      "revId": "238ff145bbdc6bcae25e0dae7db64b6e278227d9",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0fef1f9_4f9fcfc9",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 918,
+      "author": {
+        "id": 1000107
+      },
+      "writtenOn": "2020-06-19T14:38:30Z",
+      "side": 1,
+      "message": "Should this error be returned?\n\n(more like this)",
+      "range": {
+        "startLine": 918,
+        "startChar": 5,
+        "endLine": 918,
+        "endChar": 17
+      },
+      "revId": "238ff145bbdc6bcae25e0dae7db64b6e278227d9",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}
