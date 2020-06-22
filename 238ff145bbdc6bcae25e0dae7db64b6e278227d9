@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4c2fa0b6_3a5157cb",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 910,
+      "author": {
+        "id": 1000612
+      },
+      "writtenOn": "2020-06-22T14:44:08Z",
+      "side": 1,
+      "message": "Using map[string]struct{} would be an issue since struct type here would not remain same; metric have type \u0027PmConfig\u0027 and group have type \u0027PmGroupConfig\u0027",
+      "parentUuid": "ff09c17b_9d5a65d2",
+      "range": {
+        "startLine": 910,
+        "startChar": 14,
+        "endLine": 910,
+        "endChar": 22
+      },
+      "revId": "238ff145bbdc6bcae25e0dae7db64b6e278227d9",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e0fef1f9_4f9fcfc9",
         "filename": "internal/pkg/commands/devices.go",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "238ff145bbdc6bcae25e0dae7db64b6e278227d9",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9098dd0_edf543f1",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 918,
+      "author": {
+        "id": 1000612
+      },
+      "writtenOn": "2020-06-22T14:44:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e0fef1f9_4f9fcfc9",
+      "range": {
+        "startLine": 918,
+        "startChar": 5,
+        "endLine": 918,
+        "endChar": 17
+      },
+      "revId": "238ff145bbdc6bcae25e0dae7db64b6e278227d9",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }
