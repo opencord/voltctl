@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "64392976_b48aea47",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 910,
+      "author": {
+        "id": 1000107
+      },
+      "writtenOn": "2020-06-22T16:01:18Z",
+      "side": 1,
+      "message": "`struct{}` in this case is the empty struct, a zero-memory struct.\n\nThe point is to build a \"set\" of strings, using a map of strings to \"nothing\".\n\n`metrics :\u003d make(map[string]struct{})`\n\n`metrics[metric.Name] \u003d struct{}{}`\n\n`if _, have :\u003d metrics[mName]; !have {`\n\nThis will allow for fast lookup.",
+      "parentUuid": "4c2fa0b6_3a5157cb",
+      "range": {
+        "startLine": 910,
+        "startChar": 14,
+        "endLine": 910,
+        "endChar": 22
+      },
+      "revId": "238ff145bbdc6bcae25e0dae7db64b6e278227d9",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e0fef1f9_4f9fcfc9",
         "filename": "internal/pkg/commands/devices.go",
         "patchSetId": 2
