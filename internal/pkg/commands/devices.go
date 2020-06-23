@@ -52,7 +52,7 @@ type DeviceList struct {
 }
 
 type DeviceCreate struct {
-	DeviceType  string `short:"t" long:"devicetype" default:"" description:"Device type"`
+	DeviceType  string `short:"t" required:"true" long:"devicetype" description:"Device type"`
 	MACAddress  string `short:"m" long:"macaddress" default:"" description:"MAC Address"`
 	IPAddress   string `short:"i" long:"ipaddress" default:"" description:"IP Address"`
 	HostAndPort string `short:"H" long:"hostandport" default:"" description:"Host and port"`
