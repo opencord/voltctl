@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3cf5cca9_cd1f2cba",
+        "filename": "internal/pkg/commands/command.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-06-26T18:00:00Z",
+      "side": 1,
+      "message": "remove this as i don\u0027t think it is used anymore",
+      "range": {
+        "startLine": 61,
+        "startChar": 1,
+        "endLine": 61,
+        "endChar": 38
+      },
+      "revId": "14a8940e506833e587ee93ef6cc75cf6142bad8d",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4217c4f_7670a480",
+        "filename": "internal/pkg/commands/command.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-06-26T18:00:00Z",
+      "side": 1,
+      "message": "the default can be set in the argument to 4MB",
+      "range": {
+        "startLine": 142,
+        "startChar": 151,
+        "endLine": 142,
+        "endChar": 158
+      },
+      "revId": "14a8940e506833e587ee93ef6cc75cf6142bad8d",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b395ed6_0dddaec7",
+        "filename": "internal/pkg/commands/command.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-06-26T18:00:00Z",
+      "side": 1,
+      "message": "unsure about this. what i mean is this library will not parse 1kb (lowercase), but also will not parse 1KIB (all uppercase). so if the unit is len 2 then we want to upcase everything, if 3 then we want up down up. and in reality the only character that matters is the first character. that being said, and following the go proverb a little copy is better than a little dependency, i would just use the following which accepts\n\n#X, #x\n#XB, #xb, #xB, #Xb\n#XiB, and all capitalization options\n\nvar sizeParser \u003d regexp.MustCompile(`^([0-9]+)([PETGMK]?)I?B?$`)\n\nfunc ParseSize(size string) (uint64, error) {\n\tparts :\u003d sizeParser.FindAllStringSubmatch(strings.ToUpper(size), -1)\n\tif len(parts) \u003d\u003d 0 {\n\t\treturn 0, errors.New(fmt.Sprintf(\"size: invalid size \u0027%s\u0027\", size))\n\t}\n\n\tvalue, err :\u003d strconv.ParseUint(parts[0][1], 10, 64)\n\tif err !\u003d nil {\n\t\treturn 0, errors.New(fmt.Sprintf(\"size: invalid size \u0027%s\u0027\", size))\n\t}\n\n\tswitch parts[0][2] {\n\tcase \"E\":\n\t\tvalue \u003d value * 1024 * 1024 * 1024 * 1024 * 1024 * 1024\n\tcase \"P\":\n\t\tvalue \u003d value * 1024 * 1024 * 1024 * 1024 * 1024\n\tcase \"T\":\n\t\tvalue \u003d value * 1024 * 1024 * 1024 * 1024\n\tcase \"G\":\n\t\tvalue \u003d value * 1024 * 1024 * 1024\n\tcase \"M\":\n\t\tvalue \u003d value * 1024 * 1024\n\tcase \"K\":\n\t\tvalue \u003d value * 1024\n\tdefault:\n\t}\n\treturn value, nil\n}",
+      "range": {
+        "startLine": 347,
+        "startChar": 33,
+        "endLine": 347,
+        "endChar": 69
+      },
+      "revId": "14a8940e506833e587ee93ef6cc75cf6142bad8d",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}
