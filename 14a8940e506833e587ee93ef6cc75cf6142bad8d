@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "badda9c0_5b31b1a1",
+        "filename": "internal/pkg/commands/command.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2020-06-26T18:40:09Z",
+      "side": 1,
+      "message": "I removed it by mistake, added back in patchest 9 (line 117)",
+      "parentUuid": "3cf5cca9_cd1f2cba",
+      "range": {
+        "startLine": 61,
+        "startChar": 1,
+        "endLine": 61,
+        "endChar": 38
+      },
+      "revId": "14a8940e506833e587ee93ef6cc75cf6142bad8d",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a4217c4f_7670a480",
         "filename": "internal/pkg/commands/command.go",
         "patchSetId": 8
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "9ed33ccf_1c66dfeb",
+        "filename": "internal/pkg/commands/command.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2020-06-26T18:40:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a4217c4f_7670a480",
+      "range": {
+        "startLine": 142,
+        "startChar": 151,
+        "endLine": 142,
+        "endChar": 158
+      },
+      "revId": "14a8940e506833e587ee93ef6cc75cf6142bad8d",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0b395ed6_0dddaec7",
         "filename": "internal/pkg/commands/command.go",
         "patchSetId": 8
@@ -68,6 +116,30 @@
       "revId": "14a8940e506833e587ee93ef6cc75cf6142bad8d",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aca04de8_7ad91657",
+        "filename": "internal/pkg/commands/command.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2020-06-26T18:40:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0b395ed6_0dddaec7",
+      "range": {
+        "startLine": 347,
+        "startChar": 33,
+        "endLine": 347,
+        "endChar": 69
+      },
+      "revId": "14a8940e506833e587ee93ef6cc75cf6142bad8d",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }
