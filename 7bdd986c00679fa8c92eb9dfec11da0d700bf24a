@@ -70,6 +70,30 @@
       "revId": "7bdd986c00679fa8c92eb9dfec11da0d700bf24a",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d7f7e88_f772de6e",
+        "filename": "internal/pkg/commands/command.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-06-26T16:31:20Z",
+      "side": 1,
+      "message": "you are not going to like this, but the value should be able to be set as `4M`, `3k`, `4096b`, etc. which means we can put `4M` as the default. Then we need to convert internally. This also means it should be specified like this in the yaml config as well.",
+      "parentUuid": "bb6b9784_ddfad2b2",
+      "range": {
+        "startLine": 142,
+        "startChar": 149,
+        "endLine": 142,
+        "endChar": 151
+      },
+      "revId": "7bdd986c00679fa8c92eb9dfec11da0d700bf24a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
     }
   ]
 }
