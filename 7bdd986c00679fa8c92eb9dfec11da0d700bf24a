@@ -46,6 +46,30 @@
       "revId": "7bdd986c00679fa8c92eb9dfec11da0d700bf24a",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb6b9784_ddfad2b2",
+        "filename": "internal/pkg/commands/command.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1000007
+      },
+      "writtenOn": "2020-06-26T16:20:17Z",
+      "side": 1,
+      "message": "I thihnk fmt.sprintf should do it",
+      "parentUuid": "c64767c5_a6b6b73a",
+      "range": {
+        "startLine": 142,
+        "startChar": 149,
+        "endLine": 142,
+        "endChar": 151
+      },
+      "revId": "7bdd986c00679fa8c92eb9dfec11da0d700bf24a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
     }
   ]
 }
