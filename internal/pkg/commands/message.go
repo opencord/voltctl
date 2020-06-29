@@ -178,8 +178,6 @@ func (r *VolthaAnyResolver) Resolve(typeURL string) (proto.Message, error) {
 		return &inter_container.InterContainerResponseBody{}, nil
 	case "voltha.SwitchCapability":
 		return &inter_container.SwitchCapability{}, nil
-	case "voltha.PortCapability":
-		return &inter_container.PortCapability{}, nil
 	case "voltha.DeviceDiscovered":
 		return &inter_container.DeviceDiscovered{}, nil
 	case "voltha.InterAdapterMessageType":
