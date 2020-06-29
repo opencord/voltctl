@@ -196,6 +196,14 @@ type DeviceGetExtValue struct {
 		Valueflag ValueFlag `positional-arg-name:"VALUE_FLAG" required:"yes"`
 	} `positional-args:"yes"`
 }
+
+type DevicePmConfigSetMaxSkew struct {
+	Args struct {
+		Id      DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+		MaxSkew uint32   `positional-arg-name:"MAX_SKEW" required:"yes"`
+	} `positional-args:"yes"`
+}
+
 type DeviceOpts struct {
 	List    DeviceList     `command:"list"`
 	Create  DeviceCreate   `command:"create"`
@@ -214,7 +222,10 @@ type DeviceOpts struct {
 		Get DeviceGetExtValue `command:"get"`
 	} `command:"value"`
 	PmConfig struct {
-		Get       DevicePmConfigsGet `command:"get"`
+		Get     DevicePmConfigsGet `command:"get"`
+		MaxSkew struct {
+			Set DevicePmConfigSetMaxSkew `command:"set"`
+		} `command:"maxskew"`
 		Frequency struct {
 			Set DevicePmConfigFrequencySet `command:"set"`
 		} `command:"frequency"`
@@ -775,6 +786,35 @@ func (options *DevicePortDisable) Execute(args []string) error {
 	_, err = client.DisablePort(ctx, &port)
 	if err != nil {
 		Error.Printf("Error enabling port number %v on device Id %s,err=%s\n", options.Args.PortId, options.Args.Id, ErrorToString(err))
+		return err
+	}
+
+	return nil
+}
+
+func (options *DevicePmConfigSetMaxSkew) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+
+	id := voltha.ID{Id: string(options.Args.Id)}
+
+	pmConfigs, err := client.ListDevicePmConfigs(ctx, &id)
+	if err != nil {
+		return err
+	}
+
+	pmConfigs.MaxSkew = options.Args.MaxSkew
+
+	_, err = client.UpdateDevicePmConfigs(ctx, pmConfigs)
+	if err != nil {
 		return err
 	}
 
