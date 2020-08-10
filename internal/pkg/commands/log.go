@@ -63,6 +63,13 @@ type LogLevelOutput struct {
 	Error         string
 }
 
+// LogCorrelationOutput represents the output structure for log correlation
+type LogCorrelationOutput struct {
+	ComponentName string
+	Status        string
+	Error         string
+}
+
 // SetLogLevelOpts represents the supported CLI arguments for the loglevel set command
 type SetLogLevelOpts struct {
 	OutputOptions
@@ -96,6 +103,30 @@ type ListLogPackagesOpts struct {
 	} `positional-args:"yes" required:"yes"`
 }
 
+// EnableLogCorrelationOpts represent the supported CLI arguments for the log correlation enable command
+type EnableLogCorrelationOpts struct {
+	OutputOptions
+	Args struct {
+		Component []ComponentName
+	} `positional-args:"yes" required:"yes"`
+}
+
+// DisableLogCorrelationOpts represent the supported CLI arguments for the log correlation disable command
+type DisableLogCorrelationOpts struct {
+	OutputOptions
+	Args struct {
+		Component []ComponentName
+	} `positional-args:"yes" required:"yes"`
+}
+
+// ListLogCorrelationOpts represents the supported CLI arguments for the log correlation list command
+type ListLogCorrelationOpts struct {
+	ListOutputOptions
+	Args struct {
+		Component []ComponentName
+	} `positional-args:"yes" required:"yes"`
+}
+
 // LogPackageOpts represents the log package commands
 type LogPackageOpts struct {
 	ListLogPackages ListLogPackagesOpts `command:"list"`
@@ -108,18 +139,27 @@ type LogLevelOpts struct {
 	ClearLogLevels ClearLogLevelsOpts `command:"clear"`
 }
 
+// LogCorrelationOpts represents the log correlation commands
+type LogCorrelationOpts struct {
+	EnableLogCorrelation  EnableLogCorrelationOpts  `command:"enable"`
+	DisableLogCorrelation DisableLogCorrelationOpts `command:"disable"`
+	ListLogCorrelation    ListLogCorrelationOpts    `command:"list"`
+}
+
 // LogOpts represents the log commands
 type LogOpts struct {
-	LogLevel   LogLevelOpts   `command:"level"`
-	LogPackage LogPackageOpts `command:"package"`
+	LogLevel       LogLevelOpts       `command:"level"`
+	LogPackage     LogPackageOpts     `command:"package"`
+	LogCorrelation LogCorrelationOpts `command:"correlation"`
 }
 
 var logOpts = LogOpts{}
 
 const (
-	DEFAULT_LOG_LEVELS_FORMAT   = "table{{ .ComponentName }}\t{{.PackageName}}\t{{.Level}}"
-	DEFAULT_LOG_PACKAGES_FORMAT = "table{{ .ComponentName }}\t{{.PackageName}}"
-	DEFAULT_LOG_RESULT_FORMAT   = "table{{ .ComponentName }}\t{{.PackageName}}\t{{.Status}}\t{{.Error}}"
+	DEFAULT_LOG_LEVELS_FORMAT      = "table{{ .ComponentName }}\t{{.PackageName}}\t{{.Level}}"
+	DEFAULT_LOG_PACKAGES_FORMAT    = "table{{ .ComponentName }}\t{{.PackageName}}"
+	DEFAULT_LOG_RESULT_FORMAT      = "table{{ .ComponentName }}\t{{.PackageName}}\t{{.Status}}\t{{.Error}}"
+	DEFAULT_LOG_CORRELATION_FORMAT = "table{{ .ComponentName }}\t{{.Status}}"
 )
 
 func toStringArray(arg interface{}) []string {
@@ -190,18 +230,18 @@ func getPackageNames(componentName string) ([]string, error) {
 
 	log.SetAllLogLevel(log.FatalLevel)
 
-	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	defer cancel()
+
+	client, err := kvstore.NewEtcdClient(ctx, GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
 	if err != nil {
 		return nil, fmt.Errorf("Unable to create kvstore client %s", err)
 	}
-	defer client.Close()
+	defer client.Close(ctx)
 
 	// Already error checked during option processing
 	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
-	cm := config.NewConfigManager(client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
-
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
-	defer cancel()
+	cm := config.NewConfigManager(ctx, client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
 
 	componentMetadata := cm.InitComponentConfig(componentName, config.ConfigTypeMetadata)
 
@@ -315,18 +355,18 @@ func (ccpn *ConfiguredComponentAndPackageName) Complete(match string) []flags.Co
 
 	log.SetAllLogLevel(log.FatalLevel)
 
-	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	defer cancel()
+
+	client, err := kvstore.NewEtcdClient(ctx, GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
 	if err != nil {
 		return list
 	}
-	defer client.Close()
+	defer client.Close(ctx)
 
 	// Already error checked during option processing
 	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
-	cm := config.NewConfigManager(client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
-
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
-	defer cancel()
+	cm := config.NewConfigManager(ctx, client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
 
 	var componentNames []string
 	componentNames, err = cm.RetrieveComponentList(ctx, config.ConfigTypeLogLevel)
@@ -501,20 +541,20 @@ func (options *SetLogLevelOpts) Execute(args []string) error {
 		return fmt.Errorf(err.Error())
 	}
 
-	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	defer cancel()
+
+	client, err := kvstore.NewEtcdClient(ctx, GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
 	if err != nil {
 		return fmt.Errorf("Unable to create kvstore client %s", err)
 	}
-	defer client.Close()
+	defer client.Close(ctx)
 
 	// Already error checked during option processing
 	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
-	cm := config.NewConfigManager(client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
+	cm := config.NewConfigManager(ctx, client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
 
 	var output []LogLevelOutput
-
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
-	defer cancel()
 
 	validComponents := getVolthaComponentNames()
 
@@ -608,18 +648,18 @@ func (options *ListLogLevelsOpts) Execute(args []string) error {
 
 	log.SetAllLogLevel(log.FatalLevel)
 
-	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	defer cancel()
+
+	client, err := kvstore.NewEtcdClient(ctx, GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
 	if err != nil {
 		return fmt.Errorf("Unable to create kvstore client %s", err)
 	}
-	defer client.Close()
+	defer client.Close(ctx)
 
 	// Already error checked during option processing
 	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
-	cm := config.NewConfigManager(client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
-
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
-	defer cancel()
+	cm := config.NewConfigManager(ctx, client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
 
 	if len(options.Args.Component) == 0 {
 		componentList, err = cm.RetrieveComponentList(ctx, config.ConfigTypeLogLevel)
@@ -730,20 +770,20 @@ func (options *ClearLogLevelsOpts) Execute(args []string) error {
 		return fmt.Errorf("%s", err)
 	}
 
-	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	defer cancel()
+
+	client, err := kvstore.NewEtcdClient(ctx, GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
 	if err != nil {
 		return fmt.Errorf("Unable to create kvstore client %s", err)
 	}
-	defer client.Close()
+	defer client.Close(ctx)
 
 	// Already error checked during option processing
 	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
-	cm := config.NewConfigManager(client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
+	cm := config.NewConfigManager(ctx, client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
 
 	var output []LogLevelOutput
-
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
-	defer cancel()
 
 	for _, lConfig := range logLevelConfig {
 
@@ -796,18 +836,18 @@ func (options *ListLogPackagesOpts) Execute(args []string) error {
 
 	log.SetAllLogLevel(log.FatalLevel)
 
-	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	defer cancel()
+
+	client, err := kvstore.NewEtcdClient(ctx, GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
 	if err != nil {
 		return fmt.Errorf("Unable to create kvstore client %s", err)
 	}
-	defer client.Close()
+	defer client.Close(ctx)
 
 	// Already error checked during option processing
 	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
-	cm := config.NewConfigManager(client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
-
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
-	defer cancel()
+	cm := config.NewConfigManager(ctx, client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
 
 	if len(options.Args.Component) == 0 {
 		componentList, err = cm.RetrieveComponentList(ctx, config.ConfigTypeLogLevel)
@@ -853,6 +893,232 @@ func (options *ListLogPackagesOpts) Execute(args []string) error {
 	orderBy := options.OrderBy
 	if orderBy == "" {
 		orderBy = GetCommandOptionWithDefault("log-package-list", "order", "ComponentName,PackageName")
+	}
+
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		Filter:    options.Filter,
+		OrderBy:   orderBy,
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      data,
+	}
+	GenerateOutput(&result)
+	return nil
+}
+
+// voltctl log correlation enable <component-name>
+// voltctl log correlation enable
+func (options *EnableLogCorrelationOpts) Execute(args []string) error {
+
+	var (
+		logCorrelationConfig []model.LogLevel
+		err                  error
+	)
+	ProcessGlobalOptions()
+
+	logCorrelationConfig, err = processComponentListArgs(toStringArray(options.Args.Component))
+	if err != nil {
+		return fmt.Errorf(err.Error())
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	defer cancel()
+
+	client, err := kvstore.NewEtcdClient(ctx, GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
+	if err != nil {
+		return fmt.Errorf("Unable to create kvstore client %s", err)
+	}
+	defer client.Close(ctx)
+
+	// Already error checked during option processing
+	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
+	cm := config.NewConfigManager(ctx, client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
+
+	var output []LogCorrelationOutput
+
+	validComponents := getVolthaComponentNames()
+
+	for _, lConfig := range logCorrelationConfig {
+
+		logConfig := cm.InitComponentConfig(lConfig.ComponentName, config.ConfigTypeLogCorrelation)
+		err := logConfig.Save(ctx, lConfig.ComponentName, strings.ToUpper("enabled"))
+
+		if err != nil {
+			output = append(output, LogCorrelationOutput{ComponentName: lConfig.ComponentName, Status: "Failure", Error: err.Error()})
+		} else {
+			var outmsg string
+
+			// Validate if component name being set is correct. Add a * against the invalid value
+			for _, cname := range validComponents {
+				if lConfig.ComponentName == cname {
+					break
+				} else {
+					lConfig.ComponentName = "*" + lConfig.ComponentName
+					outmsg = "Entered Component Name is not Currently active in Voltha"
+				}
+			}
+			output = append(output, LogCorrelationOutput{ComponentName: lConfig.ComponentName, Status: "enabled", Error: outmsg})
+		}
+	}
+
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("log-correlation-list", "format", DEFAULT_LOG_CORRELATION_FORMAT)
+	}
+
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      output,
+	}
+	GenerateOutput(&result)
+	return nil
+}
+
+// voltctl log correlation disable <component-name>
+func (options *DisableLogCorrelationOpts) Execute(args []string) error {
+	var (
+		logCorrelationConfig []model.LogLevel
+		err                  error
+	)
+	ProcessGlobalOptions()
+
+	logCorrelationConfig, err = processComponentListArgs(toStringArray(options.Args.Component))
+	if err != nil {
+		return fmt.Errorf(err.Error())
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	defer cancel()
+
+	client, err := kvstore.NewEtcdClient(ctx, GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
+	if err != nil {
+		return fmt.Errorf("Unable to create kvstore client %s", err)
+	}
+	defer client.Close(ctx)
+
+	// Already error checked during option processing
+	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
+	cm := config.NewConfigManager(ctx, client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
+
+	var output []LogCorrelationOutput
+
+	validComponents := getVolthaComponentNames()
+
+	for _, lConfig := range logCorrelationConfig {
+
+		logConfig := cm.InitComponentConfig(lConfig.ComponentName, config.ConfigTypeLogCorrelation)
+		err := logConfig.Save(ctx, lConfig.ComponentName, strings.ToUpper("disabled"))
+
+		if err != nil {
+			output = append(output, LogCorrelationOutput{ComponentName: lConfig.ComponentName, Status: "Failure", Error: err.Error()})
+		} else {
+			var outmsg string
+
+			// Validate if component name being set is correct. Add a * against the invalid value
+			for _, cname := range validComponents {
+				if lConfig.ComponentName == cname {
+					break
+				} else {
+					lConfig.ComponentName = "*" + lConfig.ComponentName
+					outmsg = "Entered Component Name is not Currently active in Voltha"
+				}
+			}
+			output = append(output, LogCorrelationOutput{ComponentName: lConfig.ComponentName, Status: "disabled", Error: outmsg})
+		}
+	}
+
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("log-correlation-list", "format", DEFAULT_LOG_CORRELATION_FORMAT)
+	}
+
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      output,
+	}
+	GenerateOutput(&result)
+	return nil
+}
+
+// voltctl log correlation list
+func (options *ListLogCorrelationOpts) Execute(args []string) error {
+
+	var (
+		// Initialize to empty as opposed to nil so that -o json will
+		// display empty list and not null VOL-2742
+		data                 []model.LogCorrelation = []model.LogCorrelation{}
+		componentList        []string
+		logCorrelationConfig map[string]string
+		err                  error
+	)
+	ProcessGlobalOptions()
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	defer cancel()
+
+	client, err := kvstore.NewEtcdClient(ctx, GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
+	if err != nil {
+		return fmt.Errorf("Unable to create kvstore client %s", err)
+	}
+	defer client.Close(ctx)
+
+	// Already error checked during option processing
+	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
+	cm := config.NewConfigManager(ctx, client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
+
+	if len(options.Args.Component) == 0 {
+		componentList, err = cm.RetrieveComponentList(ctx, config.ConfigTypeLogCorrelation)
+		if err != nil {
+			return fmt.Errorf("Unable to retrieve list of voltha components : %s \nIs ETCD available at %s:%d?", err, host, port)
+		}
+	} else {
+		componentList = toStringArray(options.Args.Component)
+	}
+
+	validComponents := getVolthaComponentNames()
+
+	for _, componentName := range componentList {
+		logConfig := cm.InitComponentConfig(componentName, config.ConfigTypeLogCorrelation)
+
+		logCorrelationConfig, err = logConfig.RetrieveAll(ctx)
+		if err != nil {
+			return fmt.Errorf("Unable to retrieve logcorrelation status for component %s : %s", componentName, err)
+		}
+
+		for componentName, status := range logCorrelationConfig {
+			logCorrelation := model.LogCorrelation{}
+			if componentName == "" {
+				continue
+			}
+
+			outComponentName := componentName
+
+			// Validate retrieved component names before printing. Add a * against the invalid value
+			for _, cname := range validComponents {
+				if componentName == cname {
+					break
+				} else {
+					outComponentName = "*" + componentName
+				}
+			}
+
+			logCorrelation.PopulateFrom(outComponentName, status)
+			data = append(data, logCorrelation)
+		}
+	}
+
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("log-correlation-list", "format", DEFAULT_LOG_CORRELATION_FORMAT)
+	}
+	orderBy := options.OrderBy
+	if orderBy == "" {
+		orderBy = GetCommandOptionWithDefault("log-correlation-list", "order", "")
 	}
 
 	result := CommandResult{
