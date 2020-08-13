@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66ff62d4_b09a1c80",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 1000526
+      },
+      "writtenOn": "2020-08-13T12:14:05Z",
+      "side": 1,
+      "message": "Any reason for this change? Was the call to",
+      "revId": "40d2f5b0eb678e5ae4a2039ce245402188c69a25",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffbf5468_1d59c461",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 915,
+      "author": {
+        "id": 1000526
+      },
+      "writtenOn": "2020-08-13T12:14:05Z",
+      "side": 1,
+      "message": "Model should be LogCorrelation; not LogLevel",
+      "revId": "40d2f5b0eb678e5ae4a2039ce245402188c69a25",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9b3adad_d4513e84",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 945,
+      "author": {
+        "id": 1000526
+      },
+      "writtenOn": "2020-08-13T12:14:05Z",
+      "side": 1,
+      "message": "Better directly use \"ENABLED\" instead of strings.ToUpper(\"enabled\")",
+      "revId": "40d2f5b0eb678e5ae4a2039ce245402188c69a25",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f3f1edac_29cf6915",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 961,
+      "author": {
+        "id": 1000526
+      },
+      "writtenOn": "2020-08-13T12:14:05Z",
+      "side": 1,
+      "message": "Status should be Success. It is the status of the Set Operation being performed, not the value set",
+      "revId": "40d2f5b0eb678e5ae4a2039ce245402188c69a25",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4142169b_f90a8f9b",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 1013,
+      "author": {
+        "id": 1000526
+      },
+      "writtenOn": "2020-08-13T12:14:05Z",
+      "side": 1,
+      "message": "change to DISABLED",
+      "revId": "40d2f5b0eb678e5ae4a2039ce245402188c69a25",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3a2e467_0384cb9e",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 1030,
+      "author": {
+        "id": 1000526
+      },
+      "writtenOn": "2020-08-13T12:14:05Z",
+      "side": 1,
+      "message": "Success",
+      "revId": "40d2f5b0eb678e5ae4a2039ce245402188c69a25",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f85627a7_66bf46ef",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 1093,
+      "author": {
+        "id": 1000526
+      },
+      "writtenOn": "2020-08-13T12:14:05Z",
+      "side": 1,
+      "message": "I don\u0027t think we will get component name in this map. There is a issue with this logic",
+      "revId": "40d2f5b0eb678e5ae4a2039ce245402188c69a25",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}
