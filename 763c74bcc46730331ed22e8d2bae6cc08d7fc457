@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c1433cd0_9547b0eb",
+        "filename": "VERSION",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000107
+      },
+      "writtenOn": "2020-08-18T14:15:02Z",
+      "side": 1,
+      "message": "Unless this is an explicit release, should leave as -dev?",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 5
+      },
+      "revId": "763c74bcc46730331ed22e8d2bae6cc08d7fc457",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f57b8050_49218076",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 1000107
+      },
+      "writtenOn": "2020-08-18T14:15:02Z",
+      "side": 1,
+      "message": "Looks like a new version of voltha-lib-go, but go.mod \u0026 vendor/ not updated?",
+      "range": {
+        "startLine": 231,
+        "startChar": 24,
+        "endLine": 231,
+        "endChar": 37
+      },
+      "revId": "763c74bcc46730331ed22e8d2bae6cc08d7fc457",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}
