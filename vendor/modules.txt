@@ -83,20 +83,26 @@ github.com/mitchellh/mapstructure
 github.com/modern-go/concurrent
 # github.com/modern-go/reflect2 v1.0.1
 github.com/modern-go/reflect2
-# github.com/opencord/voltha-lib-go/v3 v3.1.13
+# github.com/opencord/voltha-lib-go/v3 v3.2.8
 github.com/opencord/voltha-lib-go/v3/pkg/config
 github.com/opencord/voltha-lib-go/v3/pkg/db
 github.com/opencord/voltha-lib-go/v3/pkg/db/kvstore
 github.com/opencord/voltha-lib-go/v3/pkg/log
-# github.com/opencord/voltha-protos/v3 v3.4.0
+# github.com/opencord/voltha-protos/v3 v3.4.1
 github.com/opencord/voltha-protos/v3/go/common
 github.com/opencord/voltha-protos/v3/go/inter_container
 github.com/opencord/voltha-protos/v3/go/omci
 github.com/opencord/voltha-protos/v3/go/openflow_13
 github.com/opencord/voltha-protos/v3/go/voltha
+# github.com/opentracing/opentracing-go v1.1.0
+github.com/opentracing/opentracing-go
+github.com/opentracing/opentracing-go/ext
+github.com/opentracing/opentracing-go/log
 # github.com/pierrec/lz4 v2.3.0+incompatible
 github.com/pierrec/lz4
 github.com/pierrec/lz4/internal/xxh32
+# github.com/pkg/errors v0.8.1
+github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
 # github.com/rcrowley/go-metrics v0.0.0-20190826022208-cac0b30c2563
@@ -105,6 +111,27 @@ github.com/rcrowley/go-metrics
 github.com/spf13/pflag
 # github.com/stretchr/testify v1.4.0
 github.com/stretchr/testify/assert
+# github.com/uber/jaeger-client-go v2.23.1+incompatible
+github.com/uber/jaeger-client-go
+github.com/uber/jaeger-client-go/config
+github.com/uber/jaeger-client-go/internal/baggage
+github.com/uber/jaeger-client-go/internal/baggage/remote
+github.com/uber/jaeger-client-go/internal/reporterstats
+github.com/uber/jaeger-client-go/internal/spanlog
+github.com/uber/jaeger-client-go/internal/throttler
+github.com/uber/jaeger-client-go/internal/throttler/remote
+github.com/uber/jaeger-client-go/log
+github.com/uber/jaeger-client-go/rpcmetrics
+github.com/uber/jaeger-client-go/thrift
+github.com/uber/jaeger-client-go/thrift-gen/agent
+github.com/uber/jaeger-client-go/thrift-gen/baggage
+github.com/uber/jaeger-client-go/thrift-gen/jaeger
+github.com/uber/jaeger-client-go/thrift-gen/sampling
+github.com/uber/jaeger-client-go/thrift-gen/zipkincore
+github.com/uber/jaeger-client-go/transport
+github.com/uber/jaeger-client-go/utils
+# github.com/uber/jaeger-lib v2.2.0+incompatible
+github.com/uber/jaeger-lib/metrics
 # go.etcd.io/etcd v0.0.0-20190930204107-236ac2a90522
 go.etcd.io/etcd/auth/authpb
 go.etcd.io/etcd/clientv3

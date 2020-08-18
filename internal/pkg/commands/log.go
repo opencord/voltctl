@@ -39,6 +39,7 @@ const (
 	defaultComponentName = "global"
 	defaultPackageName   = "default"
 	logPackagesListKey   = "log_package_list" // kvstore key containing list of allowed log packages
+	logTracingStatusKey  = "trace_publish"
 )
 
 // Custom Option representing <component-name>#<package-name> format (package is optional)
@@ -63,7 +64,7 @@ type LogLevelOutput struct {
 	Error         string
 }
 
-// SetLogLevelOpts represents the supported CLI arguments for the loglevel set command
+// SetLogLevelOpts represents the supported CLI arguments for the log level set command
 type SetLogLevelOpts struct {
 	OutputOptions
 	Args struct {
@@ -72,7 +73,7 @@ type SetLogLevelOpts struct {
 	} `positional-args:"yes" required:"yes"`
 }
 
-// ListLogLevelOpts represents the supported CLI arguments for the loglevel list command
+// ListLogLevelOpts represents the supported CLI arguments for the log level list command
 type ListLogLevelsOpts struct {
 	ListOutputOptions
 	Args struct {
@@ -80,7 +81,7 @@ type ListLogLevelsOpts struct {
 	} `positional-args:"yes" required:"yes"`
 }
 
-// ClearLogLevelOpts represents the supported CLI arguments for the loglevel clear command
+// ClearLogLevelOpts represents the supported CLI arguments for the log level clear command
 type ClearLogLevelsOpts struct {
 	OutputOptions
 	Args struct {
@@ -88,8 +89,32 @@ type ClearLogLevelsOpts struct {
 	} `positional-args:"yes" required:"yes"`
 }
 
-// ListLogLevelOpts represents the supported CLI arguments for the loglevel list command
+// ListLogLevelOpts represents the supported CLI arguments for the log level list command
 type ListLogPackagesOpts struct {
+	ListOutputOptions
+	Args struct {
+		Component []ComponentName
+	} `positional-args:"yes" required:"yes"`
+}
+
+//  EnableLogTracingOpts represents the supported CLI arguments for the log tracing enable command
+type EnableLogTracingOpts struct {
+	OutputOptions
+	Args struct {
+		Component []ComponentName
+	} `positional-args:"yes" required:"yes"`
+}
+
+//  DisableLogTracingOpts represents the supported CLI arguments for the log tracing disable command
+type DisableLogTracingOpts struct {
+	OutputOptions
+	Args struct {
+		Component []ComponentName
+	} `positional-args:"yes" required:"yes"`
+}
+
+//  ListLogTracingOpts represents the supported CLI arguments for the log tracing list command
+type ListLogTracingOpts struct {
 	ListOutputOptions
 	Args struct {
 		Component []ComponentName
@@ -108,18 +133,28 @@ type LogLevelOpts struct {
 	ClearLogLevels ClearLogLevelsOpts `command:"clear"`
 }
 
+// LogTracingOpts represents the log tracing commands
+type LogTracingOpts struct {
+	EnableLogTracing  EnableLogTracingOpts  `command:"enable"`
+	DisableLogTracing DisableLogTracingOpts `command:"disable"`
+	ListLogTracing    ListLogTracingOpts    `command:"list"`
+}
+
 // LogOpts represents the log commands
 type LogOpts struct {
 	LogLevel   LogLevelOpts   `command:"level"`
 	LogPackage LogPackageOpts `command:"package"`
+	LogTracing LogTracingOpts `command:"tracing"`
 }
 
 var logOpts = LogOpts{}
 
 const (
-	DEFAULT_LOG_LEVELS_FORMAT   = "table{{ .ComponentName }}\t{{.PackageName}}\t{{.Level}}"
-	DEFAULT_LOG_PACKAGES_FORMAT = "table{{ .ComponentName }}\t{{.PackageName}}"
-	DEFAULT_LOG_RESULT_FORMAT   = "table{{ .ComponentName }}\t{{.PackageName}}\t{{.Status}}\t{{.Error}}"
+	DEFAULT_LOG_LEVELS_FORMAT         = "table{{ .ComponentName }}\t{{.PackageName}}\t{{.Level}}"
+	DEFAULT_LOG_PACKAGES_FORMAT       = "table{{ .ComponentName }}\t{{.PackageName}}"
+	DEFAULT_LOG_FEATURE_STATUS_FORMAT = "table{{ .ComponentName }}\t{{.Status}}"
+	DEFAULT_LOG_RESULT_FORMAT         = "table{{ .ComponentName }}\t{{.PackageName}}\t{{.Status}}\t{{.Error}}"
+	DEFAULT_LOG_FEATURE_RESULT_FORMAT = "table{{ .ComponentName }}\t{{.Status}}\t{{.Error}}"
 )
 
 func toStringArray(arg interface{}) []string {
@@ -143,7 +178,7 @@ func toStringArray(arg interface{}) []string {
 
 // RegisterLogCommands is used to register log and its sub-commands e.g. level, package etc
 func RegisterLogCommands(parent *flags.Parser) {
-	_, err := parent.AddCommand("log", "log config commands", "list, set, clear log levels and list packages of components", &logOpts)
+	_, err := parent.AddCommand("log", "log configuration commands", "update/view log levels, correlation, tracing status and list packages of components", &logOpts)
 	if err != nil {
 		Error.Fatalf("Unable to register log commands with voltctl command parser: %s", err.Error())
 	}
@@ -181,6 +216,27 @@ func getVolthaComponentNames() []string {
 	return componentList
 }
 
+func constructConfigManager(ctx context.Context) (*config.ConfigManager, func(), error) {
+	var client *kvstore.EtcdClient = nil
+	var err error
+
+	cleanupFunc := func() {
+		if client != nil {
+			client.Close(ctx)
+		}
+	}
+
+	client, err = kvstore.NewEtcdClient(ctx, GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
+	if err != nil {
+		return nil, cleanupFunc, fmt.Errorf("Unable to create kvstore client %s", err)
+	}
+
+	// Already error checked during option processing
+	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
+	cm := config.NewConfigManager(ctx, client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
+	return cm, cleanupFunc, nil
+}
+
 // Method to get list of allowed Package Names for a given component. This list
 // is saved into etcd kvstore by each active component at startup as a json array
 func getPackageNames(componentName string) ([]string, error) {
@@ -190,18 +246,14 @@ func getPackageNames(componentName string) ([]string, error) {
 
 	log.SetAllLogLevel(log.FatalLevel)
 
-	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
-	if err != nil {
-		return nil, fmt.Errorf("Unable to create kvstore client %s", err)
-	}
-	defer client.Close()
-
-	// Already error checked during option processing
-	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
-	cm := config.NewConfigManager(client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
-
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
 	defer cancel()
+
+	cm, cleanupFunc, err := constructConfigManager(ctx)
+	defer cleanupFunc()
+	if err != nil {
+		return nil, fmt.Errorf("Error while constructing ConfigManager instance : %s", err)
+	}
 
 	componentMetadata := cm.InitComponentConfig(componentName, config.ConfigTypeMetadata)
 
@@ -315,18 +367,14 @@ func (ccpn *ConfiguredComponentAndPackageName) Complete(match string) []flags.Co
 
 	log.SetAllLogLevel(log.FatalLevel)
 
-	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	defer cancel()
+
+	cm, cleanupFunc, err := constructConfigManager(ctx)
+	defer cleanupFunc()
 	if err != nil {
 		return list
 	}
-	defer client.Close()
-
-	// Already error checked during option processing
-	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
-	cm := config.NewConfigManager(client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
-
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
-	defer cancel()
 
 	var componentNames []string
 	componentNames, err = cm.RetrieveComponentList(ctx, config.ConfigTypeLogLevel)
@@ -501,20 +549,16 @@ func (options *SetLogLevelOpts) Execute(args []string) error {
 		return fmt.Errorf(err.Error())
 	}
 
-	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
-	if err != nil {
-		return fmt.Errorf("Unable to create kvstore client %s", err)
-	}
-	defer client.Close()
-
-	// Already error checked during option processing
-	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
-	cm := config.NewConfigManager(client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
-
-	var output []LogLevelOutput
-
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
 	defer cancel()
+
+	cm, cleanupFunc, err := constructConfigManager(ctx)
+	defer cleanupFunc()
+	if err != nil {
+		return fmt.Errorf("Error while constructing ConfigManager instance : %s", err)
+	}
+
+	var output []LogLevelOutput
 
 	validComponents := getVolthaComponentNames()
 
@@ -608,22 +652,19 @@ func (options *ListLogLevelsOpts) Execute(args []string) error {
 
 	log.SetAllLogLevel(log.FatalLevel)
 
-	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
-	if err != nil {
-		return fmt.Errorf("Unable to create kvstore client %s", err)
-	}
-	defer client.Close()
-
-	// Already error checked during option processing
-	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
-	cm := config.NewConfigManager(client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
-
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
 	defer cancel()
+
+	cm, cleanupFunc, err := constructConfigManager(ctx)
+	defer cleanupFunc()
+	if err != nil {
+		return fmt.Errorf("Error while constructing ConfigManager instance : %s", err)
+	}
 
 	if len(options.Args.Component) == 0 {
 		componentList, err = cm.RetrieveComponentList(ctx, config.ConfigTypeLogLevel)
 		if err != nil {
+			host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
 			return fmt.Errorf("Unable to retrieve list of voltha components : %s \nIs ETCD available at %s:%d?", err, host, port)
 		}
 	} else {
@@ -730,20 +771,16 @@ func (options *ClearLogLevelsOpts) Execute(args []string) error {
 		return fmt.Errorf("%s", err)
 	}
 
-	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
-	if err != nil {
-		return fmt.Errorf("Unable to create kvstore client %s", err)
-	}
-	defer client.Close()
-
-	// Already error checked during option processing
-	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
-	cm := config.NewConfigManager(client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
-
-	var output []LogLevelOutput
-
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
 	defer cancel()
+
+	cm, cleanupFunc, err := constructConfigManager(ctx)
+	defer cleanupFunc()
+	if err != nil {
+		return fmt.Errorf("Error while constructing ConfigManager instance : %s", err)
+	}
+
+	var output []LogLevelOutput
 
 	for _, lConfig := range logLevelConfig {
 
@@ -796,18 +833,14 @@ func (options *ListLogPackagesOpts) Execute(args []string) error {
 
 	log.SetAllLogLevel(log.FatalLevel)
 
-	client, err := kvstore.NewEtcdClient(GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
-	if err != nil {
-		return fmt.Errorf("Unable to create kvstore client %s", err)
-	}
-	defer client.Close()
-
-	// Already error checked during option processing
-	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
-	cm := config.NewConfigManager(client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
-
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
 	defer cancel()
+
+	cm, cleanupFunc, err := constructConfigManager(ctx)
+	defer cleanupFunc()
+	if err != nil {
+		return fmt.Errorf("Error while constructing ConfigManager instance : %s", err)
+	}
 
 	if len(options.Args.Component) == 0 {
 		componentList, err = cm.RetrieveComponentList(ctx, config.ConfigTypeLogLevel)
@@ -853,6 +886,267 @@ func (options *ListLogPackagesOpts) Execute(args []string) error {
 	orderBy := options.OrderBy
 	if orderBy == "" {
 		orderBy = GetCommandOptionWithDefault("log-package-list", "order", "ComponentName,PackageName")
+	}
+
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		Filter:    options.Filter,
+		OrderBy:   orderBy,
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      data,
+	}
+	GenerateOutput(&result)
+	return nil
+}
+
+// This method enables log trace publishing for components.
+// For example, using below command, trace publishing can be enabled for specific component
+// voltctl log tracing enable <componentName>
+// Omitting the component name will enable trace publishing for all the components, as shown in below command.
+// voltctl log tracing enable
+func (options *EnableLogTracingOpts) Execute(args []string) error {
+
+	var (
+		componentNames []string
+		err            error
+	)
+
+	ProcessGlobalOptions()
+
+	log.SetAllLogLevel(log.FatalLevel)
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	defer cancel()
+
+	cm, cleanupFunc, err := constructConfigManager(ctx)
+	defer cleanupFunc()
+	if err != nil {
+		return fmt.Errorf("Error while constructing ConfigManager instance : %s", err)
+	}
+
+	var output []LogLevelOutput
+
+	if len(options.Args.Component) == 0 {
+		// Apply to all components if no specific component has been indicated
+		componentNames, err = cm.RetrieveComponentList(ctx, config.ConfigTypeLogFeatures)
+		if err != nil {
+			return fmt.Errorf("Unable to retrieve list of voltha components : %s ", err)
+		}
+
+	} else {
+		for _, name := range options.Args.Component {
+			componentNames = append(componentNames, string(name))
+		}
+	}
+
+	validComponents := getVolthaComponentNames()
+
+	for _, component := range componentNames {
+
+		config := cm.InitComponentConfig(component, config.ConfigTypeLogFeatures)
+
+		err := config.Save(ctx, logTracingStatusKey, "ENABLED")
+		if err != nil {
+			output = append(output, LogLevelOutput{ComponentName: component, Status: "Failure", Error: err.Error()})
+		} else {
+			outmsg := ""
+			cvalid := false
+			for _, cname := range validComponents {
+				if component == cname {
+					cvalid = true
+					break
+				}
+			}
+
+			// For invalid component, add * against its name to indicate possible mis-configuration
+			if !cvalid {
+				component = "*" + component
+				outmsg = "Entered Component Name is not Currently active in Voltha"
+			}
+
+			output = append(output, LogLevelOutput{ComponentName: component, Status: "Success", Error: outmsg})
+		}
+	}
+
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("log-tracing-enable", "format", DEFAULT_LOG_FEATURE_RESULT_FORMAT)
+	}
+
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      output,
+	}
+
+	GenerateOutput(&result)
+	return nil
+}
+
+// This method disables log trace publishing for components.
+// For example, using below command, trace publishing can be disabled for specific component
+// voltctl log tracing disable <componentName>
+// Omitting the component name will disable trace publishing for all the components, as shown in below command.
+// voltctl log tracing disable
+func (options *DisableLogTracingOpts) Execute(args []string) error {
+
+	var (
+		componentNames []string
+		err            error
+	)
+
+	ProcessGlobalOptions()
+
+	log.SetAllLogLevel(log.FatalLevel)
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	defer cancel()
+
+	cm, cleanupFunc, err := constructConfigManager(ctx)
+	defer cleanupFunc()
+	if err != nil {
+		return fmt.Errorf("Error while constructing ConfigManager instance : %s", err)
+	}
+
+	var output []LogLevelOutput
+
+	if len(options.Args.Component) == 0 {
+		// Apply to all components if no specific component has been indicated
+		componentNames, err = cm.RetrieveComponentList(ctx, config.ConfigTypeLogFeatures)
+		if err != nil {
+			return fmt.Errorf("Unable to retrieve list of voltha components : %s ", err)
+		}
+
+	} else {
+		for _, name := range options.Args.Component {
+			componentNames = append(componentNames, string(name))
+		}
+	}
+
+	validComponents := getVolthaComponentNames()
+
+	for _, component := range componentNames {
+
+		config := cm.InitComponentConfig(component, config.ConfigTypeLogFeatures)
+
+		err := config.Save(ctx, logTracingStatusKey, "DISABLED")
+
+		if err != nil {
+			output = append(output, LogLevelOutput{ComponentName: component, Status: "Failure", Error: err.Error()})
+		} else {
+			outmsg := ""
+			cvalid := false
+			for _, cname := range validComponents {
+				if component == cname {
+					cvalid = true
+					break
+				}
+			}
+
+			// For invalid component, add * against its name to indicate possible mis-configuration
+			if !cvalid {
+				component = "*" + component
+				outmsg = "Entered Component Name is not Currently active in Voltha"
+			}
+
+			output = append(output, LogLevelOutput{ComponentName: component, Status: "Success", Error: outmsg})
+		}
+	}
+
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("log-tracing-disable", "format", DEFAULT_LOG_FEATURE_RESULT_FORMAT)
+	}
+
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      output,
+	}
+
+	GenerateOutput(&result)
+	return nil
+}
+
+// This method lists current status of log trace publishing for components.
+// For example, using below command, trace publishing can be queried for specific component
+// voltctl log tracing list <componentName>
+// Omitting the component name will list trace publishing for all the components, as shown in below command.
+// voltctl log tracing list
+func (options *ListLogTracingOpts) Execute(args []string) error {
+
+	var (
+		data           []model.LogFeature = []model.LogFeature{}
+		componentNames []string
+		err            error
+	)
+
+	ProcessGlobalOptions()
+
+	log.SetAllLogLevel(log.FatalLevel)
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	defer cancel()
+
+	cm, cleanupFunc, err := constructConfigManager(ctx)
+	defer cleanupFunc()
+	if err != nil {
+		return fmt.Errorf("Error while constructing ConfigManager instance : %s", err)
+	}
+
+	if len(options.Args.Component) == 0 {
+		// Apply to all components if no specific component has been indicated
+		componentNames, err = cm.RetrieveComponentList(ctx, config.ConfigTypeLogFeatures)
+		if err != nil {
+			return fmt.Errorf("Unable to retrieve list of voltha components : %s ", err)
+		}
+
+	} else {
+		for _, name := range options.Args.Component {
+			componentNames = append(componentNames, string(name))
+		}
+	}
+
+	validComponents := getVolthaComponentNames()
+
+	for _, component := range componentNames {
+
+		config := cm.InitComponentConfig(component, config.ConfigTypeLogFeatures)
+
+		value, err := config.Retrieve(ctx, logTracingStatusKey)
+		if err != nil || value == "" {
+			// Ignore any error in retrieval; move to next component
+			continue
+		}
+
+		cvalid := false
+		for _, cname := range validComponents {
+			if component == cname {
+				cvalid = true
+				break
+			}
+		}
+
+		// For invalid component, add * against its name to indicate possible mis-configuration
+		if !cvalid {
+			component = "*" + component
+		}
+
+		logTracingStatus := model.LogFeature{}
+		logTracingStatus.PopulateFrom(component, value)
+		data = append(data, logTracingStatus)
+	}
+
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("log-tracing-list", "format", DEFAULT_LOG_FEATURE_STATUS_FORMAT)
+	}
+	orderBy := options.OrderBy
+	if orderBy == "" {
+		orderBy = GetCommandOptionWithDefault("log-tracing-list", "order", "ComponentName,Status")
 	}
 
 	result := CommandResult{

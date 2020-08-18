@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-present Ciena Corporation
+ * Copyright 2020-present Open Networking Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package model
+package log
 
-type LogLevel struct {
-	ComponentName string
-	PackageName   string
-	Level         string
-}
+var logger CLogger
 
-func (logLevel *LogLevel) PopulateFrom(componentName, packageName, level string) {
-	logLevel.ComponentName = componentName
-	logLevel.PackageName = packageName
-	logLevel.Level = level
+func init() {
+	// Setup this package so that it's log level can be modified at run time
+	var err error
+	logger, err = RegisterPackage(JSON, ErrorLevel, Fields{})
+	if err != nil {
+		panic(err)
+	}
 }
