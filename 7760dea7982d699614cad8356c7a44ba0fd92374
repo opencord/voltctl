@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3f429d4a_138b8c5c",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 769,
+      "author": {
+        "id": 1000107
+      },
+      "writtenOn": "2020-08-25T14:51:53Z",
+      "side": 1,
+      "message": "Seeing this repeated over and over, consider moving to a higher-level function, and just passing in a ctx, if feasible.",
+      "range": {
+        "startLine": 768,
+        "startChar": 1,
+        "endLine": 769,
+        "endChar": 15
+      },
+      "revId": "7760dea7982d699614cad8356c7a44ba0fd92374",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}
