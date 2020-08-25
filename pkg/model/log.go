@@ -26,3 +26,13 @@ func (logLevel *LogLevel) PopulateFrom(componentName, packageName, level string)
 	logLevel.PackageName = packageName
 	logLevel.Level = level
 }
+
+type LogFeature struct {
+	ComponentName string
+	Status        string
+}
+
+func (logFeature *LogFeature) PopulateFrom(componentName, status string) {
+	logFeature.ComponentName = componentName
+	logFeature.Status = status
+}
