@@ -46,6 +46,30 @@
       "revId": "7760dea7982d699614cad8356c7a44ba0fd92374",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "91159fd9_b3ba1960",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 769,
+      "author": {
+        "id": 1000107
+      },
+      "writtenOn": "2020-08-26T18:31:16Z",
+      "side": 1,
+      "message": "I was actually trying to suggest that the ctx timeout/cancellation logic be moved to a higher-level method (whichever function calls all these).",
+      "parentUuid": "69b39ef6_d30dc643",
+      "range": {
+        "startLine": 768,
+        "startChar": 1,
+        "endLine": 769,
+        "endChar": 15
+      },
+      "revId": "7760dea7982d699614cad8356c7a44ba0fd92374",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
     }
   ]
 }

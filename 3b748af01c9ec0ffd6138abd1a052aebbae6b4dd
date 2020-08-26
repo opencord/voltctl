@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d8e69d4e_4f7350a8",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 1000107
+      },
+      "writtenOn": "2020-08-26T18:31:16Z",
+      "side": 1,
+      "message": "Should probably move this to be part of the final return statement only, and return `nil` in first error case.  (the `client !\u003d nil` check will then be unnecessary).",
+      "range": {
+        "startLine": 223,
+        "startChar": 1,
+        "endLine": 227,
+        "endChar": 2
+      },
+      "revId": "3b748af01c9ec0ffd6138abd1a052aebbae6b4dd",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "519acbf9_517685e0",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 1000107
+      },
+      "writtenOn": "2020-08-26T18:31:16Z",
+      "side": 1,
+      "message": "Use :\u003d to avoid having to declare these variables beforehand.",
+      "range": {
+        "startLine": 229,
+        "startChar": 13,
+        "endLine": 229,
+        "endChar": 14
+      },
+      "revId": "3b748af01c9ec0ffd6138abd1a052aebbae6b4dd",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54714697_932d5a2a",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 1000107
+      },
+      "writtenOn": "2020-08-26T18:31:16Z",
+      "side": 1,
+      "message": "In general, if an error is returned, nothing else should need to be done.\n\nShould move the `defer` after the error check.",
+      "range": {
+        "startLine": 253,
+        "startChar": 1,
+        "endLine": 256,
+        "endChar": 2
+      },
+      "revId": "3b748af01c9ec0ffd6138abd1a052aebbae6b4dd",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}
