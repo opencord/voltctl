@@ -22,6 +22,30 @@
       "revId": "7760dea7982d699614cad8356c7a44ba0fd92374",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69b39ef6_d30dc643",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 769,
+      "author": {
+        "id": 1000526
+      },
+      "writtenOn": "2020-08-26T17:24:34Z",
+      "side": 1,
+      "message": "Created constructConfigManager method to move some redundant code. Tested and working fine",
+      "parentUuid": "3f429d4a_138b8c5c",
+      "range": {
+        "startLine": 768,
+        "startChar": 1,
+        "endLine": 769,
+        "endChar": 15
+      },
+      "revId": "7760dea7982d699614cad8356c7a44ba0fd92374",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }
