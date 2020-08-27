@@ -70,6 +70,30 @@
       "revId": "7760dea7982d699614cad8356c7a44ba0fd92374",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38ebb61e_5bba1794",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 769,
+      "author": {
+        "id": 1000526
+      },
+      "writtenOn": "2020-08-27T09:14:00Z",
+      "side": 1,
+      "message": "Ah OK. Actually, the higher level method is part of go-flags library which invokes the Execute method of implemented sub-commands and hence we have no control on the same.\n\nLooks like I over-complicated the solution :-)",
+      "parentUuid": "91159fd9_b3ba1960",
+      "range": {
+        "startLine": 768,
+        "startChar": 1,
+        "endLine": 769,
+        "endChar": 15
+      },
+      "revId": "7760dea7982d699614cad8356c7a44ba0fd92374",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }

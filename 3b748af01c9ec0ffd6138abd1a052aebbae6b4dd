@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "30fb380b_78220bd3",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 1000526
+      },
+      "writtenOn": "2020-08-27T09:14:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d8e69d4e_4f7350a8",
+      "range": {
+        "startLine": 223,
+        "startChar": 1,
+        "endLine": 227,
+        "endChar": 2
+      },
+      "revId": "3b748af01c9ec0ffd6138abd1a052aebbae6b4dd",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "519acbf9_517685e0",
         "filename": "internal/pkg/commands/log.go",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "6eceff85_4ee0dfd4",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 1000526
+      },
+      "writtenOn": "2020-08-27T09:14:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "519acbf9_517685e0",
+      "range": {
+        "startLine": 229,
+        "startChar": 13,
+        "endLine": 229,
+        "endChar": 14
+      },
+      "revId": "3b748af01c9ec0ffd6138abd1a052aebbae6b4dd",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "54714697_932d5a2a",
         "filename": "internal/pkg/commands/log.go",
         "patchSetId": 3
@@ -68,6 +116,30 @@
       "revId": "3b748af01c9ec0ffd6138abd1a052aebbae6b4dd",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12ee89c7_20f884f7",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 1000526
+      },
+      "writtenOn": "2020-08-27T09:14:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "54714697_932d5a2a",
+      "range": {
+        "startLine": 253,
+        "startChar": 1,
+        "endLine": 256,
+        "endChar": 2
+      },
+      "revId": "3b748af01c9ec0ffd6138abd1a052aebbae6b4dd",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }
