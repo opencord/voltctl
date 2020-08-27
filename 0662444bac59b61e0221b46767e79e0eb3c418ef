@@ -1,0 +1,164 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5101977_a39c222e",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 1000107
+      },
+      "writtenOn": "2020-08-27T18:56:18Z",
+      "side": 1,
+      "message": "nit: `defer` should probably be immediately after the if block; it\u0027s part of the configManager creation logic.",
+      "revId": "0662444bac59b61e0221b46767e79e0eb3c418ef",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f66acf95_eb799c5a",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 804,
+      "author": {
+        "id": 1000107
+      },
+      "writtenOn": "2020-08-27T18:56:18Z",
+      "side": 1,
+      "message": "same as above",
+      "revId": "0662444bac59b61e0221b46767e79e0eb3c418ef",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f519a00b_bec97274",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 1196,
+      "author": {
+        "id": 1000107
+      },
+      "writtenOn": "2020-08-27T18:56:18Z",
+      "side": 1,
+      "message": "Should probably define closer to usage.",
+      "range": {
+        "startLine": 1193,
+        "startChar": 1,
+        "endLine": 1196,
+        "endChar": 2
+      },
+      "revId": "0662444bac59b61e0221b46767e79e0eb3c418ef",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5215850_c0cd9643",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 1219,
+      "author": {
+        "id": 1000107
+      },
+      "writtenOn": "2020-08-27T18:56:18Z",
+      "side": 1,
+      "message": "Consider calling name.ToString() directly. (They type of name is hidden by this syntax.)",
+      "range": {
+        "startLine": 1219,
+        "startChar": 43,
+        "endLine": 1219,
+        "endChar": 55
+      },
+      "revId": "0662444bac59b61e0221b46767e79e0eb3c418ef",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ca7f5be_11937cb9",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 1231,
+      "author": {
+        "id": 1000107
+      },
+      "writtenOn": "2020-08-27T18:56:18Z",
+      "side": 1,
+      "message": "Better to have a `continue` in the err!\u003dnil case, and remove the `else` block.",
+      "range": {
+        "startLine": 1231,
+        "startChar": 2,
+        "endLine": 1231,
+        "endChar": 10
+      },
+      "revId": "0662444bac59b61e0221b46767e79e0eb3c418ef",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad832816_d559464f",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 1240,
+      "author": {
+        "id": 1000107
+      },
+      "writtenOn": "2020-08-27T18:56:18Z",
+      "side": 1,
+      "message": "If validComponents was a map[string]struct{}, this logic could be much simpler. \n(I\u0027m not sure where else getVolthaComponentNames() is called.)",
+      "range": {
+        "startLine": 1235,
+        "startChar": 3,
+        "endLine": 1240,
+        "endChar": 4
+      },
+      "revId": "0662444bac59b61e0221b46767e79e0eb3c418ef",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c48015e4_ee522beb",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 1270,
+      "author": {
+        "id": 1000107
+      },
+      "writtenOn": "2020-08-27T18:56:18Z",
+      "side": 1,
+      "message": "Similar comments to the above, I won\u0027t repeat everywhere.",
+      "revId": "0662444bac59b61e0221b46767e79e0eb3c418ef",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0780a79_33d64721",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 1347,
+      "author": {
+        "id": 1000107
+      },
+      "writtenOn": "2020-08-27T18:56:18Z",
+      "side": 1,
+      "message": "Similar to above, I won\u0027t repeat everywhere.",
+      "revId": "0662444bac59b61e0221b46767e79e0eb3c418ef",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}
