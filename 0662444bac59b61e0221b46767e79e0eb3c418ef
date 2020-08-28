@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "7b917d24_8104612c",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2020-08-28T15:38:24Z",
+      "side": 1,
+      "message": "this is not really done, the defer needs to be moved before the if err !\u003d will at line 578, same applies for later comment.",
+      "parentUuid": "0a476594_f81fff8c",
+      "revId": "0662444bac59b61e0221b46767e79e0eb3c418ef",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f66acf95_eb799c5a",
         "filename": "internal/pkg/commands/log.go",
         "patchSetId": 2
