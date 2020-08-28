@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "0a476594_f81fff8c",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 1000675
+      },
+      "writtenOn": "2020-08-28T15:35:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bfcade07_20a6720c",
+      "revId": "0662444bac59b61e0221b46767e79e0eb3c418ef",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f66acf95_eb799c5a",
         "filename": "internal/pkg/commands/log.go",
         "patchSetId": 2
@@ -51,6 +69,24 @@
       "revId": "0662444bac59b61e0221b46767e79e0eb3c418ef",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0dc1164c_57180f2c",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 804,
+      "author": {
+        "id": 1000675
+      },
+      "writtenOn": "2020-08-28T15:35:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f66acf95_eb799c5a",
+      "revId": "0662444bac59b61e0221b46767e79e0eb3c418ef",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     },
     {
       "key": {
@@ -101,6 +137,30 @@
     },
     {
       "key": {
+        "uuid": "9e35c691_75097cf2",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 1196,
+      "author": {
+        "id": 1000675
+      },
+      "writtenOn": "2020-08-28T15:35:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "659c8069_0f0bb632",
+      "range": {
+        "startLine": 1193,
+        "startChar": 1,
+        "endLine": 1196,
+        "endChar": 2
+      },
+      "revId": "0662444bac59b61e0221b46767e79e0eb3c418ef",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b5215850_c0cd9643",
         "filename": "internal/pkg/commands/log.go",
         "patchSetId": 2
@@ -112,6 +172,30 @@
       "writtenOn": "2020-08-27T18:56:18Z",
       "side": 1,
       "message": "Consider calling name.ToString() directly. (They type of name is hidden by this syntax.)",
+      "range": {
+        "startLine": 1219,
+        "startChar": 43,
+        "endLine": 1219,
+        "endChar": 55
+      },
+      "revId": "0662444bac59b61e0221b46767e79e0eb3c418ef",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffdbdd2d_f255f1ce",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 1219,
+      "author": {
+        "id": 1000675
+      },
+      "writtenOn": "2020-08-28T15:35:35Z",
+      "side": 1,
+      "message": "Similar implementation is there at many other places in this file also. So just keeping it consistent.",
+      "parentUuid": "b5215850_c0cd9643",
       "range": {
         "startLine": 1219,
         "startChar": 43,
@@ -147,6 +231,30 @@
     },
     {
       "key": {
+        "uuid": "ad5696bc_70bbe96e",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 1231,
+      "author": {
+        "id": 1000675
+      },
+      "writtenOn": "2020-08-28T15:35:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7ca7f5be_11937cb9",
+      "range": {
+        "startLine": 1231,
+        "startChar": 2,
+        "endLine": 1231,
+        "endChar": 10
+      },
+      "revId": "0662444bac59b61e0221b46767e79e0eb3c418ef",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ad832816_d559464f",
         "filename": "internal/pkg/commands/log.go",
         "patchSetId": 2
@@ -158,6 +266,30 @@
       "writtenOn": "2020-08-27T18:56:18Z",
       "side": 1,
       "message": "If validComponents was a map[string]struct{}, this logic could be much simpler. \n(I\u0027m not sure where else getVolthaComponentNames() is called.)",
+      "range": {
+        "startLine": 1235,
+        "startChar": 3,
+        "endLine": 1240,
+        "endChar": 4
+      },
+      "revId": "0662444bac59b61e0221b46767e79e0eb3c418ef",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "813fe41c_35c70310",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 1240,
+      "author": {
+        "id": 1000675
+      },
+      "writtenOn": "2020-08-28T15:35:35Z",
+      "side": 1,
+      "message": "Similar implementation is there at many other places in this file also. So just keeping it consistent.",
+      "parentUuid": "ad832816_d559464f",
       "range": {
         "startLine": 1235,
         "startChar": 3,
@@ -187,6 +319,24 @@
     },
     {
       "key": {
+        "uuid": "fd249b95_a5250cda",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 1270,
+      "author": {
+        "id": 1000675
+      },
+      "writtenOn": "2020-08-28T15:35:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c48015e4_ee522beb",
+      "revId": "0662444bac59b61e0221b46767e79e0eb3c418ef",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f0780a79_33d64721",
         "filename": "internal/pkg/commands/log.go",
         "patchSetId": 2
@@ -201,6 +351,24 @@
       "revId": "0662444bac59b61e0221b46767e79e0eb3c418ef",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71fd4d7f_3453edd9",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 1347,
+      "author": {
+        "id": 1000675
+      },
+      "writtenOn": "2020-08-28T15:35:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f0780a79_33d64721",
+      "revId": "0662444bac59b61e0221b46767e79e0eb3c418ef",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }
