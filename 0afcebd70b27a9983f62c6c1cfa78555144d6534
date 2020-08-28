@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "65278baf_a973ff34",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 1117,
+      "author": {
+        "id": 1000675
+      },
+      "writtenOn": "2020-08-28T16:52:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ef94cfb8_2ffe682c",
+      "range": {
+        "startLine": 1117,
+        "startChar": 1,
+        "endLine": 1117,
+        "endChar": 30
+      },
+      "revId": "0afcebd70b27a9983f62c6c1cfa78555144d6534",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "506f8ecf_4bd2e270",
         "filename": "internal/pkg/commands/log.go",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "0afcebd70b27a9983f62c6c1cfa78555144d6534",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32053451_4e8cb387",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 1349,
+      "author": {
+        "id": 1000675
+      },
+      "writtenOn": "2020-08-28T16:52:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "506f8ecf_4bd2e270",
+      "range": {
+        "startLine": 1349,
+        "startChar": 1,
+        "endLine": 1349,
+        "endChar": 30
+      },
+      "revId": "0afcebd70b27a9983f62c6c1cfa78555144d6534",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }
