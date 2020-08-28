@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "bfcade07_20a6720c",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2020-08-28T14:58:08Z",
+      "side": 1,
+      "message": "+1 to this.",
+      "parentUuid": "e5101977_a39c222e",
+      "revId": "0662444bac59b61e0221b46767e79e0eb3c418ef",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f66acf95_eb799c5a",
         "filename": "internal/pkg/commands/log.go",
         "patchSetId": 2
@@ -47,6 +65,30 @@
       "writtenOn": "2020-08-27T18:56:18Z",
       "side": 1,
       "message": "Should probably define closer to usage.",
+      "range": {
+        "startLine": 1193,
+        "startChar": 1,
+        "endLine": 1196,
+        "endChar": 2
+      },
+      "revId": "0662444bac59b61e0221b46767e79e0eb3c418ef",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "659c8069_0f0bb632",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 1196,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2020-08-28T14:58:08Z",
+      "side": 1,
+      "message": "also err can be avoided to be defined as it\u0027s defined at line 1203",
+      "parentUuid": "f519a00b_bec97274",
       "range": {
         "startLine": 1193,
         "startChar": 1,
