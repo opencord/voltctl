@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "48db7769_ed776654",
+        "filename": "internal/pkg/commands/log.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 1000526
+      },
+      "writtenOn": "2020-08-28T15:45:25Z",
+      "side": 1,
+      "message": "Not really. The constructConfigManager will return nil value for cleanupFunc in case of error; so it was agreed to move defer call after the err check. Refer to Kent comments and my subsequent changes",
+      "parentUuid": "7b917d24_8104612c",
+      "revId": "0662444bac59b61e0221b46767e79e0eb3c418ef",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f66acf95_eb799c5a",
         "filename": "internal/pkg/commands/log.go",
         "patchSetId": 2
