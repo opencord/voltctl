@@ -294,10 +294,15 @@ func appendUint32(base string, val uint32) string {
 	return fmt.Sprintf("%d", val)
 }
 
-func (f *Flow) PopulateFromProto(flow *openflow_13.OfpFlowStats) {
+func (f *Flow) PopulateFromProto(flow *openflow_13.OfpFlowStats, hexId bool) {
 
 	f.Reset()
-	f.Id = fmt.Sprintf("%016x", flow.Id)
+	if hexId {
+		f.Id = fmt.Sprintf("%016x", flow.Id)
+	} else {
+		f.Id = fmt.Sprintf("%v", flow.Id)
+	}
+
 	f.TableId = flow.TableId
 	f.Priority = flow.Priority
 	// mask the lower 8 for the cookie, why?

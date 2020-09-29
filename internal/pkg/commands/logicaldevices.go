@@ -43,6 +43,7 @@ type LogicalDeviceList struct {
 
 type LogicalDeviceFlowList struct {
 	ListOutputOptions
+	FlowIdOptions
 	Args struct {
 		Id LogicalDeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
 	} `positional-args:"yes"`
@@ -212,6 +213,7 @@ func (options *LogicalDevicePortList) Execute(args []string) error {
 func (options *LogicalDeviceFlowList) Execute(args []string) error {
 	fl := &FlowList{}
 	fl.ListOutputOptions = options.ListOutputOptions
+	fl.FlowIdOptions = options.FlowIdOptions
 	fl.Args.Id = string(options.Args.Id)
 	fl.Method = "logical-device-flows"
 	return fl.Execute(args)
