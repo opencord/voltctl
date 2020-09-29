@@ -28,6 +28,7 @@ import (
 
 type FlowList struct {
 	ListOutputOptions
+	FlowIdOptions
 	Args struct {
 		Id string `positional-arg-name:"DEVICE_ID" required:"yes"`
 	} `positional-args:"yes"`
@@ -143,7 +144,7 @@ func (options *FlowList) Execute(args []string) error {
 	data := make([]model.Flow, len(flows.Items))
 	var fieldset model.FlowFieldFlag
 	for i, item := range flows.Items {
-		data[i].PopulateFromProto(item)
+		data[i].PopulateFromProto(item, options.HexId)
 		fieldset |= data[i].Populated()
 	}
 
