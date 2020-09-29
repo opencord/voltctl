@@ -157,6 +157,11 @@ type OutputOptions struct {
 	NameLimit int    `short:"l" long:"namelimit" default:"-1" value-name:"LIMIT" description:"Limit the depth (length) in the table column name"`
 }
 
+type FlowIdOptions struct {
+	IntId bool `short:"i" long:"int-id" description:"Output Ids in integer format"`
+	HexId bool `short:"x" long:"hex-id" description:"Output Ids in hex format"`
+}
+
 type ListOutputOptions struct {
 	OutputOptions
 	Filter  string `short:"f" long:"filter" default:"" value-name:"FILTER" description:"Only display results that match filter"`
