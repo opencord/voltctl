@@ -91,6 +91,7 @@ type DeviceReboot struct {
 
 type DeviceFlowList struct {
 	ListOutputOptions
+	FlowIdOptions
 	Args struct {
 		Id DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
 	} `positional-args:"yes"`
@@ -698,6 +699,7 @@ func (options *DevicePortList) Execute(args []string) error {
 func (options *DeviceFlowList) Execute(args []string) error {
 	fl := &FlowList{}
 	fl.ListOutputOptions = options.ListOutputOptions
+	fl.FlowIdOptions = options.FlowIdOptions
 	fl.Args.Id = string(options.Args.Id)
 	fl.Method = "device-flows"
 	return fl.Execute(args)
