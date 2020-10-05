@@ -34,6 +34,24 @@
       "revId": "db3bd75eb184e7bc7eb7fba183dcafff71f270fe",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7985814_d01cb3e5",
+        "filename": "internal/pkg/commands/command.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 1000056
+      },
+      "writtenOn": "2020-10-05T19:16:33Z",
+      "side": 1,
+      "message": "It may be beneficial to check with users of voltctl to see if anyone relies on that default behavior (hex instead of int).  Use voltha-discuss and voltha on slack to get feedback.  If no one is expecting any given format (especially automated testing) then you can implement the change right away.",
+      "parentUuid": "a7c5521c_418f92e5",
+      "revId": "db3bd75eb184e7bc7eb7fba183dcafff71f270fe",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
     }
   ]
 }
