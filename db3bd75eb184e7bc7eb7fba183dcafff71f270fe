@@ -16,6 +16,24 @@
       "revId": "db3bd75eb184e7bc7eb7fba183dcafff71f270fe",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7c5521c_418f92e5",
+        "filename": "internal/pkg/commands/command.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 1000729
+      },
+      "writtenOn": "2020-10-05T18:49:36Z",
+      "side": 1,
+      "message": "Yes that would be simpler but as we has a discussion over Slack where David suggested that in near future we might switch to defaulting to int format with an optional --hex-id, so its just to give user a glance of what could he expect in next release and can fix there utilities accordingly.\n\nBut if needed I can remove one of the option.",
+      "parentUuid": "75cd2b49_370e2370",
+      "revId": "db3bd75eb184e7bc7eb7fba183dcafff71f270fe",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
     }
   ]
 }
