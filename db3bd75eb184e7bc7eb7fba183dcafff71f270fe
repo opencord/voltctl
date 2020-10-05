@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75cd2b49_370e2370",
+        "filename": "internal/pkg/commands/command.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 1000056
+      },
+      "writtenOn": "2020-10-05T18:42:17Z",
+      "side": 1,
+      "message": "Would it be simpler if there is only one display option, e.g. \"displayInt bool\"?  This way if it is set then the display of the ID is in int, otherwise it\u0027s the current format which is hex?",
+      "revId": "db3bd75eb184e7bc7eb7fba183dcafff71f270fe",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}
