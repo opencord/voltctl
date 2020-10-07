@@ -52,6 +52,24 @@
       "revId": "db3bd75eb184e7bc7eb7fba183dcafff71f270fe",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcdfad47_eb5f9708",
+        "filename": "internal/pkg/commands/command.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 1000729
+      },
+      "writtenOn": "2020-10-07T20:10:20Z",
+      "side": 1,
+      "message": "Changes are done as per the discussion , Please proceed with the review.",
+      "parentUuid": "f7985814_d01cb3e5",
+      "revId": "db3bd75eb184e7bc7eb7fba183dcafff71f270fe",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }
