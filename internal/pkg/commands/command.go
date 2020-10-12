@@ -181,6 +181,10 @@ type ListOutputOptionsJson struct {
 	OrderBy string `short:"r" long:"orderby" default:"" value-name:"ORDER" description:"Specify the sort order of the results"`
 }
 
+type ForceOption struct {
+	Force bool `short:"f" long:"force" description:"Delete device forcefully"`
+}
+
 func toOutputType(in string) OutputType {
 	switch in {
 	case "table":
