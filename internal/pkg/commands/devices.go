@@ -71,6 +71,12 @@ type DeviceDelete struct {
 	} `positional-args:"yes"`
 }
 
+type ForceDeviceDelete struct {
+	Args struct {
+		Ids []DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+	} `positional-args:"yes"`
+}
+
 type DeviceEnable struct {
 	Args struct {
 		Ids []DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
@@ -206,13 +212,14 @@ type DevicePmConfigSetMaxSkew struct {
 }
 
 type DeviceOpts struct {
-	List    DeviceList     `command:"list"`
-	Create  DeviceCreate   `command:"create"`
-	Delete  DeviceDelete   `command:"delete"`
-	Enable  DeviceEnable   `command:"enable"`
-	Disable DeviceDisable  `command:"disable"`
-	Flows   DeviceFlowList `command:"flows"`
-	Port    struct {
+	List        DeviceList        `command:"list"`
+	Create      DeviceCreate      `command:"create"`
+	Delete      DeviceDelete      `command:"delete"`
+	ForceDelete ForceDeviceDelete `command:"force_delete"`
+	Enable      DeviceEnable      `command:"enable"`
+	Disable     DeviceDisable     `command:"disable"`
+	Flows       DeviceFlowList    `command:"flows"`
+	Port        struct {
 		List    DevicePortList    `command:"list"`
 		Enable  DevicePortEnable  `command:"enable"`
 		Disable DevicePortDisable `command:"disable"`
@@ -548,6 +555,38 @@ func (options *DeviceDelete) Execute(args []string) error {
 		_, err := client.DeleteDevice(ctx, &id)
 		if err != nil {
 			Error.Printf("Error while deleting '%s': %s\n", i, err)
+			lastErr = err
+			continue
+		}
+		fmt.Printf("%s\n", i)
+	}
+
+	if lastErr != nil {
+		return NoReportErr
+	}
+	return nil
+}
+
+func (options *ForceDeviceDelete) Execute(args []string) error {
+
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	var lastErr error
+	for _, i := range options.Args.Ids {
+		ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+		defer cancel()
+
+		id := voltha.ID{Id: string(i)}
+
+		_, err := client.ForceDeleteDevice(ctx, &id)
+		if err != nil {
+			Error.Printf("Error while force deleting '%s': %s\n", i, err)
 			lastErr = err
 			continue
 		}
