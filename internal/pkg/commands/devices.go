@@ -66,7 +66,8 @@ type PortNum uint32
 type ValueFlag string
 
 type DeviceDelete struct {
-	Args struct {
+	Force bool `long:"force" description:"Delete device forcefully"`
+	Args  struct {
 		Ids []DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
 	} `positional-args:"yes"`
 }
@@ -537,15 +538,18 @@ func (options *DeviceDelete) Execute(args []string) error {
 	defer conn.Close()
 
 	client := voltha.NewVolthaServiceClient(conn)
-
 	var lastErr error
 	for _, i := range options.Args.Ids {
 		ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
 		defer cancel()
 
 		id := voltha.ID{Id: string(i)}
+		if options.Force {
+			_, err = client.ForceDeleteDevice(ctx, &id)
+		} else {
+			_, err = client.DeleteDevice(ctx, &id)
+		}
 
-		_, err := client.DeleteDevice(ctx, &id)
 		if err != nil {
 			Error.Printf("Error while deleting '%s': %s\n", i, err)
 			lastErr = err
