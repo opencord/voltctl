@@ -20,6 +20,10 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
+	"time"
+
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/timestamp"
 )
 
 type Operation int
@@ -130,14 +134,115 @@ func testField(v FilterTerm, field reflect.Value) bool {
 			return false
 		}
 	case EQ:
-		// This seems to work for most comparisons
-		if fmt.Sprintf("%v", field) != v.Value {
-			return false
+		if field.Type() == reflect.TypeOf(timestamp.Timestamp{}) {
+			ts := field.Interface().(timestamp.Timestamp)
+			tt, _ := ptypes.Timestamp(&ts)
+			t, _ := time.Parse(time.RFC3339, v.Value)
+			if tt.Truncate(time.Second).Equal(t) {
+				return true
+			} else {
+				return false
+			}
+		} else if field.Type() == reflect.TypeOf(time.Time{}) {
+			t, _ := time.Parse(time.RFC3339, v.Value)
+			if field.Interface().(time.Time).Equal(t) {
+				return true
+			} else {
+				return false
+			}
+		}else{
+			// This seems to work for most comparisons
+			if fmt.Sprintf("%v", field) != v.Value {
+				return false
+			}
 		}
 	case NE:
-		// This seems to work for most comparisons
-		if fmt.Sprintf("%v", field) == v.Value {
-			return false
+		if field.Type() == reflect.TypeOf(timestamp.Timestamp{}) {
+			ts := field.Interface().(timestamp.Timestamp)
+			tt, _ := ptypes.Timestamp(&ts)
+			t, _ := time.Parse(time.RFC3339, v.Value)
+			if tt.Truncate(time.Second).Equal(t) {
+				return false
+			} else {
+				return true
+			}
+		} else if field.Type() == reflect.TypeOf(time.Time{}) {
+			t, _ := time.Parse(time.RFC3339, v.Value)
+			if field.Interface().(time.Time).Equal(t) {
+				return false
+			} else {
+				return true
+			}
+		}else {
+			// This seems to work for most comparisons
+			if fmt.Sprintf("%v", field) == v.Value {
+				return false
+			}
+		}
+	case GT:
+		//Skipping error handling as its already done in calling function
+		if field.Type() == reflect.TypeOf(timestamp.Timestamp{}) {
+			ts := field.Interface().(timestamp.Timestamp)
+			tt, _ := ptypes.Timestamp(&ts)
+			t, _ := time.Parse(time.RFC3339, v.Value)
+			if tt.Truncate(time.Second).After(t) {
+				return true
+			} else {
+				return false
+			}
+		} else if field.Type() == reflect.TypeOf(time.Time{}) {
+			t, _ := time.Parse(time.RFC3339, v.Value)
+			if field.Interface().(time.Time).After(t) {
+				return true
+			} else {
+				return false
+			}
+		}
+	case LT:
+		if field.Type() == reflect.TypeOf(timestamp.Timestamp{}) {
+			ts := field.Interface().(timestamp.Timestamp)
+			tt, _ := ptypes.Timestamp(&ts)
+			t, _ := time.Parse(time.RFC3339, v.Value)
+			if tt.Truncate(time.Second).Before(t) {
+				return true
+			} else {
+				return false
+			}
+		} else if field.Type() == reflect.TypeOf(time.Time{}) {
+			t, _ := time.Parse(time.RFC3339, v.Value)
+			if field.Interface().(time.Time).Before(t) {
+				return true
+			} else {
+				return false
+			}
+		}
+	case GE:
+		if field.Type() == reflect.TypeOf(timestamp.Timestamp{}) {
+			ts := field.Interface().(timestamp.Timestamp)
+			tt, _ := ptypes.Timestamp(&ts)
+			t, _ := time.Parse(time.RFC3339, v.Value)
+			if tt.Truncate(time.Second).Before(t) {
+				return false
+			}
+		} else if field.Type() == reflect.TypeOf(time.Time{}) {
+			t, _ := time.Parse(time.RFC3339, v.Value)
+			if field.Interface().(time.Time).Before(t) {
+				return false
+			}
+		}
+	case LE:
+		if field.Type() == reflect.TypeOf(timestamp.Timestamp{}) {
+			ts := field.Interface().(timestamp.Timestamp)
+			tt, _ := ptypes.Timestamp(&ts)
+			t, _ := time.Parse(time.RFC3339, v.Value)
+			if tt.Truncate(time.Second).After(t) {
+				return false
+			}
+		} else if field.Type() == reflect.TypeOf(time.Time{}) {
+			t, _ := time.Parse(time.RFC3339, v.Value)
+			if field.Interface().(time.Time).After(t) {
+				return false
+			}
 		}
 	default:
 		// For unsupported operations, always pass
@@ -180,7 +285,30 @@ func (f Filter) EvaluateTerm(k string, v FilterTerm, val reflect.Value, recurse 
 	}
 
 	if field.Kind() == reflect.Struct {
-		return false, fmt.Errorf("Cannot filter on a field that is a struct")
+		if field.Type() == reflect.TypeOf(timestamp.Timestamp{}) {
+			ts := field.Interface().(timestamp.Timestamp)
+			_, err := ptypes.Timestamp(&ts)
+			if err != nil {
+				return false, err
+			}
+
+			_, err = time.Parse(time.RFC3339, v.Value)
+			//If there would be err in parsing timestamp false would be returned(highly unlikely)
+			if err != nil {
+				return false, fmt.Errorf("unable to parse timestamp value, must be in RFC3339 " +
+					"format: Ex: 2020-11-11T00:00:00Z")
+			}
+		} else if field.Type() == reflect.TypeOf(time.Time{}) {
+			_, err := time.Parse(time.RFC3339, v.Value)
+			//If there would be err in parsing timestamp false would be returned(highly unlikely)
+			if err != nil {
+				return false, fmt.Errorf("unable to parse timestamp value, must be in RFC3339 " +
+					"format: Ex: 2020-11-11T00:00:00Z")
+			}
+		} else {
+			return false, fmt.Errorf("Cannot filter on a field that is a struct")
+		}
+
 	}
 
 	if (field.Kind() == reflect.Slice) || (field.Kind() == reflect.Array) {
