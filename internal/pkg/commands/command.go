@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/opencord/voltctl/pkg/order"
 	"io/ioutil"
 	"log"
 	"net"
@@ -34,7 +35,6 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/opencord/voltctl/pkg/filter"
 	"github.com/opencord/voltctl/pkg/format"
-	"github.com/opencord/voltctl/pkg/order"
 	"google.golang.org/grpc"
 	"gopkg.in/yaml.v2"
 )
@@ -165,6 +165,10 @@ type ListOutputOptions struct {
 	OutputOptions
 	Filter  string `short:"f" long:"filter" default:"" value-name:"FILTER" description:"Only display results that match filter"`
 	OrderBy string `short:"r" long:"orderby" default:"" value-name:"ORDER" description:"Specify the sort order of the results"`
+}
+
+type UpdateAdditionalOptions struct {
+	Wide bool `short:"w" long:"wide" description:"Display additional fields"`
 }
 
 type OutputOptionsJson struct {

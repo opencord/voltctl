@@ -25,12 +25,12 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/opencord/voltctl/pkg/format"
-	"github.com/opencord/voltha-protos/v3/go/common"
-	"github.com/opencord/voltha-protos/v3/go/voltha"
+	"github.com/opencord/voltha-protos/v4/go/common"
+	"github.com/opencord/voltha-protos/v4/go/voltha"
 )
 
 const (
-	DEFAULT_DEVICE_FORMAT         = "table{{ .Id }}\t{{.Type}}\t{{.Root}}\t{{.ParentId}}\t{{.SerialNumber}}\t{{.AdminState}}\t{{.OperStatus}}\t{{.ConnectStatus}}\t{{.Reason}}"
+	DEFAULT_DEVICE_FORMAT         = "table{{ .Id }}\t{{.Type}}\t{{.Root}}\t{{.ParentId}}\t{{.SerialNumber}}\t{{.AdminState}}\t{{.OperStatus}}\t{{.ConnectStatus}}"
 	DEFAULT_DEVICE_PORTS_FORMAT   = "table{{.PortNo}}\t{{.Label}}\t{{.Type}}\t{{.AdminState}}\t{{.OperStatus}}\t{{.DeviceId}}\t{{.Peers}}"
 	DEFAULT_DEVICE_INSPECT_FORMAT = `ID: {{.Id}}
   TYPE:          {{.Type}}
@@ -45,6 +45,8 @@ const (
 	DEFAULT_DEVICE_PM_CONFIG_METRIC_LIST_FORMAT = "table{{.Name}}\t{{.Type}}\t{{.Enabled}}\t{{.SampleFreq}}"
 	DEFAULT_DEVICE_PM_CONFIG_GROUP_LIST_FORMAT  = "table{{.GroupName}}\t{{.Enabled}}\t{{.GroupFreq}}"
 	DEFAULT_DEVICE_VALUE_GET_FORMAT             = "table{{.Name}}\t{{.Result}}"
+	DEFAULT_DEVICE_UPDATES_FORMAT               = "table{{rfc3339 $.Timestamp}}\t{{.Operation}}\t{{.OperationID}}\t{{.RequestedBy}}\t{{.StateChange}}\t{{.Status}}"
+	DEFAULT_DEVICE_UPDATES_FORMAT_WIDE          = "table{{rfc3339 $.Timestamp}}\t{{.Operation}}\t{{.OperationID}}\t{{.RequestedBy}}\t{{.StateChange}}\t{{.Status}}\t{{.Description}}"
 )
 
 type DeviceList struct {
@@ -205,6 +207,14 @@ type DevicePmConfigSetMaxSkew struct {
 	} `positional-args:"yes"`
 }
 
+type DeviceUpdateList struct {
+	ListOutputOptions
+	UpdateAdditionalOptions
+	Args struct {
+		Id DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+	} `positional-args:"yes"`
+}
+
 type DeviceOpts struct {
 	List    DeviceList     `command:"list"`
 	Create  DeviceCreate   `command:"create"`
@@ -217,8 +227,9 @@ type DeviceOpts struct {
 		Enable  DevicePortEnable  `command:"enable"`
 		Disable DevicePortDisable `command:"disable"`
 	} `command:"port"`
-	Inspect DeviceInspect `command:"inspect"`
-	Reboot  DeviceReboot  `command:"reboot"`
+	Updates DeviceUpdateList `command:"updates"`
+	Inspect DeviceInspect    `command:"inspect"`
+	Reboot  DeviceReboot     `command:"reboot"`
 	Value   struct {
 		Get DeviceGetExtValue `command:"get"`
 	} `command:"value"`
@@ -1334,4 +1345,13 @@ func (options *DeviceGetExtValue) Execute(args []string) error {
 	}
 	GenerateOutput(&result)
 	return nil
+}
+
+func (options *DeviceUpdateList) Execute(args []string) error {
+	ul := &UpdateList{}
+	ul.ListOutputOptions = options.ListOutputOptions
+	ul.Wide = options.Wide
+	ul.Args.Id = string(options.Args.Id)
+	ul.Method = "device-updates"
+	return ul.Execute(args)
 }
