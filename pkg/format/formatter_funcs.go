@@ -16,6 +16,7 @@
 package format
 
 import (
+	"fmt"
 	"github.com/golang/protobuf/ptypes"
 	timestamppb "github.com/golang/protobuf/ptypes/timestamp"
 	"time"
@@ -31,6 +32,25 @@ func formatTimestamp(tsproto *timestamppb.Timestamp) (string, error) {
 		return "", err
 	}
 	return ts.Truncate(time.Second).Format(time.RFC3339), nil
+}
+
+func formatRfc3339(in interface{}) (string, error) {
+	if in == nil {
+		return "", nil
+	}
+
+	switch v := in.(type) {
+	case time.Time:
+		return v.Truncate(time.Second).Format(time.RFC3339), nil
+	case timestamppb.Timestamp:
+		ts, err := ptypes.Timestamp(&v)
+		if err != nil {
+			return "", err
+		}
+		return ts.Truncate(time.Second).Format(time.RFC3339), nil
+	default:
+		return "", fmt.Errorf("invalid interface type encounterd while formatting in rfc3339 format")
+	}
 }
 
 // Computes the age of a timestamp and returns it in HMS format
