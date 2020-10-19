@@ -167,6 +167,10 @@ type ListOutputOptions struct {
 	OrderBy string `short:"r" long:"orderby" default:"" value-name:"ORDER" description:"Specify the sort order of the results"`
 }
 
+type UpdateAdditionalOptions struct {
+	Wide bool `short:"w" long:"wide" description:"Display additional fields"`
+}
+
 type OutputOptionsJson struct {
 	Format string `long:"format" value-name:"FORMAT" default:"" description:"Format to use to output structured data"`
 	Quiet  bool   `short:"q" long:"quiet" description:"Output only the IDs of the objects"`
