@@ -17,34 +17,26 @@ package commands
 
 import (
 	"context"
-	"github.com/golang/protobuf/ptypes/empty"
-	flags "github.com/jessevdk/go-flags"
+	"fmt"
 	"github.com/opencord/voltctl/pkg/format"
+	"github.com/opencord/voltctl/pkg/model"
 	"github.com/opencord/voltha-protos/v4/go/voltha"
 )
 
-const (
-	DEFAULT_DEVICE_GROUP_FORMAT = "table{{ .Id }}\t{{.LogicalDevices}}\t{{.Devices}}"
-)
-
-type DeviceGroupList struct {
+type UpdateList struct {
 	ListOutputOptions
+	UpdateAdditionalOptions
+	Args struct {
+		Id string `positional-arg-name:"DEVICE_ID" required:"yes"`
+	} `positional-args:"yes"`
+
+	Method string
 }
 
-type DeviceGroupOpts struct {
-	List DeviceGroupList `command:"list"`
-}
-
-var deviceGroupOpts = DeviceGroupOpts{}
-
-func RegisterDeviceGroupCommands(parser *flags.Parser) {
-	if _, err := parser.AddCommand("devicegroup", "device group commands", "Commands to query and manipulate VOLTHA device groups",
-		&deviceGroupOpts); err != nil {
-		Error.Fatalf("Unexpected error while attempting to register device group commands : %s", err)
+func (options *UpdateList) Execute(args []string) error {
+	if len(args) > 0 {
+		return fmt.Errorf("only a single argument 'DEVICE_ID' can be provided")
 	}
-}
-
-func (options *DeviceGroupList) Execute(args []string) error {
 
 	conn, err := NewConnection()
 	if err != nil {
@@ -57,21 +49,38 @@ func (options *DeviceGroupList) Execute(args []string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
 	defer cancel()
 
-	deviceGroups, err := client.ListDeviceGroups(ctx, &empty.Empty{})
+	updateFilter := voltha.DeviceUpdateFilter{
+		DeviceId: options.Args.Id,
+	}
+
+	updates, err := client.GetDeviceUpdates(ctx, &updateFilter)
+
 	if err != nil {
 		return err
 	}
 
+	if toOutputType(options.OutputAs) == OUTPUT_TABLE && (updates == nil || len(updates.Items) == 0) {
+		fmt.Println("*** NO UPDATES ***")
+		return nil
+	}
+
+	data := make([]model.Update, len(updates.Items))
+	for i, item := range updates.Items {
+		data[i].PopulateFromProto(item)
+	}
+
 	outputFormat := CharReplacer.Replace(options.Format)
-	if outputFormat == "" {
-		outputFormat = GetCommandOptionWithDefault("device-group-list", "format", DEFAULT_DEVICE_GROUP_FORMAT)
-	}
 	if options.Quiet {
-		outputFormat = "{{.Id}}"
+		outputFormat = "{{.Operation}}"
+	} else if options.Wide {
+		outputFormat = GetCommandOptionWithDefault(options.Method, "format", DEFAULT_DEVICE_UPDATES_FORMAT_WIDE)
+	} else if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault(options.Method, "format", DEFAULT_DEVICE_UPDATES_FORMAT)
 	}
+
 	orderBy := options.OrderBy
 	if orderBy == "" {
-		orderBy = GetCommandOptionWithDefault("device-group-list", "order", "")
+		orderBy = GetCommandOptionWithDefault(options.Method, "order", "Timestamp")
 	}
 
 	result := CommandResult{
@@ -80,9 +89,9 @@ func (options *DeviceGroupList) Execute(args []string) error {
 		OrderBy:   orderBy,
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
-		Data:      deviceGroups.Items,
+		Data:      data,
 	}
-
 	GenerateOutput(&result)
+
 	return nil
 }
