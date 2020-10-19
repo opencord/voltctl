@@ -27,7 +27,7 @@ import (
 	flags "github.com/jessevdk/go-flags"
 	"github.com/opencord/voltctl/pkg/filter"
 	"github.com/opencord/voltctl/pkg/format"
-	"github.com/opencord/voltha-protos/v3/go/voltha"
+	"github.com/opencord/voltha-protos/v4/go/voltha"
 	"log"
 	"os"
 	"os/signal"
