@@ -22,7 +22,7 @@ import (
 	flags "github.com/jessevdk/go-flags"
 	"github.com/opencord/voltctl/internal/pkg/cli/version"
 	"github.com/opencord/voltctl/pkg/format"
-	"github.com/opencord/voltha-protos/v3/go/voltha"
+	"github.com/opencord/voltha-protos/v4/go/voltha"
 	"strings"
 )
 
