@@ -17,9 +17,12 @@ package order
 
 import (
 	"fmt"
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/timestamp"
 	"reflect"
 	"sort"
 	"strings"
+	"time"
 )
 
 type Operation int
@@ -117,6 +120,11 @@ func (s Sorter) GetField(val reflect.Value, name string) (reflect.Value, error) 
 	}
 
 	if field.Kind() == reflect.Struct {
+		if field.Type() == reflect.TypeOf(timestamp.Timestamp{}) ||
+			field.Type() == reflect.TypeOf(time.Time{}) {
+			return field, nil
+		}
+
 		return val, fmt.Errorf("Cannot sort on a field that is a struct")
 	}
 
@@ -208,22 +216,71 @@ func (s Sorter) Process(data interface{}) (interface{}, error) {
 					}
 				}
 			default:
-				sleft := fmt.Sprintf("%v", fleft)
-				sright := fmt.Sprintf("%v", fright)
-				diff := strings.Compare(sleft, sright)
-				if term.Op != DSC {
-					if diff == -1 {
-						return true
-					} else if diff == 1 {
+				//Implemented type switch as time.Time and timestamp.Timestamp seems to be considered as similar under kind switch
+				switch fleft.Interface().(type) {
+				case time.Time:
+					ileft := fleft.Interface().(time.Time)
+					iright := fright.Interface().(time.Time)
+					switch term.Op {
+					case ASC:
+						if ileft.Before(iright) {
+							return true
+						} else {
+							return false
+						}
+					case DSC:
+						if ileft.After(iright) {
+							return true
+						} else {
+							return false
+						}
+					}
+				case timestamp.Timestamp:
+					tleft := fleft.Interface().(timestamp.Timestamp)
+					tright := fright.Interface().(timestamp.Timestamp)
+					ileft, err := ptypes.Timestamp(&tleft)
+					if err != nil {
+						sortError = err
 						return false
 					}
-				} else {
-					if diff == 1 {
-						return true
-					} else if diff == -1 {
+					iright, err := ptypes.Timestamp(&tright)
+					if err != nil {
+						sortError = err
 						return false
+					}
+					switch term.Op {
+					case ASC:
+						if ileft.Before(iright) {
+							return true
+						} else {
+							return false
+						}
+					case DSC:
+						if ileft.After(iright) {
+							return true
+						} else {
+							return false
+						}
+					}
+				default:
+					sleft := fmt.Sprintf("%v", fleft)
+					sright := fmt.Sprintf("%v", fright)
+					diff := strings.Compare(sleft, sright)
+					if term.Op != DSC {
+						if diff == -1 {
+							return true
+						} else if diff == 1 {
+							return false
+						}
+					} else {
+						if diff == 1 {
+							return true
+						} else if diff == -1 {
+							return false
+						}
 					}
 				}
+
 			}
 		}
 		return false

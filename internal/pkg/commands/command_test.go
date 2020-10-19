@@ -111,3 +111,10 @@ func TestParseSize(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Equal(t, uint64(0), res)
 }
+
+/*func TestDeviceUpdateList_Execute(t *testing.T) {
+	ul := DeviceUpdateList{}
+	ul.Args.Id = "9fae2b0b-e7b6-451a-83f2-13b14129a2f7"
+	ul.Filter = "Timestamp>2020-11-12T16:49:19Z"
+	ul.Execute([]string{})
+}*/
