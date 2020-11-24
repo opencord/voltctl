@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "6eba89df_d03faebb",
+        "filename": "internal/pkg/commands/command.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 1000726
+      },
+      "writtenOn": "2020-11-24T04:15:54Z",
+      "side": 1,
+      "message": "Agreed. Moved inline as an option to delete. I was thinking earlier if force can be made as a global option, but since currently it is only being used for the delete command, we can move it inline to the delete struct.",
+      "parentUuid": "c09b7275_5dbaed7b",
+      "range": {
+        "startLine": 184,
+        "startChar": 5,
+        "endLine": 184,
+        "endChar": 16
+      },
+      "revId": "11c552ebb8e17c8781b2ce93339a9067fe12d37a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6cac8350_1c8cce2d",
         "filename": "internal/pkg/commands/devices.go",
         "patchSetId": 4
@@ -141,6 +165,30 @@
       "revId": "11c552ebb8e17c8781b2ce93339a9067fe12d37a",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9896686b_17ce4b6b",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1000726
+      },
+      "writtenOn": "2020-11-24T04:15:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f22abf2c_0a4b3ec5",
+      "range": {
+        "startLine": 69,
+        "startChar": 1,
+        "endLine": 69,
+        "endChar": 12
+      },
+      "revId": "11c552ebb8e17c8781b2ce93339a9067fe12d37a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }
