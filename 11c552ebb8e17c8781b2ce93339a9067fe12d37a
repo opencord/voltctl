@@ -189,6 +189,30 @@
       "revId": "11c552ebb8e17c8781b2ce93339a9067fe12d37a",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bd509e4e_54a65b5b",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-11-24T22:46:48Z",
+      "side": 1,
+      "message": "i think the issue is that most commands simply don\u0027t have \"custom\" options and instead of just shared options. in devices.go there are command with some extra arguments which are defined in line.\n\nLooking at the code base I am more convinced that the force should just be an inline option to the delete command and not a separate option struct in commands.go.",
+      "parentUuid": "f22abf2c_0a4b3ec5",
+      "range": {
+        "startLine": 69,
+        "startChar": 1,
+        "endLine": 69,
+        "endChar": 12
+      },
+      "revId": "11c552ebb8e17c8781b2ce93339a9067fe12d37a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
     }
   ]
 }
