@@ -213,6 +213,30 @@
       "revId": "11c552ebb8e17c8781b2ce93339a9067fe12d37a",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d7c6e7c_1c13145b",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1000726
+      },
+      "writtenOn": "2020-11-25T06:34:14Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "bd509e4e_54a65b5b",
+      "range": {
+        "startLine": 69,
+        "startChar": 1,
+        "endLine": 69,
+        "endChar": 12
+      },
+      "revId": "11c552ebb8e17c8781b2ce93339a9067fe12d37a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }
