@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ead2d22_1abf9bec",
+        "filename": "internal/pkg/commands/command.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-12-16T15:02:25Z",
+      "side": 1,
+      "message": "odd that this was formatted to here. should be down below i think",
+      "revId": "90a6474a46741886fd5f0ad3d8988ad3536665f0",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b4a8351_caa1a8ab",
+        "filename": "internal/pkg/commands/command_test.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-12-16T15:02:25Z",
+      "side": 1,
+      "message": "when commented out?",
+      "revId": "90a6474a46741886fd5f0ad3d8988ad3536665f0",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0504a21_4e5b651b",
+        "filename": "pkg/filter/filter.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2020-12-16T15:02:25Z",
+      "side": 1,
+      "message": "how about \"Unable to parse timestamp value, must be in RFC3339 format: Ex: 2020-11-11T00:00:00Z\", same for below.",
+      "range": {
+        "startLine": 261,
+        "startChar": 30,
+        "endLine": 261,
+        "endChar": 101
+      },
+      "revId": "90a6474a46741886fd5f0ad3d8988ad3536665f0",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}
