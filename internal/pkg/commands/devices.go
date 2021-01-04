@@ -45,6 +45,19 @@ const (
 	DEFAULT_DEVICE_PM_CONFIG_METRIC_LIST_FORMAT = "table{{.Name}}\t{{.Type}}\t{{.Enabled}}\t{{.SampleFreq}}"
 	DEFAULT_DEVICE_PM_CONFIG_GROUP_LIST_FORMAT  = "table{{.GroupName}}\t{{.Enabled}}\t{{.GroupFreq}}"
 	DEFAULT_DEVICE_VALUE_GET_FORMAT             = "table{{.Name}}\t{{.Result}}"
+	DEFAULT_DEVICE_GET_PORT_STATUS_FORMAT             = `
+  TXBYTES:		{{.TxBytes}}
+  TXPACKETS:		{{.TxPackets}}
+  TXERRPACKETS:		{{.TxErrorPackets}}
+  TXBCASTPACKETS:	{{.TxBcastPackets}}
+  TXUCASTPACKETS:	{{.TxUcastPackets}}
+  TXMCASTPACKETS:	{{.TxMcastPackets}}
+  RXBYTES:		{{.RxBytes}}
+  RXPACKETS:		{{.RxPackets}}
+  RXERRPACKETS:		{{.RxErrorPackets}}
+  RXBCASTPACKETS:	{{.RxBcastPackets}}
+  RXUCASTPACKETS:	{{.RxUcastPackets}}
+  RXMCASTPACKETS:	{{.RxMcastPackets}}`
 )
 
 type DeviceList struct {
@@ -206,6 +219,16 @@ type DevicePmConfigSetMaxSkew struct {
 	} `positional-args:"yes"`
 }
 
+type DeviceGetPortStats struct {
+	ListOutputOptions
+	Args struct {
+		Id        DeviceId  `positional-arg-name:"DEVICE_ID" required:"yes"`
+		PortNo uint32 `positional-arg-name:"PORT_NO" required:"yes"`
+		PortType string`positional-arg-name:"PORT_TYPE" required:"yes"`
+	} `positional-args:"yes"`
+}
+
+
 type DeviceOpts struct {
 	List    DeviceList     `command:"list"`
 	Create  DeviceCreate   `command:"create"`
@@ -217,6 +240,7 @@ type DeviceOpts struct {
 		List    DevicePortList    `command:"list"`
 		Enable  DevicePortEnable  `command:"enable"`
 		Disable DevicePortDisable `command:"disable"`
+		Stats	DeviceGetPortStats `command:"stats"`
 	} `command:"port"`
 	Inspect DeviceInspect `command:"inspect"`
 	Reboot  DeviceReboot  `command:"reboot"`
@@ -1271,6 +1295,67 @@ func (options *DevicePmConfigFrequencySet) Execute(args []string) error {
 type ReturnValueRow struct {
 	Name   string      `json:"name"`
 	Result interface{} `json:"result"`
+}
+
+func (options *DeviceGetPortStats) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	client := extension.NewExtensionClient(conn)
+	var portType extension.GetOltPortCounters_PortType
+
+	if options.Args.PortType == "pon" {
+		portType = extension.GetOltPortCounters_Port_PON_OLT
+	} else if options.Args.PortType == "nni" {
+
+		portType = extension.GetOltPortCounters_Port_ETHERNET_NNI
+	} else {
+		return fmt.Errorf("expected interface type pon/nni, provided %s",options.Args.PortType)
+	}
+
+	singleGetValReq := extension.SingleGetValueRequest{
+		TargetId:string(options.Args.Id),
+		Request:&extension.GetValueRequest{
+			Request: &extension.GetValueRequest_OltPortInfo{
+				OltPortInfo: &extension.GetOltPortCounters{
+					PortNo: options.Args.PortNo,
+					PortType: portType,
+
+				},
+
+			},
+		},
+
+
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+	rv, err := client.GetExtValue(ctx, &singleGetValReq)
+	if err != nil {
+		Error.Printf("Error getting value on device Id %s,err=%s\n", options.Args.Id, ErrorToString(err))
+		return err
+	}
+
+	if rv.Response.Status != extension.GetValueResponse_OK {
+		return fmt.Errorf("failed to get port stats %v",rv.Response.ErrReason.String())
+	}
+
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("device-get-port-status", "format", DEFAULT_DEVICE_GET_PORT_STATUS_FORMAT)
+	}
+
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      rv.GetResponse().GetPortCoutners(),
+	}
+	GenerateOutput(&result)
+	return nil
 }
 
 /*Device  get Onu Distance */
