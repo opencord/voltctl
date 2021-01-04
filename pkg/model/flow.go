@@ -17,7 +17,7 @@ package model
 
 import (
 	"fmt"
-	"github.com/opencord/voltha-protos/v3/go/openflow_13"
+	"github.com/opencord/voltha-protos/v4/go/openflow_13"
 )
 
 type FlowFieldFlag uint64
