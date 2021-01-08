@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "88d7caaf_ca88bfd6",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2021-01-08T14:59:17Z",
+      "side": 1,
+      "message": "If URL specifies the file to download, what is NAME? example:\n\nhttp://foo/bar/name.img\n\nthen name is in the URL (i.e. name.img)",
+      "range": {
+        "startLine": 221,
+        "startChar": 46,
+        "endLine": 221,
+        "endChar": 55
+      },
+      "revId": "75f2b2df19c74ca8c9f594df8d83d8b067b8e2fe",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f3c5cc9_613ae28b",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2021-01-08T14:59:17Z",
+      "side": 1,
+      "message": "IMAGE_VERSION?",
+      "range": {
+        "startLine": 222,
+        "startChar": 46,
+        "endLine": 222,
+        "endChar": 56
+      },
+      "revId": "75f2b2df19c74ca8c9f594df8d83d8b067b8e2fe",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b1eb191c_8eb7800c",
         "filename": "internal/pkg/commands/devices.go",
         "patchSetId": 1
@@ -144,6 +190,47 @@
     },
     {
       "key": {
+        "uuid": "a0135d25_64cd87fb",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2021-01-08T14:59:17Z",
+      "side": 1,
+      "message": "The name of the API, i haven\u0027t looked at the GRPC definition, suggests to me that this would Activate and already download image. If that is the case then I should only have to specify the ID of the image to activate. If images are not stored by an ID then the NAME and IMAGE_VERRSION should be the differentiating characteristics?",
+      "parentUuid": "6626e672_187cdf6a",
+      "revId": "75f2b2df19c74ca8c9f594df8d83d8b067b8e2fe",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86b8c34c_ead22ef7",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2021-01-08T14:59:17Z",
+      "side": 1,
+      "message": "VERSION",
+      "range": {
+        "startLine": 232,
+        "startChar": 52,
+        "endLine": 232,
+        "endChar": 56
+      },
+      "revId": "75f2b2df19c74ca8c9f594df8d83d8b067b8e2fe",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7812bcef_9cb7e38e",
         "filename": "internal/pkg/commands/devices.go",
         "patchSetId": 1
@@ -173,6 +260,29 @@
       "side": 1,
       "message": "they are kinda the same, but I need the structure above for the CLI commands and such",
       "parentUuid": "7812bcef_9cb7e38e",
+      "revId": "75f2b2df19c74ca8c9f594df8d83d8b067b8e2fe",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e93bc7a_6901d270",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 1400,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2021-01-08T14:59:17Z",
+      "side": 1,
+      "message": "what is the Url being set to the ImageVersion?",
+      "range": {
+        "startLine": 1400,
+        "startChar": 2,
+        "endLine": 1400,
+        "endChar": 39
+      },
       "revId": "75f2b2df19c74ca8c9f594df8d83d8b067b8e2fe",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
