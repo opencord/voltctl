@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b1eb191c_8eb7800c",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 1000666
+      },
+      "writtenOn": "2021-01-08T13:28:58Z",
+      "side": 1,
+      "message": "localDir is not \"required\"?",
+      "revId": "75f2b2df19c74ca8c9f594df8d83d8b067b8e2fe",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39009c88_9f4d5c4f",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 1000666
+      },
+      "writtenOn": "2021-01-08T13:28:58Z",
+      "side": 1,
+      "message": "For me - at least according to the grpcurl description the parameters of this API look the same as for DownloadImage. So I don\u0027t know what SaveConfig would be used for and would expect at first the same structure as above (apart from improvement discussion to reduce this API to just activate the inactive image)",
+      "revId": "75f2b2df19c74ca8c9f594df8d83d8b067b8e2fe",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7812bcef_9cb7e38e",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 1397,
+      "author": {
+        "id": 1000666
+      },
+      "writtenOn": "2021-01-08T13:28:58Z",
+      "side": 1,
+      "message": "cmp. parameter comment above",
+      "revId": "75f2b2df19c74ca8c9f594df8d83d8b067b8e2fe",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}
