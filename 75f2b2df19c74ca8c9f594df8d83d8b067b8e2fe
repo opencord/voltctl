@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "1cf70257_5e6a714e",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 1000666
+      },
+      "writtenOn": "2021-01-08T14:09:09Z",
+      "side": 1,
+      "message": "Agreed. I as operator would not know where the adapter should really store it - and it does not matter to me at all. So it might just be some \u0027developer\u0027 extension - or we may perhaps leave that away at all.",
+      "parentUuid": "e37eb817_eb679d23",
+      "revId": "75f2b2df19c74ca8c9f594df8d83d8b067b8e2fe",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "39009c88_9f4d5c4f",
         "filename": "internal/pkg/commands/devices.go",
         "patchSetId": 1
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "I think this and DeviceOnuDownloadImage are different, in here the Url and the Crc are not required here, while they are during the download process./ the Save config I expect to be something related to saving the existing OMCi config or information in the ONU to memory before performing the update.",
       "parentUuid": "39009c88_9f4d5c4f",
+      "revId": "75f2b2df19c74ca8c9f594df8d83d8b067b8e2fe",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d51e410_0c512535",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 1000666
+      },
+      "writtenOn": "2021-01-08T14:09:09Z",
+      "side": 1,
+      "message": "Saving something in the ONU? I would not know what that should be. The OLT (OnuAdapter) is master on the subsequent new OMCI configuration.",
+      "parentUuid": "7355a675_7737585c",
       "revId": "75f2b2df19c74ca8c9f594df8d83d8b067b8e2fe",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
