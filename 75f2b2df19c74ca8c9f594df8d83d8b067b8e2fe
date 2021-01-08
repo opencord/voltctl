@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "31fdc01b_efea0288",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2021-01-08T15:12:54Z",
+      "side": 1,
+      "message": "yes, in theory you are correct, although it might happen that it\u0027s different (I\u0027m playing devil\u0027s advocate). We can make it a requirement the tis in your formate and remove the name.",
+      "parentUuid": "88d7caaf_ca88bfd6",
+      "range": {
+        "startLine": 221,
+        "startChar": 46,
+        "endLine": 221,
+        "endChar": 55
+      },
+      "revId": "75f2b2df19c74ca8c9f594df8d83d8b067b8e2fe",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5f3c5cc9_613ae28b",
         "filename": "internal/pkg/commands/devices.go",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "75f2b2df19c74ca8c9f594df8d83d8b067b8e2fe",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75a0f13b_d0b99fed",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2021-01-08T15:12:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5f3c5cc9_613ae28b",
+      "range": {
+        "startLine": 222,
+        "startChar": 46,
+        "endLine": 222,
+        "endChar": 56
+      },
+      "revId": "75f2b2df19c74ca8c9f594df8d83d8b067b8e2fe",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     },
     {
       "key": {
@@ -208,6 +256,24 @@
     },
     {
       "key": {
+        "uuid": "666f237d_491cf402",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2021-01-08T15:12:54Z",
+      "side": 1,
+      "message": "we do not have a concept of image ID, I\u0027ve assumed that the name and version combined are the ID, but it\u0027s not present as a separate field.",
+      "parentUuid": "a0135d25_64cd87fb",
+      "revId": "75f2b2df19c74ca8c9f594df8d83d8b067b8e2fe",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "86b8c34c_ead22ef7",
         "filename": "internal/pkg/commands/devices.go",
         "patchSetId": 1
@@ -228,6 +294,30 @@
       "revId": "75f2b2df19c74ca8c9f594df8d83d8b067b8e2fe",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ae79fde_153246d6",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2021-01-08T15:12:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86b8c34c_ead22ef7",
+      "range": {
+        "startLine": 232,
+        "startChar": 52,
+        "endLine": 232,
+        "endChar": 56
+      },
+      "revId": "75f2b2df19c74ca8c9f594df8d83d8b067b8e2fe",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     },
     {
       "key": {
@@ -286,6 +376,30 @@
       "revId": "75f2b2df19c74ca8c9f594df8d83d8b067b8e2fe",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f22f247e_48f02f8a",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 1400,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2021-01-08T15:12:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4e93bc7a_6901d270",
+      "range": {
+        "startLine": 1400,
+        "startChar": 2,
+        "endLine": 1400,
+        "endChar": 39
+      },
+      "revId": "75f2b2df19c74ca8c9f594df8d83d8b067b8e2fe",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }
