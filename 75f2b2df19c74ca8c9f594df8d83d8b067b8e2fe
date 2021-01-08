@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "9d8b4a54_48542624",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2021-01-08T14:21:54Z",
+      "side": 1,
+      "message": "I\u0027m fine leaving this out.",
+      "parentUuid": "1cf70257_5e6a714e",
+      "revId": "75f2b2df19c74ca8c9f594df8d83d8b067b8e2fe",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "39009c88_9f4d5c4f",
         "filename": "internal/pkg/commands/devices.go",
         "patchSetId": 1
@@ -102,6 +120,24 @@
       "side": 1,
       "message": "Saving something in the ONU? I would not know what that should be. The OLT (OnuAdapter) is master on the subsequent new OMCI configuration.",
       "parentUuid": "7355a675_7737585c",
+      "revId": "75f2b2df19c74ca8c9f594df8d83d8b067b8e2fe",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6626e672_187cdf6a",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2021-01-08T14:21:54Z",
+      "side": 1,
+      "message": "if we assume no config should be saved and then restored by the ONU itself I\u0027m fine removing.",
+      "parentUuid": "3d51e410_0c512535",
       "revId": "75f2b2df19c74ca8c9f594df8d83d8b067b8e2fe",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
