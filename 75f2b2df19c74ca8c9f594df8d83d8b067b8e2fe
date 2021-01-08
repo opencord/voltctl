@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e37eb817_eb679d23",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2021-01-08T13:39:35Z",
+      "side": 1,
+      "message": "I guess one can leave the device to save it wherever it chooses to, not enforcing a special directory.",
+      "parentUuid": "b1eb191c_8eb7800c",
+      "revId": "75f2b2df19c74ca8c9f594df8d83d8b067b8e2fe",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "39009c88_9f4d5c4f",
         "filename": "internal/pkg/commands/devices.go",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "7355a675_7737585c",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2021-01-08T13:39:35Z",
+      "side": 1,
+      "message": "I think this and DeviceOnuDownloadImage are different, in here the Url and the Crc are not required here, while they are during the download process./ the Save config I expect to be something related to saving the existing OMCi config or information in the ONU to memory before performing the update.",
+      "parentUuid": "39009c88_9f4d5c4f",
+      "revId": "75f2b2df19c74ca8c9f594df8d83d8b067b8e2fe",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7812bcef_9cb7e38e",
         "filename": "internal/pkg/commands/devices.go",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2021-01-08T13:28:58Z",
       "side": 1,
       "message": "cmp. parameter comment above",
+      "revId": "75f2b2df19c74ca8c9f594df8d83d8b067b8e2fe",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72b73ebf_3111a8d1",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 1397,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2021-01-08T13:39:35Z",
+      "side": 1,
+      "message": "they are kinda the same, but I need the structure above for the CLI commands and such",
+      "parentUuid": "7812bcef_9cb7e38e",
       "revId": "75f2b2df19c74ca8c9f594df8d83d8b067b8e2fe",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
