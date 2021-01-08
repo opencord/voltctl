@@ -45,6 +45,7 @@ const (
 	DEFAULT_DEVICE_PM_CONFIG_METRIC_LIST_FORMAT = "table{{.Name}}\t{{.Type}}\t{{.Enabled}}\t{{.SampleFreq}}"
 	DEFAULT_DEVICE_PM_CONFIG_GROUP_LIST_FORMAT  = "table{{.GroupName}}\t{{.Enabled}}\t{{.GroupFreq}}"
 	DEFAULT_DEVICE_VALUE_GET_FORMAT             = "table{{.Name}}\t{{.Result}}"
+	DEFAULT_DEVICE_IMAGE_LIST_GET_FORMAT        = "table{{.Name}}\t{{.Url}}\t{{.Crc}}\t{{.DownloadState}}\t{{.ImageVersion}}\t{{.LocalDir}}\t{{.ImageState}}\t{{.FileSize}}"
 )
 
 type DeviceList struct {
@@ -206,6 +207,34 @@ type DevicePmConfigSetMaxSkew struct {
 	} `positional-args:"yes"`
 }
 
+type DeviceOnuListImages struct {
+	ListOutputOptions
+	Args struct {
+		Id DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+	} `positional-args:"yes"`
+}
+
+type DeviceOnuDownloadImage struct {
+	Args struct {
+		Id           DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+		Name         string   `positional-arg-name:"IMAGE_NAME" required:"yes"`
+		Url          string   `positional-arg-name:"IMAGE_URL" required:"yes"`
+		ImageVersion string   `positional-arg-name:"IMAGE_NAME" required:"yes"`
+		Crc          uint32   `positional-arg-name:"IMAGE_CRC" required:"yes"`
+		LocalDir     string   `positional-arg-name:"IMAGE_LOCAL_DIRECTORY"`
+	} `positional-args:"yes"`
+}
+
+type DeviceOnuActivateImageUpdate struct {
+	Args struct {
+		Id           DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+		Name         string   `positional-arg-name:"IMAGE_NAME" required:"yes"`
+		ImageVersion string   `positional-arg-name:"IMAGE_NAME" required:"yes"`
+		SaveConfig   bool     `positional-arg-name:"SAVE_EXISTING_CONFIG"`
+		LocalDir     string   `positional-arg-name:"IMAGE_LOCAL_DIRECTORY"`
+	} `positional-args:"yes"`
+}
+
 type DeviceOpts struct {
 	List    DeviceList     `command:"list"`
 	Create  DeviceCreate   `command:"create"`
@@ -245,6 +274,12 @@ type DeviceOpts struct {
 			List DevicePmConfigGroupMetricList `command:"list"`
 		} `command:"groupmetric"`
 	} `command:"pmconfig"`
+
+	Image struct {
+		Get      DeviceOnuListImages          `command:"list"`
+		Download DeviceOnuDownloadImage       `command:"download"`
+		Activate DeviceOnuActivateImageUpdate `command:"activate"`
+	} `command:"image"`
 }
 
 var deviceOpts = DeviceOpts{}
@@ -1264,6 +1299,114 @@ func (options *DevicePmConfigFrequencySet) Execute(args []string) error {
 	}
 
 	GenerateOutput(&result)
+	return nil
+
+}
+
+func (options *DeviceOnuListImages) Execute(args []string) error {
+
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+
+	id := common.ID{Id: string(options.Args.Id)}
+
+	imageDownloads, err := client.ListImageDownloads(ctx, &id)
+	if err != nil {
+		return err
+	}
+
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("device-image-list", "format", DEFAULT_DEVICE_IMAGE_LIST_GET_FORMAT)
+	}
+
+	if options.Quiet {
+		outputFormat = "{{.Id}}"
+	}
+
+	//TODO orderby
+
+	// Make sure json output prints an empty list, not "null"
+	if imageDownloads.Items == nil {
+		imageDownloads.Items = make([]*voltha.ImageDownload, 0)
+	}
+
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      imageDownloads.Items,
+	}
+
+	GenerateOutput(&result)
+	return nil
+
+}
+
+func (options *DeviceOnuDownloadImage) Execute(args []string) error {
+
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+
+	downloadImage := voltha.ImageDownload{
+		Id:       string(options.Args.Id),
+		Name:     options.Args.Name,
+		Url:      options.Args.Url,
+		Crc:      options.Args.Crc,
+		LocalDir: options.Args.LocalDir,
+	}
+
+	_, err = client.DownloadImage(ctx, &downloadImage)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+func (options *DeviceOnuActivateImageUpdate) Execute(args []string) error {
+
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+
+	downloadImage := voltha.ImageDownload{
+		Id:         string(options.Args.Id),
+		Name:       options.Args.Name,
+		Url:        options.Args.ImageVersion,
+		SaveConfig: options.Args.SaveConfig,
+		LocalDir:   options.Args.LocalDir,
+	}
+
+	_, err = client.DownloadImage(ctx, &downloadImage)
+	if err != nil {
+		return err
+	}
+
 	return nil
 
 }
