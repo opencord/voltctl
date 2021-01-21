@@ -250,14 +250,14 @@ func getVolthaComponentNames() []string {
 }
 
 func constructConfigManager(ctx context.Context) (*config.ConfigManager, func(), error) {
-	client, err := kvstore.NewEtcdClient(ctx, GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
+	client, err := kvstore.NewEtcdClient(ctx, GlobalConfig.GetCurrentStack().KvStore, GlobalConfig.GetCurrentStack().KvStoreConfig.Timeout, log.FatalLevel)
 	if err != nil {
 		return nil, nil, fmt.Errorf("Unable to create kvstore client %s", err)
 	}
 
 	// Already error checked during option processing
-	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
-	cm := config.NewConfigManager(ctx, client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
+	host, port, _ := splitEndpoint(GlobalConfig.GetCurrentStack().KvStore, defaultKvHost, defaultKvPort)
+	cm := config.NewConfigManager(ctx, client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.GetCurrentStack().KvStoreConfig.Timeout)
 	return cm, func() { client.Close(ctx) }, nil
 }
 
@@ -266,10 +266,10 @@ func constructConfigManager(ctx context.Context) (*config.ConfigManager, func(),
 func getPackageNames(componentName string) ([]string, error) {
 	list := []string{defaultPackageName}
 
-	ProcessGlobalOptions()
+	ProcessConfig()
 
 	log.SetAllLogLevel(log.FatalLevel)
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetCurrentStack().KvStoreConfig.Timeout)
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -386,10 +386,10 @@ func (ccpn *ConfiguredComponentAndPackageName) Complete(match string) []flags.Co
 
 	var list []flags.Completion
 
-	ProcessGlobalOptions()
+	ProcessConfig()
 
 	log.SetAllLogLevel(log.FatalLevel)
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetCurrentStack().KvStoreConfig.Timeout)
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -556,7 +556,7 @@ func (options *SetLogLevelOpts) Execute(args []string) error {
 		logLevelConfig []model.LogLevel
 		err            error
 	)
-	ProcessGlobalOptions()
+	ProcessConfig()
 
 	log.SetAllLogLevel(log.FatalLevel)
 
@@ -571,7 +571,7 @@ func (options *SetLogLevelOpts) Execute(args []string) error {
 		return fmt.Errorf(err.Error())
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetCurrentStack().KvStoreConfig.Timeout)
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -670,10 +670,10 @@ func (options *ListLogLevelsOpts) Execute(args []string) error {
 		logLevelConfig map[string]string
 		err            error
 	)
-	ProcessGlobalOptions()
+	ProcessConfig()
 
 	log.SetAllLogLevel(log.FatalLevel)
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetCurrentStack().KvStoreConfig.Timeout)
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -685,7 +685,7 @@ func (options *ListLogLevelsOpts) Execute(args []string) error {
 	if len(options.Args.Component) == 0 {
 		componentList, err = cm.RetrieveComponentList(ctx, config.ConfigTypeLogLevel)
 		if err != nil {
-			host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
+			host, port, _ := splitEndpoint(GlobalConfig.GetCurrentStack().KvStore, defaultKvHost, defaultKvPort)
 			return fmt.Errorf("Unable to retrieve list of voltha components : %s \nIs ETCD available at %s:%d?", err, host, port)
 		}
 	} else {
@@ -783,7 +783,7 @@ func (options *ClearLogLevelsOpts) Execute(args []string) error {
 		logLevelConfig []model.LogLevel
 		err            error
 	)
-	ProcessGlobalOptions()
+	ProcessConfig()
 
 	log.SetAllLogLevel(log.FatalLevel)
 
@@ -792,7 +792,7 @@ func (options *ClearLogLevelsOpts) Execute(args []string) error {
 		return fmt.Errorf("%s", err)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetCurrentStack().KvStoreConfig.Timeout)
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -850,10 +850,10 @@ func (options *ListLogPackagesOpts) Execute(args []string) error {
 		err           error
 	)
 
-	ProcessGlobalOptions()
+	ProcessConfig()
 
 	log.SetAllLogLevel(log.FatalLevel)
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetCurrentStack().KvStoreConfig.Timeout)
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -926,11 +926,11 @@ func (options *ListLogPackagesOpts) Execute(args []string) error {
 // Omitting the component name will enable trace publishing for all the components, as shown in below command.
 // voltctl log tracing enable
 func (options *EnableLogTracingOpts) Execute(args []string) error {
-	ProcessGlobalOptions()
+	ProcessConfig()
 
 	log.SetAllLogLevel(log.FatalLevel)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetCurrentStack().KvStoreConfig.Timeout)
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -1005,11 +1005,11 @@ func (options *EnableLogTracingOpts) Execute(args []string) error {
 // Omitting the component name will disable trace publishing for all the components, as shown in below command.
 // voltctl log tracing disable
 func (options *DisableLogTracingOpts) Execute(args []string) error {
-	ProcessGlobalOptions()
+	ProcessConfig()
 
 	log.SetAllLogLevel(log.FatalLevel)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetCurrentStack().KvStoreConfig.Timeout)
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -1086,11 +1086,11 @@ func (options *DisableLogTracingOpts) Execute(args []string) error {
 // Omitting the component name will list trace publishing for all the components, as shown in below command.
 // voltctl log tracing list
 func (options *ListLogTracingOpts) Execute(args []string) error {
-	ProcessGlobalOptions()
+	ProcessConfig()
 
 	log.SetAllLogLevel(log.FatalLevel)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetCurrentStack().KvStoreConfig.Timeout)
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -1171,10 +1171,10 @@ func (options *ListLogTracingOpts) Execute(args []string) error {
 // Omitting the component name will enable log correlation for all the components, as shown in below command.
 // voltctl log correlation enable
 func (options *EnableLogCorrelationOpts) Execute(args []string) error {
-	ProcessGlobalOptions()
+	ProcessConfig()
 
 	log.SetAllLogLevel(log.FatalLevel)
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetCurrentStack().KvStoreConfig.Timeout)
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -1246,10 +1246,10 @@ func (options *EnableLogCorrelationOpts) Execute(args []string) error {
 // Omitting the component name will disable log correlation for all the components, as shown in below command.
 // voltctl log correlation disable
 func (options *DisableLogCorrelationOpts) Execute(args []string) error {
-	ProcessGlobalOptions()
+	ProcessConfig()
 
 	log.SetAllLogLevel(log.FatalLevel)
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetCurrentStack().KvStoreConfig.Timeout)
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -1321,9 +1321,9 @@ func (options *DisableLogCorrelationOpts) Execute(args []string) error {
 // Omitting the component name will list log correlation for all the components, as shown in below command.
 // voltctl log correlation list
 func (options *ListLogCorrelationOpts) Execute(args []string) error {
-	ProcessGlobalOptions()
+	ProcessConfig()
 	log.SetAllLogLevel(log.FatalLevel)
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetCurrentStack().KvStoreConfig.Timeout)
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)

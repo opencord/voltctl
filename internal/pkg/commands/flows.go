@@ -18,12 +18,13 @@ package commands
 import (
 	"context"
 	"fmt"
+	"sort"
+	"strings"
+
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltctl/pkg/model"
 	"github.com/opencord/voltha-protos/v3/go/openflow_13"
 	"github.com/opencord/voltha-protos/v3/go/voltha"
-	"sort"
-	"strings"
 )
 
 type FlowList struct {
@@ -116,7 +117,7 @@ func (options *FlowList) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetCurrentStack().Grpc.Timeout)
 	defer cancel()
 
 	id := voltha.ID{Id: string(options.Args.Id)}

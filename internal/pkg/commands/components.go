@@ -17,6 +17,7 @@ package commands
 
 import (
 	"fmt"
+
 	flags "github.com/jessevdk/go-flags"
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltctl/pkg/model"
@@ -49,7 +50,7 @@ func RegisterComponentCommands(parser *flags.Parser) {
 
 func (options *ComponentList) Execute(args []string) error {
 
-	ProcessGlobalOptions()
+	ProcessConfig()
 
 	// If they requested the source to the kubectl command that
 	// can give the same information, then print it and return

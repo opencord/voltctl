@@ -60,6 +60,20 @@ func GetHeaderString(tmpl *template.Template, nameLimit int) string {
 			header += n.String()
 		case parse.NodeString:
 			header += n.String()
+		default:
+			found := nameFinder.FindStringSubmatch(n.String())
+			if len(found) == 2 {
+				if nameLimit > 0 {
+					parts := strings.Split(found[1], ".")
+					start := len(parts) - nameLimit
+					if start < 0 {
+						start = 0
+					}
+					header += strings.ToUpper(strings.Join(parts[start:], "."))
+				} else {
+					header += strings.ToUpper(found[1])
+				}
+			}
 		case parse.NodeAction:
 			found := nameFinder.FindStringSubmatch(n.String())
 			if len(found) == 2 {

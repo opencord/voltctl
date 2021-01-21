@@ -18,12 +18,13 @@ package commands
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/golang/protobuf/ptypes/empty"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltha-protos/v3/go/openflow_13"
 	"github.com/opencord/voltha-protos/v3/go/voltha"
-	"strings"
 )
 
 const (
@@ -89,7 +90,7 @@ func (i *LogicalDeviceId) Complete(match string) []flags.Completion {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetCurrentStack().Grpc.Timeout)
 	defer cancel()
 
 	logicalDevices, err := client.ListLogicalDevices(ctx, &empty.Empty{})
@@ -117,7 +118,7 @@ func (options *LogicalDeviceList) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetCurrentStack().Grpc.Timeout)
 	defer cancel()
 
 	logicalDevices, err := client.ListLogicalDevices(ctx, &empty.Empty{})
@@ -165,7 +166,7 @@ func (options *LogicalDevicePortList) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetCurrentStack().Grpc.Timeout)
 	defer cancel()
 
 	id := voltha.ID{Id: string(options.Args.Id)}
@@ -232,7 +233,7 @@ func (options *LogicalDeviceInspect) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetCurrentStack().Grpc.Timeout)
 	defer cancel()
 
 	id := voltha.ID{Id: string(options.Args.Id)}

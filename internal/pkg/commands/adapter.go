@@ -17,6 +17,7 @@ package commands
 
 import (
 	"context"
+
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/jessevdk/go-flags"
 	"github.com/opencord/voltctl/pkg/format"
@@ -52,7 +53,7 @@ func (options *AdapterList) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetCurrentStack().Grpc.Timeout)
 	defer cancel()
 
 	adapters, err := client.ListAdapters(ctx, &empty.Empty{})

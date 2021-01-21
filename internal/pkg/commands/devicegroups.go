@@ -17,6 +17,7 @@ package commands
 
 import (
 	"context"
+
 	"github.com/golang/protobuf/ptypes/empty"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/opencord/voltctl/pkg/format"
@@ -54,7 +55,7 @@ func (options *DeviceGroupList) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetCurrentStack().Grpc.Timeout)
 	defer cancel()
 
 	deviceGroups, err := client.ListDeviceGroups(ctx, &empty.Empty{})
