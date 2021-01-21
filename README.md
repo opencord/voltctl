@@ -213,15 +213,15 @@ Get list of valid log packages for a component:
 $ voltctl log package list adapter-open-olt
 COMPONENTNAME       PACKAGENAME
 adapter-open-olt    default
-adapter-open-olt    github.com/opencord/voltha-lib-go/v3/pkg/adapters/common
-adapter-open-olt    github.com/opencord/voltha-lib-go/v3/pkg/config
-adapter-open-olt    github.com/opencord/voltha-lib-go/v3/pkg/db
-adapter-open-olt    github.com/opencord/voltha-lib-go/v3/pkg/db/kvstore
-adapter-open-olt    github.com/opencord/voltha-lib-go/v3/pkg/flows
-adapter-open-olt    github.com/opencord/voltha-lib-go/v3/pkg/kafka
-adapter-open-olt    github.com/opencord/voltha-lib-go/v3/pkg/ponresourcemanager
-adapter-open-olt    github.com/opencord/voltha-lib-go/v3/pkg/probe
-adapter-open-olt    github.com/opencord/voltha-lib-go/v3/pkg/techprofile
+adapter-open-olt    github.com/opencord/voltha-lib-go/v4/pkg/adapters/common
+adapter-open-olt    github.com/opencord/voltha-lib-go/v4/pkg/config
+adapter-open-olt    github.com/opencord/voltha-lib-go/v4/pkg/db
+adapter-open-olt    github.com/opencord/voltha-lib-go/v4/pkg/db/kvstore
+adapter-open-olt    github.com/opencord/voltha-lib-go/v4/pkg/flows
+adapter-open-olt    github.com/opencord/voltha-lib-go/v4/pkg/kafka
+adapter-open-olt    github.com/opencord/voltha-lib-go/v4/pkg/ponresourcemanager
+adapter-open-olt    github.com/opencord/voltha-lib-go/v4/pkg/probe
+adapter-open-olt    github.com/opencord/voltha-lib-go/v4/pkg/techprofile
 adapter-open-olt    github.com/opencord/voltha-openolt-adapter/internal/pkg/config
 adapter-open-olt    github.com/opencord/voltha-openolt-adapter/internal/pkg/core
 adapter-open-olt    github.com/opencord/voltha-openolt-adapter/internal/pkg/resourcemanager
