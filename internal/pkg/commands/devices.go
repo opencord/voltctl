@@ -21,6 +21,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	flags "github.com/jessevdk/go-flags"
@@ -177,8 +178,8 @@ type DevicePmConfigGroupMetricList struct {
 type DevicePmConfigFrequencySet struct {
 	OutputOptions
 	Args struct {
-		Frequency uint32   `positional-arg-name:"FREQUENCY" required:"yes"`
-		Id        DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+		Id       DeviceId      `positional-arg-name:"DEVICE_ID" required:"yes"`
+		Interval time.Duration `positional-arg-name:"INTERVAL" required:"yes"`
 	} `positional-args:"yes"`
 }
 
@@ -198,15 +199,24 @@ type DevicePmConfigMetricDisable struct {
 
 type DevicePmConfigGroupEnable struct {
 	Args struct {
-		Id     DeviceId    `positional-arg-name:"DEVICE_ID" required:"yes"`
-		Groups []GroupName `positional-arg-name:"GROUP_NAME" required:"yes"`
+		Id    DeviceId  `positional-arg-name:"DEVICE_ID" required:"yes"`
+		Group GroupName `positional-arg-name:"GROUP_NAME" required:"yes"`
 	} `positional-args:"yes"`
 }
 
 type DevicePmConfigGroupDisable struct {
 	Args struct {
-		Id     DeviceId    `positional-arg-name:"DEVICE_ID" required:"yes"`
-		Groups []GroupName `positional-arg-name:"GROUP_NAME" required:"yes"`
+		Id    DeviceId  `positional-arg-name:"DEVICE_ID" required:"yes"`
+		Group GroupName `positional-arg-name:"GROUP_NAME" required:"yes"`
+	} `positional-args:"yes"`
+}
+
+type DevicePmConfigGroupFrequencySet struct {
+	OutputOptions
+	Args struct {
+		Id       DeviceId      `positional-arg-name:"DEVICE_ID" required:"yes"`
+		Group    GroupName     `positional-arg-name:"GROUP_NAME" required:"yes"`
+		Interval time.Duration `positional-arg-name:"INTERVAL" required:"yes"`
 	} `positional-args:"yes"`
 }
 
@@ -298,9 +308,10 @@ type DeviceOpts struct {
 			Disable DevicePmConfigMetricDisable `command:"disable"`
 		} `command:"metric"`
 		Group struct {
-			List    DevicePmConfigGroupList    `command:"list"`
-			Enable  DevicePmConfigGroupEnable  `command:"enable"`
-			Disable DevicePmConfigGroupDisable `command:"disable"`
+			List    DevicePmConfigGroupList         `command:"list"`
+			Enable  DevicePmConfigGroupEnable       `command:"enable"`
+			Disable DevicePmConfigGroupDisable      `command:"disable"`
+			Set     DevicePmConfigGroupFrequencySet `command:"set"`
 		} `command:"group"`
 		GroupMetric struct {
 			List DevicePmConfigGroupMetricList `command:"list"`
@@ -1114,16 +1125,14 @@ func (options *DevicePmConfigGroupEnable) Execute(args []string) error {
 			groups[group.GroupName] = struct{}{}
 		}
 		for _, group := range pmConfigs.Groups {
-			for _, gName := range options.Args.Groups {
-				if _, have := groups[string(gName)]; !have {
-					return fmt.Errorf("Group Name '%s' does not exist", gName)
-				}
-				if string(gName) == group.GroupName && !group.Enabled {
-					group.Enabled = true
-					_, err := client.UpdateDevicePmConfigs(ctx, pmConfigs)
-					if err != nil {
-						return err
-					}
+			if _, have := groups[string(options.Args.Group)]; !have {
+				return fmt.Errorf("Group Name '%s' does not exist", options.Args.Group)
+			}
+			if string(options.Args.Group) == group.GroupName && !group.Enabled {
+				group.Enabled = true
+				_, err := client.UpdateDevicePmConfigs(ctx, pmConfigs)
+				if err != nil {
+					return err
 				}
 			}
 		}
@@ -1160,22 +1169,68 @@ func (options *DevicePmConfigGroupDisable) Execute(args []string) error {
 		}
 
 		for _, group := range pmConfigs.Groups {
-			for _, gName := range options.Args.Groups {
-				if _, have := groups[string(gName)]; !have {
-					return fmt.Errorf("Group Name '%s' does not exist", gName)
-				}
+			if _, have := groups[string(options.Args.Group)]; !have {
+				return fmt.Errorf("Group Name '%s' does not exist", options.Args.Group)
+			}
 
-				if string(gName) == group.GroupName && group.Enabled {
-					group.Enabled = false
-					_, err := client.UpdateDevicePmConfigs(ctx, pmConfigs)
-					if err != nil {
-						return err
-					}
+			if string(options.Args.Group) == group.GroupName && group.Enabled {
+				group.Enabled = false
+				_, err := client.UpdateDevicePmConfigs(ctx, pmConfigs)
+				if err != nil {
+					return err
 				}
 			}
 		}
 	} else {
 		return fmt.Errorf("Device '%s' does not have Group Metrics", options.Args.Id)
+	}
+	return nil
+}
+
+func (options *DevicePmConfigGroupFrequencySet) Execute(args []string) error {
+
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+
+	id := voltha.ID{Id: string(options.Args.Id)}
+
+	pmConfigs, err := client.ListDevicePmConfigs(ctx, &id)
+	if err != nil {
+		return err
+	}
+
+	if pmConfigs.Grouped {
+		groups := make(map[string]struct{})
+		for _, group := range pmConfigs.Groups {
+			groups[group.GroupName] = struct{}{}
+		}
+
+		for _, group := range pmConfigs.Groups {
+			if _, have := groups[string(options.Args.Group)]; !have {
+				return fmt.Errorf("group name '%s' does not exist", options.Args.Group)
+			}
+
+			if string(options.Args.Group) == group.GroupName {
+				if !group.Enabled {
+					return fmt.Errorf("group '%s' is not enabled", options.Args.Group)
+				}
+				group.GroupFreq = uint32(options.Args.Interval.Seconds())
+				_, err = client.UpdateDevicePmConfigs(ctx, pmConfigs)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	} else {
+		return fmt.Errorf("device '%s' does not have group metrics", options.Args.Id)
 	}
 	return nil
 }
@@ -1311,7 +1366,7 @@ func (options *DevicePmConfigFrequencySet) Execute(args []string) error {
 		return err
 	}
 
-	pmConfigs.DefaultFreq = options.Args.Frequency
+	pmConfigs.DefaultFreq = uint32(options.Args.Interval.Seconds())
 
 	_, err = client.UpdateDevicePmConfigs(ctx, pmConfigs)
 	if err != nil {
