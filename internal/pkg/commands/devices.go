@@ -191,6 +191,15 @@ type DevicePmConfigGroupDisable struct {
 	} `positional-args:"yes"`
 }
 
+type DevicePmConfigGroupFrequencySet struct {
+	OutputOptions
+	Args struct {
+		Frequency uint32      `positional-arg-name:"FREQUENCY" required:"yes"`
+		Id        DeviceId    `positional-arg-name:"DEVICE_ID" required:"yes"`
+		Groups    []GroupName `positional-arg-name:"GROUP_NAME" required:"yes"`
+	} `positional-args:"yes"`
+}
+
 type DeviceGetExtValue struct {
 	ListOutputOptions
 	Args struct {
@@ -237,9 +246,10 @@ type DeviceOpts struct {
 			Disable DevicePmConfigMetricDisable `command:"disable"`
 		} `command:"metric"`
 		Group struct {
-			List    DevicePmConfigGroupList    `command:"list"`
-			Enable  DevicePmConfigGroupEnable  `command:"enable"`
-			Disable DevicePmConfigGroupDisable `command:"disable"`
+			List    DevicePmConfigGroupList         `command:"list"`
+			Enable  DevicePmConfigGroupEnable       `command:"enable"`
+			Disable DevicePmConfigGroupDisable      `command:"disable"`
+			Set     DevicePmConfigGroupFrequencySet `command:"set"`
 		} `command:"group"`
 		GroupMetric struct {
 			List DevicePmConfigGroupMetricList `command:"list"`
@@ -1106,6 +1116,56 @@ func (options *DevicePmConfigGroupDisable) Execute(args []string) error {
 		}
 	} else {
 		return fmt.Errorf("Device '%s' does not have Group Metrics", options.Args.Id)
+	}
+	return nil
+}
+
+func (options *DevicePmConfigGroupFrequencySet) Execute(args []string) error {
+
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+
+	id := voltha.ID{Id: string(options.Args.Id)}
+
+	pmConfigs, err := client.ListDevicePmConfigs(ctx, &id)
+	if err != nil {
+		return err
+	}
+
+	if pmConfigs.Grouped {
+		groups := make(map[string]struct{})
+		for _, group := range pmConfigs.Groups {
+			groups[group.GroupName] = struct{}{}
+		}
+
+		for _, group := range pmConfigs.Groups {
+			for _, gName := range options.Args.Groups {
+				if _, have := groups[string(gName)]; !have {
+					return fmt.Errorf("group name '%s' does not exist", gName)
+				}
+
+				if string(gName) == group.GroupName {
+					if !group.Enabled {
+						return fmt.Errorf("group '%s' is not enabled", gName)
+					}
+					group.GroupFreq = options.Args.Frequency
+					_, err := client.UpdateDevicePmConfigs(ctx, pmConfigs)
+					if err != nil {
+						return err
+					}
+				}
+			}
+		}
+	} else {
+		return fmt.Errorf("device '%s' does not have group metrics", options.Args.Id)
 	}
 	return nil
 }
