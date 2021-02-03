@@ -16,6 +16,29 @@
       "revId": "ba569066f66a652b2eaab552806933ee34d3763a",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "deeb52c2_0c9a6b1b",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2021-02-03T16:09:54Z",
+      "side": 1,
+      "message": "if FREQUENCY is a time input then it should be a string not int so units can be included.",
+      "range": {
+        "startLine": 198,
+        "startChar": 46,
+        "endLine": 198,
+        "endChar": 55
+      },
+      "revId": "ba569066f66a652b2eaab552806933ee34d3763a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
     }
   ]
 }
