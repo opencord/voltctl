@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "79369a2d_7e119680",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 1000666
+      },
+      "writtenOn": "2021-02-03T15:47:08Z",
+      "side": 1,
+      "message": "Maybe it is don\u0027t care, but logically to me the sequence would be DeviceID, GroupName, frequency",
+      "revId": "ba569066f66a652b2eaab552806933ee34d3763a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}
