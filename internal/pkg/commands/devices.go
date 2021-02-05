@@ -60,6 +60,10 @@ const (
   RXBCASTPACKETS:	{{.RxBcastPackets}}
   RXUCASTPACKETS:	{{.RxUcastPackets}}
   RXMCASTPACKETS:	{{.RxMcastPackets}}`
+	DEFAULT_DEVICE_GET_UNI_STATUS_FORMAT = `
+  ADMIN_STATE:          {{.AdmState}}
+  OPERATIONAL_STATE:    {{.OperState}}
+  CONFIG_IND:           {{.ConfigInd}}`
 )
 
 type DeviceList struct {
@@ -256,7 +260,13 @@ type DeviceGetPortStats struct {
 		PortType string   `positional-arg-name:"PORT_TYPE" required:"yes"`
 	} `positional-args:"yes"`
 }
-
+type UniStatus struct {
+	ListOutputOptions
+	Args struct {
+		Id       DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+		UniIndex uint32   `positional-arg-name:"UNI_INDEX" required:"yes"`
+	} `positional-args:"yes"`
+}
 type DeviceOpts struct {
 	List    DeviceList     `command:"list"`
 	Create  DeviceCreate   `command:"create"`
@@ -302,7 +312,8 @@ type DeviceOpts struct {
 		Activate DeviceOnuActivateImageUpdate `command:"activate"`
 	} `command:"image"`
 	GetExtVal struct {
-		Stats DeviceGetPortStats `command:"portstats"`
+		Stats     DeviceGetPortStats `command:"portstats"`
+		UniStatus UniStatus          `command:"unistatus"`
 	} `command:"getextval"`
 }
 
@@ -1492,6 +1503,48 @@ func (options *DeviceGetPortStats) Execute(args []string) error {
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
 		Data:      rv.GetResponse().GetPortCoutners(),
+	}
+	GenerateOutput(&result)
+	return nil
+}
+
+func (options *UniStatus) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	client := extension.NewExtensionClient(conn)
+
+	singleGetValReq := extension.SingleGetValueRequest{
+		TargetId: string(options.Args.Id),
+		Request: &extension.GetValueRequest{
+			Request: &extension.GetValueRequest_UniInfo{
+				UniInfo: &extension.GetOnuUniInfoRequest{
+					UniIndex: options.Args.UniIndex,
+				},
+			},
+		},
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	defer cancel()
+	rv, err := client.GetExtValue(ctx, &singleGetValReq)
+	if err != nil {
+		Error.Printf("Error getting value on device Id %s,err=%s\n", options.Args.Id, ErrorToString(err))
+		return err
+	}
+	if rv.Response.Status != extension.GetValueResponse_OK {
+		return fmt.Errorf("failed to get uni status %v", rv.Response.ErrReason.String())
+	}
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("device-get-uni-status", "format", DEFAULT_DEVICE_GET_UNI_STATUS_FORMAT)
+	}
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      rv.GetResponse().GetUniInfo(),
 	}
 	GenerateOutput(&result)
 	return nil
