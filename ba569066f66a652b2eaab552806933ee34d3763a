@@ -39,6 +39,48 @@
       "revId": "ba569066f66a652b2eaab552806933ee34d3763a",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49464c72_739dd867",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 1000127
+      },
+      "writtenOn": "2021-02-12T19:11:30Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "79369a2d_7e119680",
+      "revId": "ba569066f66a652b2eaab552806933ee34d3763a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a4403be7_8b89699d",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 1000127
+      },
+      "writtenOn": "2021-02-12T19:11:30Z",
+      "side": 1,
+      "message": "@david: Sorry, I totally forgot about this patch among many other things I was doing.\nRegarding your comment, as an example do you suggest the input could be something like \"15s\" or \"15m\" or \"1h\" for 15 seconds, 15 minutes and 1 hour instead of current 15 or 900 or 3600 (in seconds).",
+      "parentUuid": "deeb52c2_0c9a6b1b",
+      "range": {
+        "startLine": 198,
+        "startChar": 46,
+        "endLine": 198,
+        "endChar": 55
+      },
+      "revId": "ba569066f66a652b2eaab552806933ee34d3763a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
     }
   ]
 }
