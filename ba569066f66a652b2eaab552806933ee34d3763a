@@ -81,6 +81,30 @@
       "revId": "ba569066f66a652b2eaab552806933ee34d3763a",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47e580b7_6a18d633",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2021-02-16T21:41:24Z",
+      "side": 1,
+      "message": "yes. the Frequency should be of type time.Duration and should be able to be set by a string including a unit such that it can be parsed by time.ParseDuration.",
+      "parentUuid": "a4403be7_8b89699d",
+      "range": {
+        "startLine": 198,
+        "startChar": 46,
+        "endLine": 198,
+        "endChar": 55
+      },
+      "revId": "ba569066f66a652b2eaab552806933ee34d3763a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
     }
   ]
 }
