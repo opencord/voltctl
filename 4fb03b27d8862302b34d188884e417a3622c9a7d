@@ -22,6 +22,52 @@
       "revId": "4fb03b27d8862302b34d188884e417a3622c9a7d",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7fe6f70e_a26f72a0",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2021-02-17T16:46:31Z",
+      "side": 1,
+      "message": "This should be able to be defined as a time.Duration.",
+      "range": {
+        "startLine": 219,
+        "startChar": 12,
+        "endLine": 219,
+        "endChar": 18
+      },
+      "revId": "4fb03b27d8862302b34d188884e417a3622c9a7d",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "66e69fd6_5be90984",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 1229,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2021-02-17T16:46:31Z",
+      "side": 1,
+      "message": "If you set the parameter to type time.Duration you should not have to Parse it here.",
+      "range": {
+        "startLine": 1225,
+        "startChar": 0,
+        "endLine": 1229,
+        "endChar": 0
+      },
+      "revId": "4fb03b27d8862302b34d188884e417a3622c9a7d",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
     }
   ]
 }
