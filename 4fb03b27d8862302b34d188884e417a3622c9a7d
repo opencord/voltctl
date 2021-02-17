@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e68cea69_19ce8629",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2021-02-17T08:39:31Z",
+      "side": 1,
+      "message": "A (belated) question about the term \"frequency\" - isn\u0027t it rather an \"interval\", since it is not given in hertz but in seconds?",
+      "range": {
+        "startLine": 182,
+        "startChar": 2,
+        "endLine": 182,
+        "endChar": 12
+      },
+      "revId": "4fb03b27d8862302b34d188884e417a3622c9a7d",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}
