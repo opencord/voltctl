@@ -260,7 +260,7 @@ type DeviceOnuActivateImageUpdate struct {
 		ImageVersion string   `positional-arg-name:"IMAGE_VERSION" required:"yes"`
 		SaveConfig   bool     `positional-arg-name:"SAVE_EXISTING_CONFIG"`
 		LocalDir     string   `positional-arg-name:"IMAGE_LOCAL_DIRECTORY"`
-	}
+	} `positional-args:"yes"`
 }
 type DeviceGetPortStats struct {
 	ListOutputOptions
