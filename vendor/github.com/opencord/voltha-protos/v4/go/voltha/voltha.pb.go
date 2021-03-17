@@ -104,6 +104,7 @@ const OperStatus_ACTIVATING = OperStatus_Types(common.OperStatus_ACTIVATING)
 const OperStatus_TESTING = OperStatus_Types(common.OperStatus_TESTING)
 const OperStatus_ACTIVE = OperStatus_Types(common.OperStatus_ACTIVE)
 const OperStatus_FAILED = OperStatus_Types(common.OperStatus_FAILED)
+const OperStatus_RECONCILING = OperStatus_Types(common.OperStatus_RECONCILING)
 
 // ConnectStatus_Types from public import voltha_protos/common.proto
 type ConnectStatus_Types = common.ConnectStatus_Types
@@ -124,6 +125,7 @@ var OperationResp_OperationReturnCode_value = common.OperationResp_OperationRetu
 const OperationResp_OPERATION_SUCCESS = OperationResp_OperationReturnCode(common.OperationResp_OPERATION_SUCCESS)
 const OperationResp_OPERATION_FAILURE = OperationResp_OperationReturnCode(common.OperationResp_OPERATION_FAILURE)
 const OperationResp_OPERATION_UNSUPPORTED = OperationResp_OperationReturnCode(common.OperationResp_OPERATION_UNSUPPORTED)
+const OperationResp_OPERATION_IN_PROGRESS = OperationResp_OperationReturnCode(common.OperationResp_OPERATION_IN_PROGRESS)
 
 // ValueType_Type from public import voltha_protos/common.proto
 type ValueType_Type = common.ValueType_Type

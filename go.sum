@@ -231,11 +231,11 @@ github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+W
 github.com/onsi/gomega v0.0.0-20190113212917-5533ce8a0da3/go.mod h1:ex+gbHU/CVuBBDIJjb2X0qEXbFg53c61hWP/1CpauHY=
 github.com/onsi/gomega v1.4.2 h1:3mYCb7aPxS/RU7TI1y4rkEn1oKmPRjNJLNEXgw7MH2I=
 github.com/onsi/gomega v1.4.2/go.mod h1:ex+gbHU/CVuBBDIJjb2X0qEXbFg53c61hWP/1CpauHY=
-github.com/opencord/voltha-lib-go/v4 v4.0.6 h1:Mc/bkYDR3YcpWPeW35ju9h3sO2cGByz8XM0ik5ikJkc=
-github.com/opencord/voltha-lib-go/v4 v4.0.6/go.mod h1:8NFUZz/mp4OvRmilBRhkLOUrw4G01ruSAVdzQu2ivPc=
-github.com/opencord/voltha-protos/v4 v4.0.8/go.mod h1:W/OIFIyvFh/C0vchRUuarIsMylEhzCRM9pNxLvkPtKc=
-github.com/opencord/voltha-protos/v4 v4.0.11 h1:pJMNvjVxmCPGEUVPSLgqvT9P2ei2J+8Z9KsHJru2MRI=
-github.com/opencord/voltha-protos/v4 v4.0.11/go.mod h1:W/OIFIyvFh/C0vchRUuarIsMylEhzCRM9pNxLvkPtKc=
+github.com/opencord/voltha-lib-go/v4 v4.0.9 h1:vrlpQypAkyi/DD6PV4TA5xYXX+VEFlUoOp9h2g4vcOg=
+github.com/opencord/voltha-lib-go/v4 v4.0.9/go.mod h1:n4QSYuNICFuQCQuTHf4N8Gh4ymOqPNbijqCD+sgSgJ4=
+github.com/opencord/voltha-protos/v4 v4.0.12/go.mod h1:W/OIFIyvFh/C0vchRUuarIsMylEhzCRM9pNxLvkPtKc=
+github.com/opencord/voltha-protos/v4 v4.0.16 h1:VQNhkc3FLvol9xPph860w97WoIcW+IjrEqNAZVOuQ+0=
+github.com/opencord/voltha-protos/v4 v4.0.16/go.mod h1:W/OIFIyvFh/C0vchRUuarIsMylEhzCRM9pNxLvkPtKc=
 github.com/opentracing/opentracing-go v1.1.0 h1:pWlfV3Bxv7k65HYwkikxat0+s3pV4bsqf19k25Ur8rU=
 github.com/opentracing/opentracing-go v1.1.0/go.mod h1:UkNAQd3GIcIGf0SeVgPpRdFStlNbqXla1AfSYxPUl2o=
 github.com/pascaldekloe/goe v0.0.0-20180627143212-57f6aae5913c/go.mod h1:lzWF7FIEvWOWxwDKqyGYQf6ZUaNfKdP144TG7ZOy1lc=
