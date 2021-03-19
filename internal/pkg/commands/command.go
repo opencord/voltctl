@@ -16,6 +16,7 @@
 package commands
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -36,7 +37,8 @@ import (
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltctl/pkg/order"
 	"google.golang.org/grpc"
-	"gopkg.in/yaml.v2"
+	"google.golang.org/grpc/credentials"
+	yaml "gopkg.in/yaml.v2"
 )
 
 type OutputType uint8
@@ -75,7 +77,7 @@ type TlsConfigSpec struct {
 	CACert string `yaml:"caCert"`
 	Cert   string `yaml:"cert"`
 	Key    string `yaml:"key"`
-	Verify string `yaml:"verify"`
+	Verify bool   `yaml:"verify"`
 }
 
 type GlobalConfigSpec struct {
@@ -111,6 +113,7 @@ var (
 		KvStore: "localhost:2379",
 		Tls: TlsConfigSpec{
 			UseTls: false,
+			Verify: false,
 		},
 		Grpc: GrpcConfigSpec{
 			Timeout:            defaultGrpcTimeout,
@@ -300,6 +303,14 @@ func ProcessGlobalOptions() {
 	}
 	GlobalConfig.Server = net.JoinHostPort(host, strconv.Itoa(port))
 
+	if GlobalOptions.UseTLS {
+		GlobalConfig.Tls.UseTls = true
+	}
+
+	if GlobalOptions.Verify {
+		GlobalConfig.Tls.Verify = true
+	}
+
 	if GlobalOptions.Kafka != "" {
 		GlobalConfig.Kafka = GlobalOptions.Kafka
 	}
@@ -384,7 +395,19 @@ func NewConnection() (*grpc.ClientConn, error) {
 		Error.Fatalf("Cannot convert msgSize %s to bytes", GlobalConfig.Grpc.MaxCallRecvMsgSize)
 	}
 
-	return grpc.Dial(GlobalConfig.Server, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(int(n))))
+	var opts []grpc.DialOption
+
+	opts = append(opts,
+		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(int(n))))
+
+	if GlobalConfig.Tls.UseTls {
+		creds := credentials.NewTLS(&tls.Config{
+			InsecureSkipVerify: !GlobalConfig.Tls.Verify})
+		opts = append(opts, grpc.WithTransportCredentials(creds))
+	} else {
+		opts = append(opts, grpc.WithInsecure())
+	}
+	return grpc.Dial(GlobalConfig.Server, opts...)
 }
 
 func ConvertJsonProtobufArray(data_in interface{}) (string, error) {
