@@ -17,6 +17,7 @@ package commands
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -30,6 +31,7 @@ import (
 	"github.com/opencord/voltha-lib-go/v4/pkg/config"
 	"github.com/opencord/voltha-lib-go/v4/pkg/db/kvstore"
 	"github.com/opencord/voltha-lib-go/v4/pkg/log"
+	v3Client "go.etcd.io/etcd/clientv3"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -250,7 +252,19 @@ func getVolthaComponentNames() []string {
 }
 
 func constructConfigManager(ctx context.Context) (*config.ConfigManager, func(), error) {
-	client, err := kvstore.NewEtcdClient(ctx, GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
+	var tlsConfig *tls.Config
+	if GlobalConfig.Tls.UseTls {
+		tlsConfig = &tls.Config{InsecureSkipVerify: !GlobalConfig.Tls.Verify}
+	}
+	logconfig := log.ConstructZapConfig(log.JSON, log.FatalLevel, log.Fields{})
+	client, err := kvstore.NewEtcdCustomClient(
+		ctx,
+		&v3Client.Config{
+			Endpoints:   []string{GlobalConfig.KvStore},
+			DialTimeout: GlobalConfig.KvStoreConfig.Timeout,
+			LogConfig:   &logconfig,
+			TLS:         tlsConfig,
+		})
 	if err != nil {
 		return nil, nil, fmt.Errorf("Unable to create kvstore client %s", err)
 	}
