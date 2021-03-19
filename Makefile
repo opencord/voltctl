@@ -67,6 +67,7 @@ release:
 ## Local Development Helpers
 local-lib-go:
 ifdef LOCAL_LIB_GO
+	rm -rf vendor/github.com/opencord/voltha-lib-go/v4/pkg
 	mkdir -p vendor/github.com/opencord/voltha-lib-go/v4/pkg
 	cp -r ${LOCAL_LIB_GO}/pkg/* vendor/github.com/opencord/voltha-lib-go/v4/pkg/
 endif

@@ -18,12 +18,13 @@ package commands
 import (
 	"context"
 	"encoding/json"
+	"strings"
+
 	"github.com/golang/protobuf/ptypes/empty"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/opencord/voltctl/internal/pkg/cli/version"
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltha-protos/v4/go/voltha"
-	"strings"
 )
 
 type VersionDetails struct {
@@ -140,7 +141,7 @@ func (options *VersionOpts) Execute(args []string) error {
 
 	voltha, err := client.GetVoltha(ctx, &empty.Empty{})
 	if err != nil {
-		return nil
+		return err
 	}
 
 	info := make(map[string]interface{})
