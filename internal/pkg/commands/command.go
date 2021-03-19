@@ -16,12 +16,13 @@
 package commands
 
 import (
+	"context"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -32,11 +33,14 @@ import (
 
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
+	configv1 "github.com/opencord/voltctl/internal/pkg/apis/config/v1"
+	configv2 "github.com/opencord/voltctl/internal/pkg/apis/config/v2"
 	"github.com/opencord/voltctl/pkg/filter"
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltctl/pkg/order"
 	"google.golang.org/grpc"
-	"gopkg.in/yaml.v2"
+	"google.golang.org/grpc/credentials"
+	yaml "gopkg.in/yaml.v2"
 )
 
 type OutputType uint8
@@ -46,47 +50,8 @@ const (
 	OUTPUT_JSON
 	OUTPUT_YAML
 
-	defaultApiHost = "localhost"
-	defaultApiPort = 55555
-
-	defaultKafkaHost = "localhost"
-	defaultKafkaPort = 9092
-
 	supportedKvStoreType = "etcd"
-	defaultKvHost        = "localhost"
-	defaultKvPort        = 2379
-	defaultKvTimeout     = time.Second * 5
-
-	defaultGrpcTimeout            = time.Minute * 5
-	defaultGrpcMaxCallRecvMsgSize = "4MB"
 )
-
-type GrpcConfigSpec struct {
-	Timeout            time.Duration `yaml:"timeout"`
-	MaxCallRecvMsgSize string        `yaml:"maxCallRecvMsgSize"`
-}
-
-type KvStoreConfigSpec struct {
-	Timeout time.Duration `yaml:"timeout"`
-}
-
-type TlsConfigSpec struct {
-	UseTls bool   `yaml:"useTls"`
-	CACert string `yaml:"caCert"`
-	Cert   string `yaml:"cert"`
-	Key    string `yaml:"key"`
-	Verify string `yaml:"verify"`
-}
-
-type GlobalConfigSpec struct {
-	Server        string            `yaml:"server"`
-	Kafka         string            `yaml:"kafka"`
-	KvStore       string            `yaml:"kvstore"`
-	Tls           TlsConfigSpec     `yaml:"tls"`
-	Grpc          GrpcConfigSpec    `yaml:"grpc"`
-	KvStoreConfig KvStoreConfigSpec `yaml:"kvstoreconfig"`
-	K8sConfig     string            `yaml:"-"`
-}
 
 var (
 	ParamNames = map[string]map[string]string{
@@ -105,21 +70,7 @@ var (
 
 	CharReplacer = strings.NewReplacer("\\t", "\t", "\\n", "\n")
 
-	GlobalConfig = GlobalConfigSpec{
-		Server:  "localhost:55555",
-		Kafka:   "",
-		KvStore: "localhost:2379",
-		Tls: TlsConfigSpec{
-			UseTls: false,
-		},
-		Grpc: GrpcConfigSpec{
-			Timeout:            defaultGrpcTimeout,
-			MaxCallRecvMsgSize: defaultGrpcMaxCallRecvMsgSize,
-		},
-		KvStoreConfig: KvStoreConfigSpec{
-			Timeout: defaultKvTimeout,
-		},
-	}
+	GlobalConfig = configv2.NewDefaultConfig()
 
 	GlobalCommandOptions = make(map[string]map[string]string)
 
@@ -194,31 +145,6 @@ func toOutputType(in string) OutputType {
 	}
 }
 
-func splitEndpoint(ep, defaultHost string, defaultPort int) (string, int, error) {
-	port := defaultPort
-	host, sPort, err := net.SplitHostPort(ep)
-	if err != nil {
-		if addrErr, ok := err.(*net.AddrError); ok {
-			if addrErr.Err != "missing port in address" {
-				return "", 0, err
-			}
-			host = ep
-		} else {
-			return "", 0, err
-		}
-	} else if len(strings.TrimSpace(sPort)) > 0 {
-		val, err := strconv.Atoi(sPort)
-		if err != nil {
-			return "", 0, err
-		}
-		port = val
-	}
-	if len(strings.TrimSpace(host)) == 0 {
-		host = defaultHost
-	}
-	return strings.Trim(host, "]["), port, nil
-}
-
 type CommandResult struct {
 	Format    format.Format
 	Filter    string
@@ -283,9 +209,15 @@ func ProcessGlobalOptions() {
 			Error.Fatalf("Unable to read the configuration file '%s': %s",
 				GlobalOptions.Config, err.Error())
 		}
+		// First try the latest version of the config api then work
+		// backwards
 		if err = yaml.Unmarshal(configFile, &GlobalConfig); err != nil {
-			Error.Fatalf("Unable to parse the configuration file '%s': %s",
-				GlobalOptions.Config, err.Error())
+			GlobalConfigV1 := configv1.NewDefaultConfig()
+			if err = yaml.Unmarshal(configFile, &GlobalConfigV1); err != nil {
+				Error.Fatalf("Unable to parse the configuration file '%s': %s",
+					GlobalOptions.Config, err.Error())
+			}
+			GlobalConfig = configv2.FromConfigV1(GlobalConfigV1)
 		}
 	}
 
@@ -293,32 +225,22 @@ func ProcessGlobalOptions() {
 	if GlobalOptions.Server != "" {
 		GlobalConfig.Server = GlobalOptions.Server
 	}
-	host, port, err := splitEndpoint(GlobalConfig.Server, defaultApiHost, defaultApiPort)
-	if err != nil {
-		Error.Fatalf("voltha API endport incorrectly specified '%s':%s",
-			GlobalConfig.Server, err)
+
+	if GlobalOptions.UseTLS {
+		GlobalConfig.Tls.UseTls = true
 	}
-	GlobalConfig.Server = net.JoinHostPort(host, strconv.Itoa(port))
+
+	if GlobalOptions.Verify {
+		GlobalConfig.Tls.Verify = true
+	}
 
 	if GlobalOptions.Kafka != "" {
 		GlobalConfig.Kafka = GlobalOptions.Kafka
 	}
-	host, port, err = splitEndpoint(GlobalConfig.Kafka, defaultKafkaHost, defaultKafkaPort)
-	if err != nil {
-		Error.Fatalf("Kafka endport incorrectly specified '%s':%s",
-			GlobalConfig.Kafka, err)
-	}
-	GlobalConfig.Kafka = net.JoinHostPort(host, strconv.Itoa(port))
 
 	if GlobalOptions.KvStore != "" {
 		GlobalConfig.KvStore = GlobalOptions.KvStore
 	}
-	host, port, err = splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
-	if err != nil {
-		Error.Fatalf("KV store endport incorrectly specified '%s':%s",
-			GlobalConfig.KvStore, err)
-	}
-	GlobalConfig.KvStore = net.JoinHostPort(host, strconv.Itoa(port))
 
 	if GlobalOptions.KvStoreTimeout != "" {
 		timeout, err := time.ParseDuration(GlobalOptions.KvStoreTimeout)
@@ -384,7 +306,24 @@ func NewConnection() (*grpc.ClientConn, error) {
 		Error.Fatalf("Cannot convert msgSize %s to bytes", GlobalConfig.Grpc.MaxCallRecvMsgSize)
 	}
 
-	return grpc.Dial(GlobalConfig.Server, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(int(n))))
+	var opts []grpc.DialOption
+
+	opts = append(opts,
+		grpc.WithDisableRetry(),
+		grpc.WithBlock(),
+		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(int(n))))
+
+	if GlobalConfig.Tls.UseTls {
+		creds := credentials.NewTLS(&tls.Config{
+			InsecureSkipVerify: !GlobalConfig.Tls.Verify})
+		opts = append(opts, grpc.WithTransportCredentials(creds))
+	} else {
+		opts = append(opts, grpc.WithInsecure())
+	}
+	ctx, cancel := context.WithTimeout(context.TODO(),
+		GlobalConfig.Grpc.ConnectTimeout)
+	defer cancel()
+	return grpc.DialContext(ctx, GlobalConfig.Server, opts...)
 }
 
 func ConvertJsonProtobufArray(data_in interface{}) (string, error) {
