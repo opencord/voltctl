@@ -16,6 +16,7 @@
 package commands
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -36,7 +37,11 @@ import (
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltctl/pkg/order"
 	"google.golang.org/grpc"
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v2"
+
+	config "github.com/opencord/voltctl/internal/pkg/apis/config"
+	v1config "github.com/opencord/voltctl/internal/pkg/apis/config/v1"
+	v2config "github.com/opencord/voltctl/internal/pkg/apis/config/v2"
 )
 
 type OutputType uint8
@@ -45,48 +50,7 @@ const (
 	OUTPUT_TABLE OutputType = iota
 	OUTPUT_JSON
 	OUTPUT_YAML
-
-	defaultApiHost = "localhost"
-	defaultApiPort = 55555
-
-	defaultKafkaHost = "localhost"
-	defaultKafkaPort = 9092
-
-	supportedKvStoreType = "etcd"
-	defaultKvHost        = "localhost"
-	defaultKvPort        = 2379
-	defaultKvTimeout     = time.Second * 5
-
-	defaultGrpcTimeout            = time.Minute * 5
-	defaultGrpcMaxCallRecvMsgSize = "4MB"
 )
-
-type GrpcConfigSpec struct {
-	Timeout            time.Duration `yaml:"timeout"`
-	MaxCallRecvMsgSize string        `yaml:"maxCallRecvMsgSize"`
-}
-
-type KvStoreConfigSpec struct {
-	Timeout time.Duration `yaml:"timeout"`
-}
-
-type TlsConfigSpec struct {
-	UseTls bool   `yaml:"useTls"`
-	CACert string `yaml:"caCert"`
-	Cert   string `yaml:"cert"`
-	Key    string `yaml:"key"`
-	Verify string `yaml:"verify"`
-}
-
-type GlobalConfigSpec struct {
-	Server        string            `yaml:"server"`
-	Kafka         string            `yaml:"kafka"`
-	KvStore       string            `yaml:"kvstore"`
-	Tls           TlsConfigSpec     `yaml:"tls"`
-	Grpc          GrpcConfigSpec    `yaml:"grpc"`
-	KvStoreConfig KvStoreConfigSpec `yaml:"kvstoreconfig"`
-	K8sConfig     string            `yaml:"-"`
-}
 
 var (
 	ParamNames = map[string]map[string]string{
@@ -105,26 +69,13 @@ var (
 
 	CharReplacer = strings.NewReplacer("\\t", "\t", "\\n", "\n")
 
-	GlobalConfig = GlobalConfigSpec{
-		Server:  "localhost:55555",
-		Kafka:   "",
-		KvStore: "localhost:2379",
-		Tls: TlsConfigSpec{
-			UseTls: false,
-		},
-		Grpc: GrpcConfigSpec{
-			Timeout:            defaultGrpcTimeout,
-			MaxCallRecvMsgSize: defaultGrpcMaxCallRecvMsgSize,
-		},
-		KvStoreConfig: KvStoreConfigSpec{
-			Timeout: defaultKvTimeout,
-		},
-	}
+	GlobalConfig config.GlobalConfigAPI
 
 	GlobalCommandOptions = make(map[string]map[string]string)
 
 	GlobalOptions struct {
 		Config  string `short:"c" long:"config" env:"VOLTCONFIG" value-name:"FILE" default:"" description:"Location of client config file"`
+		Stack   string `short:"v" long:"stack" env:"STACK" value-name:"STACK" default:"" description:"Name of stack to use in multistack deployment"`
 		Server  string `short:"s" long:"server" default:"" value-name:"SERVER:PORT" description:"IP/Host and port of VOLTHA"`
 		Kafka   string `short:"k" long:"kafka" default:"" value-name:"SERVER:PORT" description:"IP/Host and port of Kafka"`
 		KvStore string `short:"e" long:"kvstore" env:"KVSTORE" value-name:"SERVER:PORT" description:"IP/Host and port of KV store (etcd)"`
@@ -267,7 +218,7 @@ func parseSize(size string) (uint64, error) {
 	return value, nil
 }
 
-func ProcessGlobalOptions() {
+func ReadConfig() {
 	if len(GlobalOptions.Config) == 0 {
 		home, err := os.UserHomeDir()
 		if err != nil {
@@ -277,48 +228,78 @@ func ProcessGlobalOptions() {
 		GlobalOptions.Config = filepath.Join(home, ".volt", "config")
 	}
 
+	v2DefaultConfig := v2config.NewDefaultConfig()
 	if info, err := os.Stat(GlobalOptions.Config); err == nil && !info.IsDir() {
 		configFile, err := ioutil.ReadFile(GlobalOptions.Config)
 		if err != nil {
 			Error.Fatalf("Unable to read the configuration file '%s': %s",
 				GlobalOptions.Config, err.Error())
 		}
-		if err = yaml.Unmarshal(configFile, &GlobalConfig); err != nil {
-			Error.Fatalf("Unable to parse the configuration file '%s': %s",
-				GlobalOptions.Config, err.Error())
+
+		// Attempt to parse the file as version 2, if not then fallback to
+		// version 1 (and convert).
+		yDecoder := yaml.NewDecoder(bytes.NewReader(configFile))
+		yDecoder.SetStrict(true)
+		if err = yDecoder.Decode(v2DefaultConfig); err != nil {
+			Warn.Printf("Unable to parse configuration as version 2, will attempt version 1: %v", err.Error())
+			yDecoder = yaml.NewDecoder(bytes.NewReader(configFile))
+			yDecoder.SetStrict(true)
+			v1DefaultConfig := v1config.NewDefaultConfig()
+			if err = yDecoder.Decode(v1DefaultConfig); err != nil {
+				Error.Fatalf("Unable to parse the configuration file '%s': %s",
+					GlobalOptions.Config, err.Error())
+			}
+			GlobalConfig = v2config.NewFromV1(v1DefaultConfig)
+		} else {
+			GlobalConfig = v2DefaultConfig
+		}
+	} else {
+		GlobalConfig = v2DefaultConfig
+	}
+}
+
+func OverrideConfig(name string) {
+
+	// Override from command line
+	if GlobalOptions.Stack != "" {
+		if err := GlobalConfig.SetCurrentStack(GlobalOptions.Stack); err != nil {
+			Error.Fatal(err.Error())
 		}
 	}
 
-	// Override from command line
 	if GlobalOptions.Server != "" {
-		GlobalConfig.Server = GlobalOptions.Server
+		GlobalConfig.GetStackByName(name).SetServer(GlobalOptions.Server)
 	}
-	host, port, err := splitEndpoint(GlobalConfig.Server, defaultApiHost, defaultApiPort)
+
+	host, port, err := splitEndpoint(GlobalConfig.GetStackByName(name).GetServer(),
+		config.DefaultApiHost, config.DefaultApiPort)
 	if err != nil {
 		Error.Fatalf("voltha API endport incorrectly specified '%s':%s",
-			GlobalConfig.Server, err)
+			GlobalConfig.GetStackByName(name).GetServer(), err)
 	}
-	GlobalConfig.Server = net.JoinHostPort(host, strconv.Itoa(port))
+	GlobalConfig.GetStackByName(name).SetServer(net.JoinHostPort(host, strconv.Itoa(port)))
 
 	if GlobalOptions.Kafka != "" {
-		GlobalConfig.Kafka = GlobalOptions.Kafka
+		GlobalConfig.GetStackByName(name).SetKafka(GlobalOptions.Kafka)
 	}
-	host, port, err = splitEndpoint(GlobalConfig.Kafka, defaultKafkaHost, defaultKafkaPort)
+	host, port, err = splitEndpoint(GlobalConfig.GetStackByName(name).GetKafka(),
+		config.DefaultKafkaHost, config.DefaultKafkaPort)
 	if err != nil {
 		Error.Fatalf("Kafka endport incorrectly specified '%s':%s",
-			GlobalConfig.Kafka, err)
+			GlobalConfig.GetStackByName(name).GetKafka(), err)
 	}
-	GlobalConfig.Kafka = net.JoinHostPort(host, strconv.Itoa(port))
+	GlobalConfig.GetStackByName(name).SetKafka(net.JoinHostPort(host, strconv.Itoa(port)))
 
 	if GlobalOptions.KvStore != "" {
-		GlobalConfig.KvStore = GlobalOptions.KvStore
+		GlobalConfig.GetStackByName(name).SetKvStore(GlobalOptions.KvStore)
 	}
-	host, port, err = splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
+	host, port, err = splitEndpoint(GlobalConfig.GetStackByName(name).GetKvStore(),
+		config.DefaultKvHost, config.DefaultKvPort)
 	if err != nil {
 		Error.Fatalf("KV store endport incorrectly specified '%s':%s",
-			GlobalConfig.KvStore, err)
+			GlobalConfig.GetStackByName(name).GetKvStore(), err)
 	}
-	GlobalConfig.KvStore = net.JoinHostPort(host, strconv.Itoa(port))
+	GlobalConfig.GetStackByName(name).SetKvStore(net.JoinHostPort(host, strconv.Itoa(port)))
 
 	if GlobalOptions.KvStoreTimeout != "" {
 		timeout, err := time.ParseDuration(GlobalOptions.KvStoreTimeout)
@@ -326,7 +307,7 @@ func ProcessGlobalOptions() {
 			Error.Fatalf("Unable to parse specified KV strore timeout duration '%s': %s",
 				GlobalOptions.KvStoreTimeout, err.Error())
 		}
-		GlobalConfig.KvStoreConfig.Timeout = timeout
+		GlobalConfig.GetStackByName(name).SetKvStoreTimeout(timeout)
 	}
 
 	if GlobalOptions.Timeout != "" {
@@ -335,11 +316,40 @@ func ProcessGlobalOptions() {
 			Error.Fatalf("Unable to parse specified timeout duration '%s': %s",
 				GlobalOptions.Timeout, err.Error())
 		}
-		GlobalConfig.Grpc.Timeout = timeout
+		GlobalConfig.GetStackByName(name).SetGrpcTimeout(timeout)
 	}
 
 	if GlobalOptions.MaxCallRecvMsgSize != "" {
-		GlobalConfig.Grpc.MaxCallRecvMsgSize = GlobalOptions.MaxCallRecvMsgSize
+		GlobalConfig.GetStackByName(name).SetGrpcMaxCallRecvMsgSize(GlobalOptions.MaxCallRecvMsgSize)
+	}
+}
+
+func ProcessGlobalOptions() {
+	ProcessGlobalOptionsToStack("")
+}
+
+func ProcessGlobalOptionsToStack(name string) {
+
+	ReadConfig()
+	if name == "" {
+		cur := GlobalConfig.GetCurrentStack()
+		if cur == "" {
+			if GlobalOptions.Stack != "" {
+				cur = GlobalOptions.Stack
+			} else {
+				Error.Fatal("stack to use not specified")
+			}
+		}
+		if GlobalConfig.GetStackByName(cur) == nil {
+			Error.Fatal("unknown stack specified")
+		}
+		OverrideConfig(cur)
+	} else {
+		if GlobalConfig.GetStackByName(name) == nil {
+			// Doesn't exist, add it
+			GlobalConfig.AddStack(name)
+		}
+		OverrideConfig(name)
 	}
 
 	// If a k8s cert/key were not specified, then attempt to read it from
@@ -379,12 +389,15 @@ func NewConnection() (*grpc.ClientConn, error) {
 	ProcessGlobalOptions()
 
 	// convert grpc.msgSize into bytes
-	n, err := parseSize(GlobalConfig.Grpc.MaxCallRecvMsgSize)
+	n, err := parseSize(GlobalConfig.GetGrpcMaxCallRecvMsgSize())
 	if err != nil {
-		Error.Fatalf("Cannot convert msgSize %s to bytes", GlobalConfig.Grpc.MaxCallRecvMsgSize)
+		Error.Fatalf("Cannot convert msgSize %s to bytes",
+			GlobalConfig.GetGrpcMaxCallRecvMsgSize())
 	}
 
-	return grpc.Dial(GlobalConfig.Server, grpc.WithInsecure(), grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(int(n))))
+	return grpc.Dial(GlobalConfig.GetServer(),
+		grpc.WithInsecure(),
+		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(int(n))))
 }
 
 func ConvertJsonProtobufArray(data_in interface{}) (string, error) {

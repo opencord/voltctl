@@ -25,9 +25,10 @@ import (
 	"strings"
 
 	flags "github.com/jessevdk/go-flags"
+	config "github.com/opencord/voltctl/internal/pkg/apis/config"
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltctl/pkg/model"
-	"github.com/opencord/voltha-lib-go/v4/pkg/config"
+	vconfig "github.com/opencord/voltha-lib-go/v4/pkg/config"
 	"github.com/opencord/voltha-lib-go/v4/pkg/db/kvstore"
 	"github.com/opencord/voltha-lib-go/v4/pkg/log"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -249,15 +250,16 @@ func getVolthaComponentNames() []string {
 	return componentList
 }
 
-func constructConfigManager(ctx context.Context) (*config.ConfigManager, func(), error) {
-	client, err := kvstore.NewEtcdClient(ctx, GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout, log.FatalLevel)
+func constructConfigManager(ctx context.Context) (*vconfig.ConfigManager, func(), error) {
+	client, err := kvstore.NewEtcdClient(ctx, GlobalConfig.GetKvStore(), GlobalConfig.GetKvStoreTimeout(), log.FatalLevel)
 	if err != nil {
 		return nil, nil, fmt.Errorf("Unable to create kvstore client %s", err)
 	}
 
 	// Already error checked during option processing
-	host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
-	cm := config.NewConfigManager(ctx, client, supportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.KvStoreConfig.Timeout)
+	host, port, _ := splitEndpoint(GlobalConfig.GetKvStore(),
+		config.DefaultKvHost, config.DefaultKvPort)
+	cm := vconfig.NewConfigManager(ctx, client, config.SupportedKvStoreType, net.JoinHostPort(host, strconv.Itoa(port)), GlobalConfig.GetKvStoreTimeout())
 	return cm, func() { client.Close(ctx) }, nil
 }
 
@@ -269,7 +271,7 @@ func getPackageNames(componentName string) ([]string, error) {
 	ProcessGlobalOptions()
 
 	log.SetAllLogLevel(log.FatalLevel)
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetKvStoreTimeout())
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -278,7 +280,7 @@ func getPackageNames(componentName string) ([]string, error) {
 	}
 	defer cleanupFunc()
 
-	componentMetadata := cm.InitComponentConfig(componentName, config.ConfigTypeMetadata)
+	componentMetadata := cm.InitComponentConfig(componentName, vconfig.ConfigTypeMetadata)
 
 	value, err := componentMetadata.Retrieve(ctx, logPackagesListKey)
 	if err != nil || value == "" {
@@ -389,7 +391,7 @@ func (ccpn *ConfiguredComponentAndPackageName) Complete(match string) []flags.Co
 	ProcessGlobalOptions()
 
 	log.SetAllLogLevel(log.FatalLevel)
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetKvStoreTimeout())
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -399,7 +401,7 @@ func (ccpn *ConfiguredComponentAndPackageName) Complete(match string) []flags.Co
 	defer cleanupFunc()
 
 	var componentNames []string
-	componentNames, err = cm.RetrieveComponentList(ctx, config.ConfigTypeLogLevel)
+	componentNames, err = cm.RetrieveComponentList(ctx, vconfig.ConfigTypeLogLevel)
 
 	// Return nil if no component names could be fetched
 	if err != nil || len(componentNames) == 0 {
@@ -439,7 +441,7 @@ func (ccpn *ConfiguredComponentAndPackageName) Complete(match string) []flags.Co
 	base := []flags.Completion{{Item: fmt.Sprintf("%s#%s", cname, parts[1])}}
 
 	// Get list of packages configured for matching component name
-	logConfig := cm.InitComponentConfig(cname, config.ConfigTypeLogLevel)
+	logConfig := cm.InitComponentConfig(cname, vconfig.ConfigTypeLogLevel)
 	logLevels, err1 := logConfig.RetrieveAll(ctx)
 	if err1 != nil || len(logLevels) == 0 {
 		return base
@@ -571,7 +573,7 @@ func (options *SetLogLevelOpts) Execute(args []string) error {
 		return fmt.Errorf(err.Error())
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetKvStoreTimeout())
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -586,7 +588,7 @@ func (options *SetLogLevelOpts) Execute(args []string) error {
 
 	for _, lConfig := range logLevelConfig {
 
-		logConfig := cm.InitComponentConfig(lConfig.ComponentName, config.ConfigTypeLogLevel)
+		logConfig := cm.InitComponentConfig(lConfig.ComponentName, vconfig.ConfigTypeLogLevel)
 		err := logConfig.Save(ctx, strings.ReplaceAll(lConfig.PackageName, "/", "#"), strings.ToUpper(string(options.Args.Level)))
 
 		if err != nil {
@@ -673,7 +675,7 @@ func (options *ListLogLevelsOpts) Execute(args []string) error {
 	ProcessGlobalOptions()
 
 	log.SetAllLogLevel(log.FatalLevel)
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetKvStoreTimeout())
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -683,9 +685,10 @@ func (options *ListLogLevelsOpts) Execute(args []string) error {
 	defer cleanupFunc()
 
 	if len(options.Args.Component) == 0 {
-		componentList, err = cm.RetrieveComponentList(ctx, config.ConfigTypeLogLevel)
+		componentList, err = cm.RetrieveComponentList(ctx, vconfig.ConfigTypeLogLevel)
 		if err != nil {
-			host, port, _ := splitEndpoint(GlobalConfig.KvStore, defaultKvHost, defaultKvPort)
+			host, port, _ := splitEndpoint(GlobalConfig.GetKvStore(),
+				config.DefaultKvHost, config.DefaultKvPort)
 			return fmt.Errorf("Unable to retrieve list of voltha components : %s \nIs ETCD available at %s:%d?", err, host, port)
 		}
 	} else {
@@ -695,7 +698,7 @@ func (options *ListLogLevelsOpts) Execute(args []string) error {
 	validComponents := getVolthaComponentNames()
 
 	for _, componentName := range componentList {
-		logConfig := cm.InitComponentConfig(componentName, config.ConfigTypeLogLevel)
+		logConfig := cm.InitComponentConfig(componentName, vconfig.ConfigTypeLogLevel)
 
 		logLevelConfig, err = logConfig.RetrieveAll(ctx)
 		if err != nil {
@@ -792,7 +795,7 @@ func (options *ClearLogLevelsOpts) Execute(args []string) error {
 		return fmt.Errorf("%s", err)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetKvStoreTimeout())
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -809,7 +812,7 @@ func (options *ClearLogLevelsOpts) Execute(args []string) error {
 			return fmt.Errorf("The global default loglevel cannot be cleared.")
 		}
 
-		logConfig := cm.InitComponentConfig(lConfig.ComponentName, config.ConfigTypeLogLevel)
+		logConfig := cm.InitComponentConfig(lConfig.ComponentName, vconfig.ConfigTypeLogLevel)
 
 		err := logConfig.Delete(ctx, strings.ReplaceAll(lConfig.PackageName, "/", "#"))
 		if err != nil {
@@ -853,7 +856,7 @@ func (options *ListLogPackagesOpts) Execute(args []string) error {
 	ProcessGlobalOptions()
 
 	log.SetAllLogLevel(log.FatalLevel)
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetKvStoreTimeout())
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -863,7 +866,7 @@ func (options *ListLogPackagesOpts) Execute(args []string) error {
 	defer cleanupFunc()
 
 	if len(options.Args.Component) == 0 {
-		componentList, err = cm.RetrieveComponentList(ctx, config.ConfigTypeLogLevel)
+		componentList, err = cm.RetrieveComponentList(ctx, vconfig.ConfigTypeLogLevel)
 		if err != nil {
 			return fmt.Errorf("Unable to retrieve list of voltha components : %s ", err)
 		}
@@ -879,7 +882,7 @@ func (options *ListLogPackagesOpts) Execute(args []string) error {
 	}
 
 	for _, componentName := range componentList {
-		componentMetadata := cm.InitComponentConfig(componentName, config.ConfigTypeMetadata)
+		componentMetadata := cm.InitComponentConfig(componentName, vconfig.ConfigTypeMetadata)
 
 		value, err := componentMetadata.Retrieve(ctx, logPackagesListKey)
 		if err != nil || value == "" {
@@ -930,7 +933,7 @@ func (options *EnableLogTracingOpts) Execute(args []string) error {
 
 	log.SetAllLogLevel(log.FatalLevel)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetKvStoreTimeout())
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -944,7 +947,7 @@ func (options *EnableLogTracingOpts) Execute(args []string) error {
 
 	if len(options.Args.Component) == 0 {
 		// Apply to all components if no specific component has been indicated
-		componentNames, err = cm.RetrieveComponentList(ctx, config.ConfigTypeLogFeatures)
+		componentNames, err = cm.RetrieveComponentList(ctx, vconfig.ConfigTypeLogFeatures)
 		if err != nil {
 			return fmt.Errorf("Unable to retrieve list of voltha components : %s ", err)
 		}
@@ -959,9 +962,9 @@ func (options *EnableLogTracingOpts) Execute(args []string) error {
 
 	for _, component := range componentNames {
 
-		config := cm.InitComponentConfig(component, config.ConfigTypeLogFeatures)
+		lconfig := cm.InitComponentConfig(component, vconfig.ConfigTypeLogFeatures)
 
-		err := config.Save(ctx, logTracingStatusKey, "ENABLED")
+		err := lconfig.Save(ctx, logTracingStatusKey, "ENABLED")
 		if err != nil {
 			output = append(output, LogLevelOutput{ComponentName: component, Status: "Failure", Error: err.Error()})
 			continue
@@ -1009,7 +1012,7 @@ func (options *DisableLogTracingOpts) Execute(args []string) error {
 
 	log.SetAllLogLevel(log.FatalLevel)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetKvStoreTimeout())
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -1023,7 +1026,7 @@ func (options *DisableLogTracingOpts) Execute(args []string) error {
 
 	if len(options.Args.Component) == 0 {
 		// Apply to all components if no specific component has been indicated
-		componentNames, err = cm.RetrieveComponentList(ctx, config.ConfigTypeLogFeatures)
+		componentNames, err = cm.RetrieveComponentList(ctx, vconfig.ConfigTypeLogFeatures)
 		if err != nil {
 			return fmt.Errorf("Unable to retrieve list of voltha components : %s ", err)
 		}
@@ -1038,9 +1041,9 @@ func (options *DisableLogTracingOpts) Execute(args []string) error {
 
 	for _, component := range componentNames {
 
-		config := cm.InitComponentConfig(component, config.ConfigTypeLogFeatures)
+		lconfig := cm.InitComponentConfig(component, vconfig.ConfigTypeLogFeatures)
 
-		err := config.Save(ctx, logTracingStatusKey, "DISABLED")
+		err := lconfig.Save(ctx, logTracingStatusKey, "DISABLED")
 
 		if err != nil {
 			output = append(output, LogLevelOutput{ComponentName: component, Status: "Failure", Error: err.Error()})
@@ -1090,7 +1093,7 @@ func (options *ListLogTracingOpts) Execute(args []string) error {
 
 	log.SetAllLogLevel(log.FatalLevel)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetKvStoreTimeout())
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -1102,7 +1105,7 @@ func (options *ListLogTracingOpts) Execute(args []string) error {
 	var componentNames []string
 	if len(options.Args.Component) == 0 {
 		// Apply to all components if no specific component has been indicated
-		componentNames, err = cm.RetrieveComponentList(ctx, config.ConfigTypeLogFeatures)
+		componentNames, err = cm.RetrieveComponentList(ctx, vconfig.ConfigTypeLogFeatures)
 		if err != nil {
 			return fmt.Errorf("Unable to retrieve list of voltha components : %s ", err)
 		}
@@ -1118,9 +1121,9 @@ func (options *ListLogTracingOpts) Execute(args []string) error {
 
 	for _, component := range componentNames {
 
-		config := cm.InitComponentConfig(component, config.ConfigTypeLogFeatures)
+		lconfig := cm.InitComponentConfig(component, vconfig.ConfigTypeLogFeatures)
 
-		value, err := config.Retrieve(ctx, logTracingStatusKey)
+		value, err := lconfig.Retrieve(ctx, logTracingStatusKey)
 		if err != nil || value == "" {
 			// Ignore any error in retrieval; move to next component
 			continue
@@ -1174,7 +1177,7 @@ func (options *EnableLogCorrelationOpts) Execute(args []string) error {
 	ProcessGlobalOptions()
 
 	log.SetAllLogLevel(log.FatalLevel)
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetKvStoreTimeout())
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -1188,7 +1191,7 @@ func (options *EnableLogCorrelationOpts) Execute(args []string) error {
 
 	if len(options.Args.Component) == 0 {
 		// Apply to all components if no specific component has been indicated
-		componentNames, err = cm.RetrieveComponentList(ctx, config.ConfigTypeLogFeatures)
+		componentNames, err = cm.RetrieveComponentList(ctx, vconfig.ConfigTypeLogFeatures)
 		if err != nil {
 			return fmt.Errorf("Unable to retrieve list of voltha components : %s ", err)
 		}
@@ -1201,8 +1204,8 @@ func (options *EnableLogCorrelationOpts) Execute(args []string) error {
 	validComponents := getVolthaComponentNames()
 
 	for _, component := range componentNames {
-		config := cm.InitComponentConfig(component, config.ConfigTypeLogFeatures)
-		err := config.Save(ctx, logCorrelationStatusKey, "ENABLED")
+		lconfig := cm.InitComponentConfig(component, vconfig.ConfigTypeLogFeatures)
+		err := lconfig.Save(ctx, logCorrelationStatusKey, "ENABLED")
 
 		if err != nil {
 			output = append(output, LogLevelOutput{ComponentName: component, Status: "Failure", Error: err.Error()})
@@ -1249,7 +1252,7 @@ func (options *DisableLogCorrelationOpts) Execute(args []string) error {
 	ProcessGlobalOptions()
 
 	log.SetAllLogLevel(log.FatalLevel)
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetKvStoreTimeout())
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -1263,7 +1266,7 @@ func (options *DisableLogCorrelationOpts) Execute(args []string) error {
 
 	if len(options.Args.Component) == 0 {
 		// Apply to all components if no specific component has been indicated
-		componentNames, err = cm.RetrieveComponentList(ctx, config.ConfigTypeLogFeatures)
+		componentNames, err = cm.RetrieveComponentList(ctx, vconfig.ConfigTypeLogFeatures)
 		if err != nil {
 			return fmt.Errorf("Unable to retrieve list of voltha components : %s ", err)
 		}
@@ -1277,8 +1280,8 @@ func (options *DisableLogCorrelationOpts) Execute(args []string) error {
 
 	for _, component := range componentNames {
 
-		config := cm.InitComponentConfig(component, config.ConfigTypeLogFeatures)
-		err := config.Save(ctx, logCorrelationStatusKey, "DISABLED")
+		lconfig := cm.InitComponentConfig(component, vconfig.ConfigTypeLogFeatures)
+		err := lconfig.Save(ctx, logCorrelationStatusKey, "DISABLED")
 
 		if err != nil {
 			output = append(output, LogLevelOutput{ComponentName: component, Status: "Failure", Error: err.Error()})
@@ -1323,7 +1326,7 @@ func (options *DisableLogCorrelationOpts) Execute(args []string) error {
 func (options *ListLogCorrelationOpts) Execute(args []string) error {
 	ProcessGlobalOptions()
 	log.SetAllLogLevel(log.FatalLevel)
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetKvStoreTimeout())
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -1335,7 +1338,7 @@ func (options *ListLogCorrelationOpts) Execute(args []string) error {
 	var componentNames []string
 	if len(options.Args.Component) == 0 {
 		// Apply to all components if no specific component has been indicated
-		componentNames, err = cm.RetrieveComponentList(ctx, config.ConfigTypeLogFeatures)
+		componentNames, err = cm.RetrieveComponentList(ctx, vconfig.ConfigTypeLogFeatures)
 		if err != nil {
 			return fmt.Errorf("Unable to retrieve list of voltha components : %s ", err)
 		}
@@ -1349,8 +1352,8 @@ func (options *ListLogCorrelationOpts) Execute(args []string) error {
 	data := []model.LogFeature{}
 
 	for _, component := range componentNames {
-		config := cm.InitComponentConfig(component, config.ConfigTypeLogFeatures)
-		value, err := config.Retrieve(ctx, logCorrelationStatusKey)
+		lconfig := cm.InitComponentConfig(component, vconfig.ConfigTypeLogFeatures)
+		value, err := lconfig.Retrieve(ctx, logCorrelationStatusKey)
 		if err != nil || value == "" {
 			// Ignore any error in retrieval; move to next component
 			continue
