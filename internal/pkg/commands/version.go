@@ -135,7 +135,7 @@ func (options *VersionOpts) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 
 	voltha, err := client.GetVoltha(ctx, &empty.Empty{})

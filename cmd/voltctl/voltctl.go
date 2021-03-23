@@ -58,6 +58,8 @@ func main() {
 	if err != nil {
 		commands.Error.Fatalf("Unable to parse global command options: %s", err.Error())
 	}
+
+	commands.RegisterStackCommands(parser)
 	commands.RegisterAdapterCommands(parser)
 	commands.RegisterDeviceCommands(parser)
 	commands.RegisterLogicalDeviceCommands(parser)

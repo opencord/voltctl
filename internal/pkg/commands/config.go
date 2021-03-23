@@ -17,8 +17,9 @@ package commands
 
 import (
 	"fmt"
+
 	flags "github.com/jessevdk/go-flags"
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v2"
 )
 
 const copyrightNotice = `

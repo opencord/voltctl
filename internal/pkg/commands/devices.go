@@ -366,7 +366,7 @@ found:
 		return nil
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 
 	id := voltha.ID{Id: string(deviceId)}
@@ -419,7 +419,7 @@ found:
 		return nil
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 
 	id := voltha.ID{Id: string(deviceId)}
@@ -477,7 +477,7 @@ found:
 		return nil
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 
 	id := voltha.ID{Id: string(deviceId)}
@@ -507,7 +507,7 @@ func (i *DeviceId) Complete(match string) []flags.Completion {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 
 	devices, err := client.ListDevices(ctx, &empty.Empty{})
@@ -535,7 +535,7 @@ func (options *DeviceList) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 
 	devices, err := client.ListDevices(ctx, &empty.Empty{})
@@ -597,7 +597,7 @@ func (options *DeviceCreate) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 
 	createdDevice, err := client.CreateDevice(ctx, &device)
@@ -621,7 +621,7 @@ func (options *DeviceDelete) Execute(args []string) error {
 	client := voltha.NewVolthaServiceClient(conn)
 	var lastErr error
 	for _, i := range options.Args.Ids {
-		ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+		ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 		defer cancel()
 
 		id := voltha.ID{Id: string(i)}
@@ -656,7 +656,7 @@ func (options *DeviceEnable) Execute(args []string) error {
 
 	var lastErr error
 	for _, i := range options.Args.Ids {
-		ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+		ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 		defer cancel()
 
 		id := voltha.ID{Id: string(i)}
@@ -687,7 +687,7 @@ func (options *DeviceDisable) Execute(args []string) error {
 
 	var lastErr error
 	for _, i := range options.Args.Ids {
-		ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+		ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 		defer cancel()
 
 		id := voltha.ID{Id: string(i)}
@@ -718,7 +718,7 @@ func (options *DeviceReboot) Execute(args []string) error {
 
 	var lastErr error
 	for _, i := range options.Args.Ids {
-		ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+		ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 		defer cancel()
 
 		id := voltha.ID{Id: string(i)}
@@ -748,7 +748,7 @@ func (options *DevicePortList) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 
 	id := voltha.ID{Id: string(options.Args.Id)}
@@ -803,7 +803,7 @@ func (options *DeviceInspect) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 
 	id := voltha.ID{Id: string(options.Args.Id)}
@@ -841,7 +841,7 @@ func (options *DevicePortEnable) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 
 	port := voltha.Port{DeviceId: string(options.Args.Id), PortNo: uint32(options.Args.PortId)}
@@ -865,7 +865,7 @@ func (options *DevicePortDisable) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 
 	port := voltha.Port{DeviceId: string(options.Args.Id), PortNo: uint32(options.Args.PortId)}
@@ -888,7 +888,7 @@ func (options *DevicePmConfigSetMaxSkew) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 
 	id := voltha.ID{Id: string(options.Args.Id)}
@@ -918,7 +918,7 @@ func (options *DevicePmConfigsGet) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 
 	id := voltha.ID{Id: string(options.Args.Id)}
@@ -962,7 +962,7 @@ func (options *DevicePmConfigMetricList) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 
 	id := voltha.ID{Id: string(options.Args.Id)}
@@ -1014,7 +1014,7 @@ func (options *DevicePmConfigMetricEnable) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 
 	id := voltha.ID{Id: string(options.Args.Id)}
@@ -1061,7 +1061,7 @@ func (options *DevicePmConfigMetricDisable) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 
 	id := voltha.ID{Id: string(options.Args.Id)}
@@ -1109,7 +1109,7 @@ func (options *DevicePmConfigGroupEnable) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 
 	id := voltha.ID{Id: string(options.Args.Id)}
@@ -1152,7 +1152,7 @@ func (options *DevicePmConfigGroupDisable) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 
 	id := voltha.ID{Id: string(options.Args.Id)}
@@ -1197,7 +1197,7 @@ func (options *DevicePmConfigGroupFrequencySet) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 
 	id := voltha.ID{Id: string(options.Args.Id)}
@@ -1245,7 +1245,7 @@ func (options *DevicePmConfigGroupList) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 
 	id := voltha.ID{Id: string(options.Args.Id)}
@@ -1298,7 +1298,7 @@ func (options *DevicePmConfigGroupMetricList) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 
 	id := voltha.ID{Id: string(options.Args.Id)}
@@ -1356,7 +1356,7 @@ func (options *DevicePmConfigFrequencySet) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 
 	id := voltha.ID{Id: string(options.Args.Id)}
@@ -1403,7 +1403,7 @@ func (options *DeviceOnuListImages) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 
 	id := common.ID{Id: string(options.Args.Id)}
@@ -1451,7 +1451,7 @@ func (options *DeviceOnuDownloadImage) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 
 	downloadImage := voltha.ImageDownload{
@@ -1481,7 +1481,7 @@ func (options *DeviceOnuActivateImageUpdate) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 
 	downloadImage := voltha.ImageDownload{
@@ -1536,7 +1536,7 @@ func (options *DeviceGetPortStats) Execute(args []string) error {
 		},
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 	rv, err := client.GetExtValue(ctx, &singleGetValReq)
 	if err != nil {
@@ -1581,7 +1581,7 @@ func (options *UniStatus) Execute(args []string) error {
 			},
 		},
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 	rv, err := client.GetExtValue(ctx, &singleGetValReq)
 	if err != nil {
@@ -1622,7 +1622,7 @@ func (options *DeviceGetExtValue) Execute(args []string) error {
 
 	val := voltha.ValueSpecifier{Id: string(options.Args.Id), Value: common.ValueType_Type(valueflag)}
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.GetGrpcTimeout())
 	defer cancel()
 
 	rv, err := client.GetExtValue(ctx, &val)

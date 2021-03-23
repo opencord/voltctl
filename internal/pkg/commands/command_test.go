@@ -16,11 +16,12 @@
 package commands
 
 import (
-	flags "github.com/jessevdk/go-flags"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"path"
 	"testing"
+
+	flags "github.com/jessevdk/go-flags"
+	"github.com/stretchr/testify/assert"
 )
 
 // Test that ProcessGlobalOptions does not interfere with GlobalConfig
@@ -36,7 +37,7 @@ func TestProcessGlobalOptionsWithDefaults(t *testing.T) {
 	assert.Nil(t, err, "unexpected error paring arguments")
 	ProcessGlobalOptions()
 
-	assert.Equal(t, "localhost:55555", GlobalConfig.Server, "wrong default hostname for server")
+	assert.Equal(t, "localhost:55555", GlobalConfig.GetServer(), "wrong default hostname for server")
 }
 
 func TestSplitHostPort(t *testing.T) {
