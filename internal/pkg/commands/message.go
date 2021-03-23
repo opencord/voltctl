@@ -19,6 +19,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
+	"os"
+	"os/signal"
+	"strings"
+	"time"
+
 	"github.com/Shopify/sarama"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
@@ -27,11 +33,6 @@ import (
 	"github.com/opencord/voltctl/pkg/filter"
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltha-protos/v4/go/inter_container"
-	"log"
-	"os"
-	"os/signal"
-	"strings"
-	"time"
 )
 
 /*
@@ -353,7 +354,7 @@ func (options *MessageListenOpts) FinishOutput() {
 
 func (options *MessageListenOpts) Execute(args []string) error {
 	ProcessGlobalOptions()
-	if GlobalConfig.Kafka == "" {
+	if GlobalConfig.GetKafka() == "" {
 		return errors.New("Kafka address is not specified")
 	}
 
@@ -361,7 +362,7 @@ func (options *MessageListenOpts) Execute(args []string) error {
 	config.ClientID = "go-kafka-consumer"
 	config.Consumer.Return.Errors = true
 	config.Version = sarama.V1_0_0_0
-	brokers := []string{GlobalConfig.Kafka}
+	brokers := []string{GlobalConfig.GetKafka()}
 
 	client, err := sarama.NewClient(brokers, config)
 	if err != nil {
