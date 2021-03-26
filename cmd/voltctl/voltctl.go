@@ -69,6 +69,7 @@ func main() {
 	commands.RegisterLogCommands(parser)
 	commands.RegisterEventCommands(parser)
 	commands.RegisterMessageCommands(parser)
+	commands.RegisterStackCommands(parser)
 
 	_, err = parser.Parse()
 	if err != nil {

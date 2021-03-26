@@ -353,7 +353,7 @@ func (options *MessageListenOpts) FinishOutput() {
 
 func (options *MessageListenOpts) Execute(args []string) error {
 	ProcessGlobalOptions()
-	if GlobalConfig.Kafka == "" {
+	if GlobalConfig.Current().Kafka == "" {
 		return errors.New("Kafka address is not specified")
 	}
 
@@ -361,7 +361,7 @@ func (options *MessageListenOpts) Execute(args []string) error {
 	config.ClientID = "go-kafka-consumer"
 	config.Consumer.Return.Errors = true
 	config.Version = sarama.V1_0_0_0
-	brokers := []string{GlobalConfig.Kafka}
+	brokers := []string{GlobalConfig.Current().Kafka}
 
 	client, err := sarama.NewClient(brokers, config)
 	if err != nil {

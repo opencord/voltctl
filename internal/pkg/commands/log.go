@@ -251,15 +251,15 @@ func getVolthaComponentNames() []string {
 
 func constructConfigManager(ctx context.Context) (*config.ConfigManager, func(), error) {
 	var tlsConfig *tls.Config
-	if GlobalConfig.Tls.UseTls {
-		tlsConfig = &tls.Config{InsecureSkipVerify: !GlobalConfig.Tls.Verify}
+	if GlobalConfig.Current().Tls.UseTls {
+		tlsConfig = &tls.Config{InsecureSkipVerify: !GlobalConfig.Current().Tls.Verify}
 	}
 	logconfig := log.ConstructZapConfig(log.JSON, log.FatalLevel, log.Fields{})
 	client, err := kvstore.NewEtcdCustomClient(
 		ctx,
 		&v3Client.Config{
-			Endpoints:   []string{GlobalConfig.KvStore},
-			DialTimeout: GlobalConfig.KvStoreConfig.Timeout,
+			Endpoints:   []string{GlobalConfig.Current().KvStore},
+			DialTimeout: GlobalConfig.Current().KvStoreConfig.Timeout,
 			LogConfig:   &logconfig,
 			TLS:         tlsConfig,
 		})
@@ -267,7 +267,7 @@ func constructConfigManager(ctx context.Context) (*config.ConfigManager, func(),
 		return nil, nil, fmt.Errorf("Unable to create kvstore client %s", err)
 	}
 
-	cm := config.NewConfigManager(ctx, client, supportedKvStoreType, GlobalConfig.KvStore, GlobalConfig.KvStoreConfig.Timeout)
+	cm := config.NewConfigManager(ctx, client, supportedKvStoreType, GlobalConfig.Current().KvStore, GlobalConfig.Current().KvStoreConfig.Timeout)
 	return cm, func() { client.Close(ctx) }, nil
 }
 
@@ -279,7 +279,7 @@ func getPackageNames(componentName string) ([]string, error) {
 	ProcessGlobalOptions()
 
 	log.SetAllLogLevel(log.FatalLevel)
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().KvStoreConfig.Timeout)
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -399,7 +399,7 @@ func (ccpn *ConfiguredComponentAndPackageName) Complete(match string) []flags.Co
 	ProcessGlobalOptions()
 
 	log.SetAllLogLevel(log.FatalLevel)
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().KvStoreConfig.Timeout)
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -581,7 +581,7 @@ func (options *SetLogLevelOpts) Execute(args []string) error {
 		return fmt.Errorf(err.Error())
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().KvStoreConfig.Timeout)
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -683,7 +683,7 @@ func (options *ListLogLevelsOpts) Execute(args []string) error {
 	ProcessGlobalOptions()
 
 	log.SetAllLogLevel(log.FatalLevel)
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().KvStoreConfig.Timeout)
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -695,7 +695,7 @@ func (options *ListLogLevelsOpts) Execute(args []string) error {
 	if len(options.Args.Component) == 0 {
 		componentList, err = cm.RetrieveComponentList(ctx, config.ConfigTypeLogLevel)
 		if err != nil {
-			return fmt.Errorf("Unable to retrieve list of voltha components : %s \nIs ETCD available at %s?", err, GlobalConfig.KvStore)
+			return fmt.Errorf("Unable to retrieve list of voltha components : %s \nIs ETCD available at %s?", err, GlobalConfig.Current().KvStore)
 		}
 	} else {
 		componentList = toStringArray(options.Args.Component)
@@ -801,7 +801,7 @@ func (options *ClearLogLevelsOpts) Execute(args []string) error {
 		return fmt.Errorf("%s", err)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().KvStoreConfig.Timeout)
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -862,7 +862,7 @@ func (options *ListLogPackagesOpts) Execute(args []string) error {
 	ProcessGlobalOptions()
 
 	log.SetAllLogLevel(log.FatalLevel)
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().KvStoreConfig.Timeout)
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -939,7 +939,7 @@ func (options *EnableLogTracingOpts) Execute(args []string) error {
 
 	log.SetAllLogLevel(log.FatalLevel)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().KvStoreConfig.Timeout)
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -1018,7 +1018,7 @@ func (options *DisableLogTracingOpts) Execute(args []string) error {
 
 	log.SetAllLogLevel(log.FatalLevel)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().KvStoreConfig.Timeout)
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -1099,7 +1099,7 @@ func (options *ListLogTracingOpts) Execute(args []string) error {
 
 	log.SetAllLogLevel(log.FatalLevel)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().KvStoreConfig.Timeout)
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -1183,7 +1183,7 @@ func (options *EnableLogCorrelationOpts) Execute(args []string) error {
 	ProcessGlobalOptions()
 
 	log.SetAllLogLevel(log.FatalLevel)
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().KvStoreConfig.Timeout)
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -1258,7 +1258,7 @@ func (options *DisableLogCorrelationOpts) Execute(args []string) error {
 	ProcessGlobalOptions()
 
 	log.SetAllLogLevel(log.FatalLevel)
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().KvStoreConfig.Timeout)
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)
@@ -1332,7 +1332,7 @@ func (options *DisableLogCorrelationOpts) Execute(args []string) error {
 func (options *ListLogCorrelationOpts) Execute(args []string) error {
 	ProcessGlobalOptions()
 	log.SetAllLogLevel(log.FatalLevel)
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.KvStoreConfig.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().KvStoreConfig.Timeout)
 	defer cancel()
 
 	cm, cleanupFunc, err := constructConfigManager(ctx)

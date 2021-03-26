@@ -116,7 +116,7 @@ func (options *FlowList) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
 	defer cancel()
 
 	id := voltha.ID{Id: string(options.Args.Id)}

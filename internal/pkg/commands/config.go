@@ -36,10 +36,7 @@ const copyrightNotice = `# Copyright 2021-present Ciena Corporation
 # See the License for the specific language governing permissions and
 # limitations under the License.`
 
-type CommandOptionsDump struct{}
-
 type ConfigOptions struct {
-	Commands CommandOptionsDump `command:"commands"`
 }
 
 func RegisterConfigCommands(parent *flags.Parser) {
@@ -51,20 +48,9 @@ func RegisterConfigCommands(parent *flags.Parser) {
 }
 
 func (options *ConfigOptions) Execute(args []string) error {
-	//GlobalConfig
-	ProcessGlobalOptions()
+	ReadConfig()
+	ApplyOptionOverrides(nil)
 	b, err := yaml.Marshal(GlobalConfig)
-	if err != nil {
-		return err
-	}
-	fmt.Println(copyrightNotice)
-	fmt.Println(string(b))
-	return nil
-}
-
-func (commands *CommandOptionsDump) Execute(args []string) error {
-	ProcessGlobalOptions()
-	b, err := yaml.Marshal(GlobalCommandOptions)
 	if err != nil {
 		return err
 	}

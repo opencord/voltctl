@@ -89,7 +89,7 @@ func (i *LogicalDeviceId) Complete(match string) []flags.Completion {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
 	defer cancel()
 
 	logicalDevices, err := client.ListLogicalDevices(ctx, &empty.Empty{})
@@ -117,7 +117,7 @@ func (options *LogicalDeviceList) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
 	defer cancel()
 
 	logicalDevices, err := client.ListLogicalDevices(ctx, &empty.Empty{})
@@ -165,7 +165,7 @@ func (options *LogicalDevicePortList) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
 	defer cancel()
 
 	id := voltha.ID{Id: string(options.Args.Id)}
@@ -232,7 +232,7 @@ func (options *LogicalDeviceInspect) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
 	defer cancel()
 
 	id := voltha.ID{Id: string(options.Args.Id)}

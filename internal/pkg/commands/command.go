@@ -35,6 +35,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	configv1 "github.com/opencord/voltctl/internal/pkg/apis/config/v1"
 	configv2 "github.com/opencord/voltctl/internal/pkg/apis/config/v2"
+	configv3 "github.com/opencord/voltctl/internal/pkg/apis/config/v3"
 	"github.com/opencord/voltctl/pkg/filter"
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltctl/pkg/order"
@@ -70,12 +71,13 @@ var (
 
 	CharReplacer = strings.NewReplacer("\\t", "\t", "\\n", "\n")
 
-	GlobalConfig = configv2.NewDefaultConfig()
+	GlobalConfig = configv3.NewDefaultConfig()
 
 	GlobalCommandOptions = make(map[string]map[string]string)
 
 	GlobalOptions struct {
 		Config  string `short:"c" long:"config" env:"VOLTCONFIG" value-name:"FILE" default:"" description:"Location of client config file"`
+		Stack   string `short:"v" long:"stack" env:"STACK" value-name:"STACK" default:"" description:"Name of stack to use in multistack deployment"`
 		Server  string `short:"s" long:"server" default:"" value-name:"SERVER:PORT" description:"IP/Host and port of VOLTHA"`
 		Kafka   string `short:"k" long:"kafka" default:"" value-name:"SERVER:PORT" description:"IP/Host and port of Kafka"`
 		KvStore string `short:"e" long:"kvstore" env:"KVSTORE" value-name:"SERVER:PORT" description:"IP/Host and port of KV store (etcd)"`
@@ -194,75 +196,18 @@ func parseSize(size string) (uint64, error) {
 }
 
 func ProcessGlobalOptions() {
-	if len(GlobalOptions.Config) == 0 {
-		home, err := os.UserHomeDir()
-		if err != nil {
-			Warn.Printf("Unable to discover the user's home directory: %s", err)
-			home = "~"
+	ReadConfig()
+
+	// If a stack is selected via command line set it
+	if GlobalOptions.Stack != "" {
+		if GlobalConfig.StackByName(GlobalOptions.Stack) == nil {
+			Error.Fatalf("stack specified, '%s', not found in configuration",
+				GlobalOptions.Stack)
 		}
-		GlobalOptions.Config = filepath.Join(home, ".volt", "config")
+		GlobalConfig.CurrentStack = GlobalOptions.Stack
 	}
 
-	if info, err := os.Stat(GlobalOptions.Config); err == nil && !info.IsDir() {
-		configFile, err := ioutil.ReadFile(GlobalOptions.Config)
-		if err != nil {
-			Error.Fatalf("Unable to read the configuration file '%s': %s",
-				GlobalOptions.Config, err.Error())
-		}
-		// First try the latest version of the config api then work
-		// backwards
-		if err = yaml.Unmarshal(configFile, &GlobalConfig); err != nil {
-			GlobalConfigV1 := configv1.NewDefaultConfig()
-			if err = yaml.Unmarshal(configFile, &GlobalConfigV1); err != nil {
-				Error.Fatalf("Unable to parse the configuration file '%s': %s",
-					GlobalOptions.Config, err.Error())
-			}
-			GlobalConfig = configv2.FromConfigV1(GlobalConfigV1)
-		}
-	}
-
-	// Override from command line
-	if GlobalOptions.Server != "" {
-		GlobalConfig.Server = GlobalOptions.Server
-	}
-
-	if GlobalOptions.UseTLS {
-		GlobalConfig.Tls.UseTls = true
-	}
-
-	if GlobalOptions.Verify {
-		GlobalConfig.Tls.Verify = true
-	}
-
-	if GlobalOptions.Kafka != "" {
-		GlobalConfig.Kafka = GlobalOptions.Kafka
-	}
-
-	if GlobalOptions.KvStore != "" {
-		GlobalConfig.KvStore = GlobalOptions.KvStore
-	}
-
-	if GlobalOptions.KvStoreTimeout != "" {
-		timeout, err := time.ParseDuration(GlobalOptions.KvStoreTimeout)
-		if err != nil {
-			Error.Fatalf("Unable to parse specified KV strore timeout duration '%s': %s",
-				GlobalOptions.KvStoreTimeout, err.Error())
-		}
-		GlobalConfig.KvStoreConfig.Timeout = timeout
-	}
-
-	if GlobalOptions.Timeout != "" {
-		timeout, err := time.ParseDuration(GlobalOptions.Timeout)
-		if err != nil {
-			Error.Fatalf("Unable to parse specified timeout duration '%s': %s",
-				GlobalOptions.Timeout, err.Error())
-		}
-		GlobalConfig.Grpc.Timeout = timeout
-	}
-
-	if GlobalOptions.MaxCallRecvMsgSize != "" {
-		GlobalConfig.Grpc.MaxCallRecvMsgSize = GlobalOptions.MaxCallRecvMsgSize
-	}
+	ApplyOptionOverrides(GlobalConfig.Current())
 
 	// If a k8s cert/key were not specified, then attempt to read it from
 	// any $HOME/.kube/config if it exists
@@ -297,13 +242,98 @@ func ProcessGlobalOptions() {
 	}
 }
 
+func ApplyOptionOverrides(stack *configv3.StackConfigSpec) {
+
+	if stack == nil {
+		// nothing to do
+		return
+	}
+	// Override from command line
+	if GlobalOptions.Server != "" {
+		stack.Server = GlobalOptions.Server
+	}
+
+	if GlobalOptions.UseTLS {
+		stack.Tls.UseTls = true
+	}
+
+	if GlobalOptions.Verify {
+		stack.Tls.Verify = true
+	}
+
+	if GlobalOptions.Kafka != "" {
+		stack.Kafka = GlobalOptions.Kafka
+	}
+
+	if GlobalOptions.KvStore != "" {
+		stack.KvStore = GlobalOptions.KvStore
+	}
+
+	if GlobalOptions.KvStoreTimeout != "" {
+		timeout, err := time.ParseDuration(GlobalOptions.KvStoreTimeout)
+		if err != nil {
+			Error.Fatalf("Unable to parse specified KV strore timeout duration '%s': %s",
+				GlobalOptions.KvStoreTimeout, err.Error())
+		}
+		stack.KvStoreConfig.Timeout = timeout
+	}
+
+	if GlobalOptions.Timeout != "" {
+		timeout, err := time.ParseDuration(GlobalOptions.Timeout)
+		if err != nil {
+			Error.Fatalf("Unable to parse specified timeout duration '%s': %s",
+				GlobalOptions.Timeout, err.Error())
+		}
+		stack.Grpc.Timeout = timeout
+	}
+
+	if GlobalOptions.MaxCallRecvMsgSize != "" {
+		stack.Grpc.MaxCallRecvMsgSize = GlobalOptions.MaxCallRecvMsgSize
+	}
+}
+
+func ReadConfig() {
+	if len(GlobalOptions.Config) == 0 {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			Warn.Printf("Unable to discover the user's home directory: %s", err)
+			home = "~"
+		}
+		GlobalOptions.Config = filepath.Join(home, ".volt", "config")
+	}
+
+	if info, err := os.Stat(GlobalOptions.Config); err == nil && !info.IsDir() {
+		configFile, err := ioutil.ReadFile(GlobalOptions.Config)
+		if err != nil {
+			Error.Fatalf("Unable to read the configuration file '%s': %s",
+				GlobalOptions.Config, err.Error())
+		}
+		// First try the latest version of the config api then work
+		// backwards
+		if err = yaml.Unmarshal(configFile, &GlobalConfig); err != nil {
+			GlobalConfigV2 := configv2.NewDefaultConfig()
+			if err = yaml.Unmarshal(configFile, &GlobalConfigV2); err != nil {
+				GlobalConfigV1 := configv1.NewDefaultConfig()
+				if err = yaml.Unmarshal(configFile, &GlobalConfigV1); err != nil {
+					Error.Fatalf("Unable to parse the configuration file '%s': %s",
+						GlobalOptions.Config, err.Error())
+				}
+				GlobalConfig = configv3.FromConfigV1(GlobalConfigV1)
+			} else {
+				GlobalConfig = configv3.FromConfigV2(GlobalConfigV2)
+			}
+		}
+	}
+
+}
+
 func NewConnection() (*grpc.ClientConn, error) {
 	ProcessGlobalOptions()
 
 	// convert grpc.msgSize into bytes
-	n, err := parseSize(GlobalConfig.Grpc.MaxCallRecvMsgSize)
+	n, err := parseSize(GlobalConfig.Current().Grpc.MaxCallRecvMsgSize)
 	if err != nil {
-		Error.Fatalf("Cannot convert msgSize %s to bytes", GlobalConfig.Grpc.MaxCallRecvMsgSize)
+		Error.Fatalf("Cannot convert msgSize %s to bytes", GlobalConfig.Current().Grpc.MaxCallRecvMsgSize)
 	}
 
 	var opts []grpc.DialOption
@@ -313,17 +343,17 @@ func NewConnection() (*grpc.ClientConn, error) {
 		grpc.WithBlock(),
 		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(int(n))))
 
-	if GlobalConfig.Tls.UseTls {
+	if GlobalConfig.Current().Tls.UseTls {
 		creds := credentials.NewTLS(&tls.Config{
-			InsecureSkipVerify: !GlobalConfig.Tls.Verify})
+			InsecureSkipVerify: !GlobalConfig.Current().Tls.Verify})
 		opts = append(opts, grpc.WithTransportCredentials(creds))
 	} else {
 		opts = append(opts, grpc.WithInsecure())
 	}
 	ctx, cancel := context.WithTimeout(context.TODO(),
-		GlobalConfig.Grpc.ConnectTimeout)
+		GlobalConfig.Current().Grpc.ConnectTimeout)
 	defer cancel()
-	return grpc.DialContext(ctx, GlobalConfig.Server, opts...)
+	return grpc.DialContext(ctx, GlobalConfig.Current().Server, opts...)
 }
 
 func ConvertJsonProtobufArray(data_in interface{}) (string, error) {
