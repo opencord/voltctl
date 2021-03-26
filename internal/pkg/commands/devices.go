@@ -527,21 +527,26 @@ func (i *DeviceId) Complete(match string) []flags.Completion {
 
 func (options *DeviceList) Execute(args []string) error {
 
+	fmt.Printf("ENTER - %v\n", time.Now())
 	conn, err := NewConnection()
 	if err != nil {
 		return err
 	}
 	defer conn.Close()
+	fmt.Printf("COMNNECT - %v\n", time.Now())
 
 	client := voltha.NewVolthaServiceClient(conn)
+	fmt.Printf("CLIENT - %v\n", time.Now())
 
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Grpc.Timeout)
 	defer cancel()
 
+	fmt.Printf("GRPC CALL - %v\n", time.Now())
 	devices, err := client.ListDevices(ctx, &empty.Empty{})
 	if err != nil {
 		return err
 	}
+	fmt.Printf("GRPC COMPLETE - %v\n", time.Now())
 
 	outputFormat := CharReplacer.Replace(options.Format)
 	if outputFormat == "" {
@@ -550,17 +555,20 @@ func (options *DeviceList) Execute(args []string) error {
 	if options.Quiet {
 		outputFormat = "{{.Id}}"
 	}
+	fmt.Printf("FORMAT SET - %v\n", time.Now())
 
 	orderBy := options.OrderBy
 	if orderBy == "" {
 		orderBy = GetCommandOptionWithDefault("device-list", "order", "")
 	}
+	fmt.Printf("ORDER SET - %v\n", time.Now())
 
 	// Make sure json output prints an empty list, not "null"
 	if devices.Items == nil {
 		devices.Items = make([]*voltha.Device, 0)
 	}
 
+	fmt.Printf("BEFORE RESULT - %v\n", time.Now())
 	result := CommandResult{
 		Format:    format.Format(outputFormat),
 		Filter:    options.Filter,
@@ -569,8 +577,10 @@ func (options *DeviceList) Execute(args []string) error {
 		NameLimit: options.NameLimit,
 		Data:      devices.Items,
 	}
+	fmt.Printf("RESULT SET - %v\n", time.Now())
 
 	GenerateOutput(&result)
+	fmt.Printf("OUTPUT DONE - %v\n", time.Now())
 	return nil
 }
 
