@@ -340,7 +340,6 @@ func NewConnection() (*grpc.ClientConn, error) {
 
 	opts = append(opts,
 		grpc.WithDisableRetry(),
-		grpc.WithBlock(),
 		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(int(n))))
 
 	if GlobalConfig.Current().Tls.UseTls {
