@@ -1,4 +1,5 @@
 # github.com/Shopify/sarama v1.25.0
+## explicit
 github.com/Shopify/sarama
 # github.com/coreos/go-systemd v0.0.0-20190620071333-e64a0ec8b42a
 github.com/coreos/go-systemd/journal
@@ -18,6 +19,7 @@ github.com/gogo/protobuf/proto
 github.com/gogo/protobuf/protoc-gen-gogo/descriptor
 github.com/gogo/protobuf/sortkeys
 # github.com/golang/protobuf v1.3.2
+## explicit
 github.com/golang/protobuf/jsonpb
 github.com/golang/protobuf/proto
 github.com/golang/protobuf/protoc-gen-go/descriptor
@@ -35,19 +37,23 @@ github.com/google/gofuzz
 # github.com/google/uuid v1.1.1
 github.com/google/uuid
 # github.com/googleapis/gnostic v0.3.0
+## explicit
 github.com/googleapis/gnostic/OpenAPIv2
 github.com/googleapis/gnostic/compiler
 github.com/googleapis/gnostic/extensions
 # github.com/hashicorp/go-uuid v1.0.1
 github.com/hashicorp/go-uuid
 # github.com/imdario/mergo v0.3.7
+## explicit
 github.com/imdario/mergo
 # github.com/jcmturner/gofork v1.0.0
 github.com/jcmturner/gofork/encoding/asn1
 github.com/jcmturner/gofork/x/crypto/pbkdf2
 # github.com/jessevdk/go-flags v1.4.0
+## explicit
 github.com/jessevdk/go-flags
 # github.com/jhump/protoreflect v1.5.0
+## explicit
 github.com/jhump/protoreflect/codec
 github.com/jhump/protoreflect/desc
 github.com/jhump/protoreflect/desc/internal
@@ -65,12 +71,14 @@ github.com/klauspost/compress/zstd/internal/xxhash
 github.com/modern-go/concurrent
 # github.com/modern-go/reflect2 v1.0.1
 github.com/modern-go/reflect2
-# github.com/opencord/voltha-lib-go/v4 v4.2.1
+# github.com/opencord/voltha-lib-go/v4 v4.2.3
+## explicit
 github.com/opencord/voltha-lib-go/v4/pkg/config
 github.com/opencord/voltha-lib-go/v4/pkg/db
 github.com/opencord/voltha-lib-go/v4/pkg/db/kvstore
 github.com/opencord/voltha-lib-go/v4/pkg/log
-# github.com/opencord/voltha-protos/v4 v4.0.16
+# github.com/opencord/voltha-protos/v4 v4.1.0
+## explicit
 github.com/opencord/voltha-protos/v4/go/common
 github.com/opencord/voltha-protos/v4/go/ext/config
 github.com/opencord/voltha-protos/v4/go/extension
@@ -94,6 +102,7 @@ github.com/rcrowley/go-metrics
 # github.com/spf13/pflag v1.0.3
 github.com/spf13/pflag
 # github.com/stretchr/testify v1.4.0
+## explicit
 github.com/stretchr/testify/assert
 # github.com/uber/jaeger-client-go v2.23.1+incompatible
 github.com/uber/jaeger-client-go
@@ -117,6 +126,7 @@ github.com/uber/jaeger-client-go/utils
 # github.com/uber/jaeger-lib v2.2.0+incompatible
 github.com/uber/jaeger-lib/metrics
 # go.etcd.io/etcd v0.0.0-20190930204107-236ac2a90522
+## explicit
 go.etcd.io/etcd/auth/authpb
 go.etcd.io/etcd/clientv3
 go.etcd.io/etcd/clientv3/balancer
@@ -163,6 +173,7 @@ golang.org/x/net/internal/timeseries
 golang.org/x/net/proxy
 golang.org/x/net/trace
 # golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
+## explicit
 golang.org/x/oauth2
 golang.org/x/oauth2/internal
 # golang.org/x/sys v0.0.0-20191001151750-bb3f8db39f24
@@ -174,8 +185,10 @@ golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
 # golang.org/x/time v0.0.0-20190308202827-9d24e82272b4
+## explicit
 golang.org/x/time/rate
 # google.golang.org/appengine v1.6.1
+## explicit
 google.golang.org/appengine/internal
 google.golang.org/appengine/internal/base
 google.golang.org/appengine/internal/datastore
@@ -187,6 +200,7 @@ google.golang.org/appengine/urlfetch
 google.golang.org/genproto/googleapis/api/annotations
 google.golang.org/genproto/googleapis/rpc/status
 # google.golang.org/grpc v1.24.0
+## explicit
 google.golang.org/grpc
 google.golang.org/grpc/balancer
 google.golang.org/grpc/balancer/base
@@ -221,6 +235,7 @@ google.golang.org/grpc/stats
 google.golang.org/grpc/status
 google.golang.org/grpc/tap
 # gopkg.in/inf.v0 v0.9.1
+## explicit
 gopkg.in/inf.v0
 # gopkg.in/jcmturner/aescts.v1 v1.0.1
 gopkg.in/jcmturner/aescts.v1
@@ -261,8 +276,10 @@ gopkg.in/jcmturner/gokrb5.v7/types
 gopkg.in/jcmturner/rpc.v1/mstypes
 gopkg.in/jcmturner/rpc.v1/ndr
 # gopkg.in/yaml.v2 v2.2.3
+## explicit
 gopkg.in/yaml.v2
 # k8s.io/api v0.0.0-20190819141258-3544db3b9e44
+## explicit
 k8s.io/api/admissionregistration/v1beta1
 k8s.io/api/apps/v1
 k8s.io/api/apps/v1beta1
@@ -300,6 +317,7 @@ k8s.io/api/storage/v1
 k8s.io/api/storage/v1alpha1
 k8s.io/api/storage/v1beta1
 # k8s.io/apimachinery v0.0.0-20190817020851-f2f3a405f61d
+## explicit
 k8s.io/apimachinery/pkg/api/errors
 k8s.io/apimachinery/pkg/api/meta
 k8s.io/apimachinery/pkg/api/resource
@@ -335,6 +353,7 @@ k8s.io/apimachinery/pkg/version
 k8s.io/apimachinery/pkg/watch
 k8s.io/apimachinery/third_party/forked/golang/reflect
 # k8s.io/client-go v0.0.0-20190819141724-e14f31a72a77
+## explicit
 k8s.io/client-go/discovery
 k8s.io/client-go/kubernetes
 k8s.io/client-go/kubernetes/scheme

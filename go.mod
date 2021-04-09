@@ -1,6 +1,6 @@
 module github.com/opencord/voltctl
 
-go 1.13
+go 1.16
 
 require (
 	github.com/Shopify/sarama v1.25.0
@@ -9,8 +9,8 @@ require (
 	github.com/imdario/mergo v0.3.7 // indirect
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/jhump/protoreflect v1.5.0
-	github.com/opencord/voltha-lib-go/v4 v4.2.1
-	github.com/opencord/voltha-protos/v4 v4.0.16
+	github.com/opencord/voltha-lib-go/v4 v4.2.3
+	github.com/opencord/voltha-protos/v4 v4.1.0
 	github.com/stretchr/testify v1.4.0
 	go.etcd.io/etcd v0.0.0-20190930204107-236ac2a90522
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45 // indirect
