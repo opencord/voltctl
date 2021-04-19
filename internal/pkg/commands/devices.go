@@ -48,6 +48,8 @@ const (
 	DEFAULT_DEVICE_PM_CONFIG_GROUP_LIST_FORMAT  = "table{{.GroupName}}\t{{.Enabled}}\t{{.GroupFreq}}"
 	DEFAULT_DEVICE_VALUE_GET_FORMAT             = "table{{.Name}}\t{{.Result}}"
 	DEFAULT_DEVICE_IMAGE_LIST_GET_FORMAT        = "table{{.Name}}\t{{.Url}}\t{{.Crc}}\t{{.DownloadState}}\t{{.ImageVersion}}\t{{.LocalDir}}\t{{.ImageState}}\t{{.FileSize}}"
+	ONU_IMAGE_LIST_FORMAT                       = "table{{.Version}}\t{{.Commited}}\t{{.Active}}\t{{.Valid}}\t{{.ProductCode}}"
+	ONU_IMAGE_STATUS_FORMAT                     = "table{{.Version}}\t{{.DownloadState}}\t{{.Reason}}\t{{.ImageState}}"
 	DEFAULT_DEVICE_GET_PORT_STATUS_FORMAT       = `
   TXBYTES:		{{.TxBytes}}
   TXPACKETS:		{{.TxPackets}}
@@ -262,6 +264,57 @@ type DeviceOnuActivateImageUpdate struct {
 		LocalDir     string   `positional-arg-name:"IMAGE_LOCAL_DIRECTORY"`
 	} `positional-args:"yes"`
 }
+
+type OnuDownloadImage struct {
+	Args struct {
+		Id                DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+		Name              string   `positional-arg-name:"IMAGE_NAME" required:"yes"`
+		Url               string   `positional-arg-name:"IMAGE_URL" required:"yes"`
+		ImageVersion      string   `positional-arg-name:"IMAGE_VERSION" required:"yes"`
+		vendor            string   `positional-arg-name:"IMAGE_VENDOR"`
+		ActivateOnSuccess bool     `positional-arg-name:"IMAGE_ACTIVATE_ON_SUCCESS"`
+		CommitOnSuccess   bool     `positional-arg-name:"IMAGE_COMMIT_ON_SUCCESS"`
+		Crc               uint32   `positional-arg-name:"IMAGE_CRC"`
+	} `positional-args:"yes"`
+}
+
+type OnuActivateImage struct {
+	Args struct {
+		Id              DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+		ImageVersion    string   `positional-arg-name:"IMAGE_VERSION" required:"yes"`
+		CommitOnSuccess bool     `positional-arg-name:"IMAGE_COMMIT_ON_SUCCESS"`
+	} `positional-args:"yes"`
+}
+
+type OnuAbortUpgradeImage struct {
+	Args struct {
+		Id           DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+		ImageVersion string   `positional-arg-name:"IMAGE_VERSION" required:"yes"`
+	} `positional-args:"yes"`
+}
+
+type OnuCommitImage struct {
+	Args struct {
+		Id           DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+		ImageVersion string   `positional-arg-name:"IMAGE_VERSION" required:"yes"`
+	} `positional-args:"yes"`
+}
+
+type OnuImageStatus struct {
+	ListOutputOptions
+	Args struct {
+		Id           DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+		ImageVersion string   `positional-arg-name:"IMAGE_VERSION" required:"yes"`
+	} `positional-args:"yes"`
+}
+
+type OnuListImages struct {
+	ListOutputOptions
+	Args struct {
+		Id DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+	} `positional-args:"yes"`
+}
+
 type DeviceGetPortStats struct {
 	ListOutputOptions
 	Args struct {
@@ -322,6 +375,14 @@ type DeviceOpts struct {
 		Download DeviceOnuDownloadImage       `command:"download"`
 		Activate DeviceOnuActivateImageUpdate `command:"activate"`
 	} `command:"image"`
+	OnuImage struct {
+		Status       OnuImageStatus               `command:"status"`
+		Download     DeviceOnuDownloadImage       `command:"download"`
+		Activate     DeviceOnuActivateImageUpdate `command:"activate"`
+		AbortUpgrade OnuAbortUpgradeImage         `command:"abort"`
+		List         OnuListImages                `command:"list" `
+		Commit       OnuCommitImage               `command:"commit"`
+	} `command:"onuimage"`
 	GetExtVal struct {
 		Stats     DeviceGetPortStats `command:"portstats"`
 		UniStatus UniStatus          `command:"unistatus"`
@@ -1434,6 +1495,241 @@ func (options *DeviceOnuListImages) Execute(args []string) error {
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
 		Data:      imageDownloads.Items,
+	}
+
+	GenerateOutput(&result)
+	return nil
+
+}
+
+func (options *OnuDownloadImage) Execute(args []string) error {
+
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+	defer cancel()
+
+	var devIDList = []*common.ID{
+		{Id: string(options.Args.Id)},
+	}
+
+	downloadImage := voltha.DeviceImageDownloadRequest{
+		DeviceId: devIDList,
+		Image: &voltha.Image{
+			Name:    options.Args.Name,
+			Url:     options.Args.Name,
+			Crc32:   options.Args.Crc,
+			Vendor:  options.Args.vendor,
+			Version: options.Args.ImageVersion,
+		},
+		ActivateOnSuccess: options.Args.ActivateOnSuccess,
+		CommitOnSuccess:   options.Args.CommitOnSuccess,
+	}
+
+	_, err = client.DownloadImageToDevice(ctx, &downloadImage)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+func (options *OnuActivateImage) Execute(args []string) error {
+
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+	defer cancel()
+
+	var devIDList = []*common.ID{
+		{Id: string(options.Args.Id)},
+	}
+
+	downloadImage := voltha.DeviceImageRequest{
+		DeviceId:        devIDList,
+		Version:         options.Args.ImageVersion,
+		CommitOnSuccess: options.Args.CommitOnSuccess,
+	}
+
+	_, err = client.ActivateImage(ctx, &downloadImage)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+func (options *OnuAbortUpgradeImage) Execute(args []string) error {
+
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+	defer cancel()
+
+	var devIDList = []*common.ID{
+		{Id: string(options.Args.Id)},
+	}
+
+	downloadImage := voltha.DeviceImageRequest{
+		DeviceId: devIDList,
+		Version:  options.Args.ImageVersion,
+	}
+
+	_, err = client.AbortImageUpgradeToDevice(ctx, &downloadImage)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+func (options *OnuCommitImage) Execute(args []string) error {
+
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+	defer cancel()
+
+	var devIDList = []*common.ID{
+		{Id: string(options.Args.Id)},
+	}
+
+	downloadImage := voltha.DeviceImageRequest{
+		DeviceId: devIDList,
+		Version:  options.Args.ImageVersion,
+	}
+
+	_, err = client.CommitImage(ctx, &downloadImage)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+func (options *OnuListImages) Execute(args []string) error {
+
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+	defer cancel()
+
+	id := common.ID{Id: string(options.Args.Id)}
+
+	onuImages, err := client.GetOnuImages(ctx, &id)
+	if err != nil {
+		return err
+	}
+
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("onu-image-list", "format", ONU_IMAGE_LIST_FORMAT)
+	}
+
+	if options.Quiet {
+		outputFormat = "{{.Id}}"
+	}
+
+	//TODO orderby
+
+	// Make sure json output prints an empty list, not "null"
+	if onuImages.Items == nil {
+		onuImages.Items = make([]*voltha.OnuImage, 0)
+	}
+
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      onuImages.Items,
+	}
+
+	GenerateOutput(&result)
+	return nil
+
+}
+
+func (options *OnuImageStatus) Execute(args []string) error {
+
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+	defer cancel()
+
+	var devIDList = []*common.ID{
+		{Id: string(options.Args.Id)},
+	}
+
+	imageStatusReq := voltha.DeviceImageRequest{
+		DeviceId: devIDList,
+		Version:  options.Args.ImageVersion,
+	}
+	imageStatus, err := client.GetImageStatus(ctx, &imageStatusReq)
+	if err != nil {
+		return err
+	}
+
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("device-image-list", "format", ONU_IMAGE_STATUS_FORMAT)
+	}
+
+	if options.Quiet {
+		outputFormat = "{{.Id}}"
+	}
+
+	//TODO orderby
+
+	// Make sure json output prints an empty list, not "null"
+	if imageStatus.DeviceImageStates == nil {
+		imageStatus.DeviceImageStates = make([]*voltha.DeviceImageState, 0)
+	}
+
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      imageStatus.DeviceImageStates,
 	}
 
 	GenerateOutput(&result)
