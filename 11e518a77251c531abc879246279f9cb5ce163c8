@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba5815c0_68c7282c",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2021-04-20T14:42:44Z",
+      "side": 1,
+      "message": "The vendor is not a mandatory parameter. Does the required: \"yes\" mean that it\u0027s is mandatory?",
+      "revId": "11e518a77251c531abc879246279f9cb5ce163c8",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b90a3a3_9a7c59b4",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2021-04-20T14:42:44Z",
+      "side": 1,
+      "message": "ActivateOnSuccess and CommitOnSuccess are not mandatory parameters",
+      "revId": "11e518a77251c531abc879246279f9cb5ce163c8",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b600cc1b_d5fd6f21",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 1479,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2021-04-20T14:42:44Z",
+      "side": 1,
+      "message": "I thought we said we will write new commands and not disturb the existing commands, then why is this changed?",
+      "revId": "11e518a77251c531abc879246279f9cb5ce163c8",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1ae4ef0_d708057d",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 1662,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2021-04-20T14:42:44Z",
+      "side": 1,
+      "message": "Not sure about this one, but should this be onu-image-list ?",
+      "revId": "11e518a77251c531abc879246279f9cb5ce163c8",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}
