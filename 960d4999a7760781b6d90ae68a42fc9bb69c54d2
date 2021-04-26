@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7820e6f3_ccfbcc7a",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1000666
+      },
+      "writtenOn": "2021-04-26T14:32:11Z",
+      "side": 1,
+      "message": "spelling committed",
+      "revId": "960d4999a7760781b6d90ae68a42fc9bb69c54d2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2378ade_d9eab06d",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 1000666
+      },
+      "writtenOn": "2021-04-26T14:32:11Z",
+      "side": 1,
+      "message": "I don\u0027t remember what name really should be used for. Could you please re-clarify, if that is really needed? In my point of view file control is based on required \u0027ImageVersion\u0027 now. But maybe it\u0027s better to have name+\u0027imageVersion\u0027 as identification as \u0027imageIdentification\u0027 might be ambigious over different ONU types (and with that image names).\nBut that would mean, that the combination of name +\u0027imageVersion\u0027 is needed in all API\u0027s where the image is indicated.",
+      "revId": "960d4999a7760781b6d90ae68a42fc9bb69c54d2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "228303ab_0f6b6b1c",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 1000666
+      },
+      "writtenOn": "2021-04-26T14:32:11Z",
+      "side": 1,
+      "message": "See above, maybe names is required here as well? Also in some of the other types below ...",
+      "revId": "960d4999a7760781b6d90ae68a42fc9bb69c54d2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7eff61ca_ee63ed60",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 1477,
+      "author": {
+        "id": 1000666
+      },
+      "writtenOn": "2021-04-26T14:32:11Z",
+      "side": 1,
+      "message": "I know, It is probably from proto definition, but if I would still have some wish: I\u0027d prefer \u0027deviceIDs\u0027 as name to indicate that it may be a list/map/slice (whatever), but not necessarily a single element.(Also used multiple times here)",
+      "revId": "960d4999a7760781b6d90ae68a42fc9bb69c54d2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1725f88_30008059",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 1519,
+      "author": {
+        "id": 1000666
+      },
+      "writtenOn": "2021-04-26T14:32:11Z",
+      "side": 1,
+      "message": "Compare above, maybe name is required as well? Also in some of below functions.",
+      "revId": "960d4999a7760781b6d90ae68a42fc9bb69c54d2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}
