@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "620c6763_7d3d467e",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2021-04-27T13:13:19Z",
+      "side": 1,
+      "message": "the agreement was that the version is the unique sole identifier per vendor of the image, I think we can live with this assumption for now, what you are talking about is surely present but a corner case. I do not want to change again the protos at this point in time. i\u0027m collecting the requirements and will open a jira for this, but let\u0027s proceed with the implementation with the version as the unique identifier. so please remove the name from here and do not modify the rest of the methods.",
+      "parentUuid": "2af23ef8_b934e510",
+      "revId": "960d4999a7760781b6d90ae68a42fc9bb69c54d2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "228303ab_0f6b6b1c",
         "filename": "internal/pkg/commands/devices.go",
         "patchSetId": 3
