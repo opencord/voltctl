@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "2af23ef8_b934e510",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 1000666
+      },
+      "writtenOn": "2021-04-27T08:58:17Z",
+      "side": 1,
+      "message": "I\u0027m not sure ...\n1.) there are not really many comments on \u0027name\u0027 in the protos ...\n2.) I\u0027m not sure if the (OMCI based) \u0027ImageVersion\u0027 is really sufficient as sole identifier. I made a hint above, that this string might not be unique. ONU manufacturer could use some simple identification like \"V1.3.4\" and then there is the chance that the same identification could be used for a totally different ONU type with some totally different image.\nThen it might be good to use name+imageVersion as unique identifier (that must be selected this unique way by the user of this API - with name being a string totally free to choose for the user. Then e.g. name+imageVersion could be \"AdtranOnu611_V1.3.4\" (a unique string for the system), but then both paramaters must always be given for each API referencing to the image.",
+      "parentUuid": "e1f10dc4_54e6e494",
+      "revId": "960d4999a7760781b6d90ae68a42fc9bb69c54d2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "228303ab_0f6b6b1c",
         "filename": "internal/pkg/commands/devices.go",
         "patchSetId": 3
@@ -118,6 +136,24 @@
       "side": 1,
       "message": "that can\u0027t be done, it\u0027s the name in the protos and it\u0027s a repeated element, the way it\u0027s implemented here is the correct one. possibly a known limitation of the protos but ok",
       "parentUuid": "7eff61ca_ee63ed60",
+      "revId": "960d4999a7760781b6d90ae68a42fc9bb69c54d2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "acdc0a2e_15d0bc6e",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 1477,
+      "author": {
+        "id": 1000666
+      },
+      "writtenOn": "2021-04-27T08:58:17Z",
+      "side": 1,
+      "message": "My request was more meant like this: If we should update the protos for some (maybe other) reason, there could be a chance of modifying this definition there?",
+      "parentUuid": "01df50ee_dc87a594",
       "revId": "960d4999a7760781b6d90ae68a42fc9bb69c54d2",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
