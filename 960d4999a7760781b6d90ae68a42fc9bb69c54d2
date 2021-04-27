@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "e1f10dc4_54e6e494",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2021-04-27T07:42:22Z",
+      "side": 1,
+      "message": "Michael is correct, we can remove the image name in these new APIs and use the Version as the sole identifier, please see the comment on `version` in the protos.",
+      "parentUuid": "a2378ade_d9eab06d",
+      "revId": "960d4999a7760781b6d90ae68a42fc9bb69c54d2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "228303ab_0f6b6b1c",
         "filename": "internal/pkg/commands/devices.go",
         "patchSetId": 3
@@ -47,6 +65,24 @@
       "writtenOn": "2021-04-26T14:32:11Z",
       "side": 1,
       "message": "See above, maybe names is required here as well? Also in some of the other types below ...",
+      "revId": "960d4999a7760781b6d90ae68a42fc9bb69c54d2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b553570b_2d2960eb",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2021-04-27T07:42:22Z",
+      "side": 1,
+      "message": "we can have only version here if we remove name as specified above.",
+      "parentUuid": "228303ab_0f6b6b1c",
       "revId": "960d4999a7760781b6d90ae68a42fc9bb69c54d2",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
@@ -70,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "01df50ee_dc87a594",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 1477,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2021-04-27T07:42:22Z",
+      "side": 1,
+      "message": "that can\u0027t be done, it\u0027s the name in the protos and it\u0027s a repeated element, the way it\u0027s implemented here is the correct one. possibly a known limitation of the protos but ok",
+      "parentUuid": "7eff61ca_ee63ed60",
+      "revId": "960d4999a7760781b6d90ae68a42fc9bb69c54d2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b1725f88_30008059",
         "filename": "internal/pkg/commands/devices.go",
         "patchSetId": 3
@@ -81,6 +135,24 @@
       "writtenOn": "2021-04-26T14:32:11Z",
       "side": 1,
       "message": "Compare above, maybe name is required as well? Also in some of below functions.",
+      "revId": "960d4999a7760781b6d90ae68a42fc9bb69c54d2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4d1c332_a879f8c4",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 1519,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2021-04-27T07:42:22Z",
+      "side": 1,
+      "message": "see comment above, name not required",
+      "parentUuid": "b1725f88_30008059",
       "revId": "960d4999a7760781b6d90ae68a42fc9bb69c54d2",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
