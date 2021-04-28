@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "33669a9a_6fa54140",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1000635
+      },
+      "writtenOn": "2021-04-28T05:28:36Z",
+      "side": 1,
+      "message": "addressed",
+      "parentUuid": "7820e6f3_ccfbcc7a",
+      "revId": "960d4999a7760781b6d90ae68a42fc9bb69c54d2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a2378ade_d9eab06d",
         "filename": "internal/pkg/commands/devices.go",
         "patchSetId": 3
@@ -90,6 +108,24 @@
     },
     {
       "key": {
+        "uuid": "0dda5919_b142f45d",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 1000635
+      },
+      "writtenOn": "2021-04-28T05:28:36Z",
+      "side": 1,
+      "message": "Removed the \"name\"",
+      "parentUuid": "620c6763_7d3d467e",
+      "revId": "960d4999a7760781b6d90ae68a42fc9bb69c54d2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "228303ab_0f6b6b1c",
         "filename": "internal/pkg/commands/devices.go",
         "patchSetId": 3
@@ -119,6 +155,24 @@
       "side": 1,
       "message": "we can have only version here if we remove name as specified above.",
       "parentUuid": "228303ab_0f6b6b1c",
+      "revId": "960d4999a7760781b6d90ae68a42fc9bb69c54d2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0da90f4f_6ccf1724",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 1000635
+      },
+      "writtenOn": "2021-04-28T05:28:36Z",
+      "side": 1,
+      "message": "Removed \"name\" in \"OnuDownloadImage\"",
+      "parentUuid": "b553570b_2d2960eb",
       "revId": "960d4999a7760781b6d90ae68a42fc9bb69c54d2",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
@@ -178,6 +232,24 @@
     },
     {
       "key": {
+        "uuid": "75759705_86c7c562",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 1477,
+      "author": {
+        "id": 1000635
+      },
+      "writtenOn": "2021-04-28T05:28:36Z",
+      "side": 1,
+      "message": "As this requires protos change, this is not changed now.",
+      "parentUuid": "acdc0a2e_15d0bc6e",
+      "revId": "960d4999a7760781b6d90ae68a42fc9bb69c54d2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b1725f88_30008059",
         "filename": "internal/pkg/commands/devices.go",
         "patchSetId": 3
@@ -207,6 +279,24 @@
       "side": 1,
       "message": "see comment above, name not required",
       "parentUuid": "b1725f88_30008059",
+      "revId": "960d4999a7760781b6d90ae68a42fc9bb69c54d2",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6746ebaa_7ce6679d",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 1519,
+      "author": {
+        "id": 1000635
+      },
+      "writtenOn": "2021-04-28T05:28:36Z",
+      "side": 1,
+      "message": "As \"name\" is removed above, for now only \"ImageVersion\" can be used as sole identifier of image.",
+      "parentUuid": "b4d1c332_a879f8c4",
       "revId": "960d4999a7760781b6d90ae68a42fc9bb69c54d2",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
