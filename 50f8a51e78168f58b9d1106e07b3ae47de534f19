@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5d0da23e_6548a770",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 1000666
+      },
+      "writtenOn": "2021-04-28T08:44:02Z",
+      "side": 1,
+      "message": "I have still problems understanding what this definition is for. Note that I don\u0027t really like this naming here, as it conflicts with the \u0027message OnuImage\u0027 definition in device.proto (logically).\nFor me there are two different logical elements that might have to be considered here: the adapter related image with all of its activities and the ONU related image as defined per OMCI software image.\nSo I could imagine that you have two independing structures here, perhaps like this?:\nDownloadImage struct {\n\t\tDownload     OnuDownloadImage             `command:\"download\"`\n\t\tActivate     OnuActivateImage             `command:\"activate\"`\n\t\tCommit       OnuCommitImage               `command:\"commit\"`\n\t\tAbortUpgrade OnuAbortUpgradeImage         `command:\"abort\"`\n\t\tStatus       OnuImageStatus               `command:\"status\"`\n    } `command:\"downloadimage\"`\nand \nDeviceImage struct {\n\t\tList         OnuListImages                `command:\"list\" `\n\t    } `command:\"downloadimage\"`",
+      "revId": "50f8a51e78168f58b9d1106e07b3ae47de534f19",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70fbb875_5d63a308",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 1000666
+      },
+      "writtenOn": "2021-04-28T08:44:02Z",
+      "side": 1,
+      "message": "see comment above, I assume it should use OnuDownloadImage",
+      "revId": "50f8a51e78168f58b9d1106e07b3ae47de534f19",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c97501af_54e4aaee",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 1000666
+      },
+      "writtenOn": "2021-04-28T08:44:02Z",
+      "side": 1,
+      "message": "see comment above, I assume it should use OnuActivateImage",
+      "revId": "50f8a51e78168f58b9d1106e07b3ae47de534f19",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}
