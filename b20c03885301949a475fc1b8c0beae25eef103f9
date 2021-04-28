@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e12e4953_4431a809",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 1000666
+      },
+      "writtenOn": "2021-04-28T13:00:30Z",
+      "side": 1,
+      "message": "Agreed, but renaming the activity was not what I expected here. So I assume the commands now look like these e.g.:\nvoltctl downloadimage download \u003cdevice\u003e \u003cimage\u003e .... - which does not look nice, but acceptable\nvoltctl downloadimage list \u003cdevice\u003e  - which is a bit misleading from name (not the download images are displayed)",
+      "revId": "b20c03885301949a475fc1b8c0beae25eef103f9",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}
