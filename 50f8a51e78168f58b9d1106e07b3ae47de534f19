@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a0d6eede_350cdd87",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2021-04-28T08:48:53Z",
+      "side": 1,
+      "message": "This is purely an internal way of separating the commands under one object. I do not think we ought to separate them into tow separate ones, effectively we are always handling the image in relationship to a device. so I\u0027m ok with have the list images included in the same object, again, this is purely internal to voltctl\n\nwhat you will see is voltctl onuimage download \u003cdevice\u003e \u003cimage\u003e ....\nvoltctl onuimage list \u003cdevice\u003e \n\nI thinks this is ok.",
+      "parentUuid": "5d0da23e_6548a770",
+      "revId": "50f8a51e78168f58b9d1106e07b3ae47de534f19",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "70fbb875_5d63a308",
         "filename": "internal/pkg/commands/devices.go",
         "patchSetId": 4
