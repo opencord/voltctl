@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "98cea063_09d6fd0e",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2021-04-28T09:08:49Z",
+      "side": 1,
+      "message": "I see your point of being explicit but I think that having two explicitly separate commands is more of a confusion then a benefit.",
+      "parentUuid": "9e14c9a5_6a2e0ae4",
+      "revId": "50f8a51e78168f58b9d1106e07b3ae47de534f19",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "70fbb875_5d63a308",
         "filename": "internal/pkg/commands/devices.go",
         "patchSetId": 4
@@ -72,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "ed484460_230f7166",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2021-04-28T09:08:49Z",
+      "side": 1,
+      "message": "agreed",
+      "parentUuid": "70fbb875_5d63a308",
+      "revId": "50f8a51e78168f58b9d1106e07b3ae47de534f19",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c97501af_54e4aaee",
         "filename": "internal/pkg/commands/devices.go",
         "patchSetId": 4
@@ -83,6 +119,24 @@
       "writtenOn": "2021-04-28T08:44:02Z",
       "side": 1,
       "message": "see comment above, I assume it should use OnuActivateImage",
+      "revId": "50f8a51e78168f58b9d1106e07b3ae47de534f19",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "278d2d02_79e85333",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2021-04-28T09:08:49Z",
+      "side": 1,
+      "message": "agreed",
+      "parentUuid": "c97501af_54e4aaee",
       "revId": "50f8a51e78168f58b9d1106e07b3ae47de534f19",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
