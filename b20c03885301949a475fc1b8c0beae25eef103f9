@@ -16,6 +16,24 @@
       "revId": "b20c03885301949a475fc1b8c0beae25eef103f9",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87dfd373_2b457859",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2021-04-28T13:11:18Z",
+      "side": 1,
+      "message": "agreed, `onuimage` was a good name here",
+      "parentUuid": "e12e4953_4431a809",
+      "revId": "b20c03885301949a475fc1b8c0beae25eef103f9",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
     }
   ]
 }
