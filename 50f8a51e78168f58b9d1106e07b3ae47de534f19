@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "9e14c9a5_6a2e0ae4",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 1000666
+      },
+      "writtenOn": "2021-04-28T09:05:11Z",
+      "side": 1,
+      "message": "Yes, I can live with that, even though the separate definition would make it already more evident, that the Downloadimage commands always need \u003cimageVersion\u003e as required argument, while the DeviceImage command does not. It would also make it bit clearerthat the output of status is something totally different than list. \nBut perhaps its better to keep them unified for simplicity ...\nAnyway the below comments on the referenced structures should still be valid ...",
+      "parentUuid": "a0d6eede_350cdd87",
+      "revId": "50f8a51e78168f58b9d1106e07b3ae47de534f19",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "70fbb875_5d63a308",
         "filename": "internal/pkg/commands/devices.go",
         "patchSetId": 4
