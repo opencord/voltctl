@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e3f32bd_f0879665",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 1206,
+      "author": {
+        "id": 1000127
+      },
+      "writtenOn": "2021-04-30T01:57:48Z",
+      "side": 1,
+      "message": "Not sure why these changes have come in .. Will remove in the next patch",
+      "revId": "70b17ee580a876bb66608f0556e4754c3325e1dc",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73fa0a1c_90220049",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 1254,
+      "author": {
+        "id": 1000127
+      },
+      "writtenOn": "2021-04-30T01:57:48Z",
+      "side": 1,
+      "message": "Not sure why these changes have come in .. Will remove in the next patch",
+      "revId": "70b17ee580a876bb66608f0556e4754c3325e1dc",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15291684_fc5ad426",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 1305,
+      "author": {
+        "id": 1000127
+      },
+      "writtenOn": "2021-04-30T01:57:48Z",
+      "side": 1,
+      "message": "Not sure why these changes have come in .. Will remove in the next patch",
+      "revId": "70b17ee580a876bb66608f0556e4754c3325e1dc",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}
