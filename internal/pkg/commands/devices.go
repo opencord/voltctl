@@ -67,6 +67,12 @@ const (
   ADMIN_STATE:          {{.AdmState}}
   OPERATIONAL_STATE:    {{.OperState}}
   CONFIG_IND:           {{.ConfigInd}}`
+	DEFAULT_ONU_PON_OPTICAL_INFO_STATUS_FORMAT = `
+  POWER_FEED_VOLTAGE__VOLTS:      {{.PowerFeedVoltage}}
+  RECEIVED_OPTICAL_POWER__dBm:    {{.ReceivedOpticalPower}}
+  MEAN_OPTICAL_LAUNCH_POWER__dBm: {{.MeanOpticalLaunchPower}}
+  LASER_BIAS_CURRENT__mA:         {{.LaserBiasCurrent}}
+  TEMPERATURE__Celsius:           {{.Temperature}}`
 )
 
 type DeviceList struct {
@@ -329,6 +335,12 @@ type UniStatus struct {
 		UniIndex uint32   `positional-arg-name:"UNI_INDEX" required:"yes"`
 	} `positional-args:"yes"`
 }
+type OnuPonOpticalInfo struct {
+	ListOutputOptions
+	Args struct {
+		Id DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+	} `positional-args:"yes"`
+}
 type DeviceOpts struct {
 	List    DeviceList     `command:"list"`
 	Create  DeviceCreate   `command:"create"`
@@ -383,8 +395,9 @@ type DeviceOpts struct {
 		List         OnuListImages        `command:"list" `
 	} `command:"onuimage"`
 	GetExtVal struct {
-		Stats     DeviceGetPortStats `command:"portstats"`
-		UniStatus UniStatus          `command:"unistatus"`
+		Stats       DeviceGetPortStats `command:"portstats"`
+		UniStatus   UniStatus          `command:"unistatus"`
+		OpticalInfo OnuPonOpticalInfo  `command:"onu_pon_optical_info"`
 	} `command:"getextval"`
 }
 
@@ -1903,6 +1916,46 @@ func (options *UniStatus) Execute(args []string) error {
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
 		Data:      rv.GetResponse().GetUniInfo(),
+	}
+	GenerateOutput(&result)
+	return nil
+}
+
+func (options *OnuPonOpticalInfo) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	client := extension.NewExtensionClient(conn)
+
+	singleGetValReq := extension.SingleGetValueRequest{
+		TargetId: string(options.Args.Id),
+		Request: &extension.GetValueRequest{
+			Request: &extension.GetValueRequest_OnuOpticalInfo{
+				OnuOpticalInfo: &extension.GetOnuPonOpticalInfo{},
+			},
+		},
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+	defer cancel()
+	rv, err := client.GetExtValue(ctx, &singleGetValReq)
+	if err != nil {
+		Error.Printf("Error getting value on device Id %s,err=%s\n", options.Args.Id, ErrorToString(err))
+		return err
+	}
+	if rv.Response.Status != extension.GetValueResponse_OK {
+		return fmt.Errorf("failed to get onu pon optical info %v", rv.Response.ErrReason.String())
+	}
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("device-get-onu-pon-optical-info", "format", DEFAULT_ONU_PON_OPTICAL_INFO_STATUS_FORMAT)
+	}
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      rv.GetResponse().GetOnuOpticalInfo(),
 	}
 	GenerateOutput(&result)
 	return nil
