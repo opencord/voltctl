@@ -49,6 +49,14 @@ type LogicalDeviceFlowList struct {
 	} `positional-args:"yes"`
 }
 
+type LogicalDeviceFlowGroupList struct {
+	ListOutputOptions
+	GroupListOptions
+	Args struct {
+		Id DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+	} `positional-args:"yes"`
+}
+
 type LogicalDevicePortList struct {
 	ListOutputOptions
 	Args struct {
@@ -64,9 +72,10 @@ type LogicalDeviceInspect struct {
 }
 
 type LogicalDeviceOpts struct {
-	List  LogicalDeviceList     `command:"list"`
-	Flows LogicalDeviceFlowList `command:"flows"`
-	Port  struct {
+	List   LogicalDeviceList          `command:"list"`
+	Flows  LogicalDeviceFlowList      `command:"flows"`
+	Groups LogicalDeviceFlowGroupList `command:"groups"`
+	Port   struct {
 		List LogicalDevicePortList `command:"list"`
 	} `command:"port"`
 	Inspect LogicalDeviceInspect `command:"inspect"`
@@ -217,6 +226,16 @@ func (options *LogicalDeviceFlowList) Execute(args []string) error {
 	fl.Args.Id = string(options.Args.Id)
 	fl.Method = "logical-device-flows"
 	return fl.Execute(args)
+}
+
+func (options *LogicalDeviceFlowGroupList) Execute(args []string) error {
+	grp := &GroupList{}
+	grp.ListOutputOptions = options.ListOutputOptions
+	grp.GroupListOptions = options.GroupListOptions
+	grp.Args.Id = string(options.Args.Id)
+	grp.Method = "logical-device-groups"
+	return grp.Execute(args)
+
 }
 
 func (options *LogicalDeviceInspect) Execute(args []string) error {
