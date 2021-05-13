@@ -114,6 +114,9 @@ type FlowIdOptions struct {
 	HexId bool `short:"x" long:"hex-id" description:"Output Ids in hex format"`
 }
 
+type GroupListOptions struct {
+	Bucket bool `short:"b" long:"buckets" description:"Display Buckets"`
+}
 type ListOutputOptions struct {
 	OutputOptions
 	Filter  string `short:"f" long:"filter" default:"" value-name:"FILTER" description:"Only display results that match filter"`
