@@ -126,6 +126,13 @@ type DeviceFlowList struct {
 	} `positional-args:"yes"`
 }
 
+type DeviceFlowGroupList struct {
+	ListOutputOptions
+	GroupListOptions
+	Args struct {
+		Id DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+	} `positional-args:"yes"`
+}
 type DevicePortList struct {
 	ListOutputOptions
 	Args struct {
@@ -352,12 +359,13 @@ type GetOnuStats struct {
 }
 
 type DeviceOpts struct {
-	List    DeviceList     `command:"list"`
-	Create  DeviceCreate   `command:"create"`
-	Delete  DeviceDelete   `command:"delete"`
-	Enable  DeviceEnable   `command:"enable"`
-	Disable DeviceDisable  `command:"disable"`
-	Flows   DeviceFlowList `command:"flows"`
+	List    DeviceList          `command:"list"`
+	Create  DeviceCreate        `command:"create"`
+	Delete  DeviceDelete        `command:"delete"`
+	Enable  DeviceEnable        `command:"enable"`
+	Disable DeviceDisable       `command:"disable"`
+	Flows   DeviceFlowList      `command:"flows"`
+	Groups  DeviceFlowGroupList `command:"groups"`
 	Port    struct {
 		List    DevicePortList    `command:"list"`
 		Enable  DevicePortEnable  `command:"enable"`
@@ -872,6 +880,15 @@ func (options *DeviceFlowList) Execute(args []string) error {
 	fl.Args.Id = string(options.Args.Id)
 	fl.Method = "device-flows"
 	return fl.Execute(args)
+}
+
+func (options *DeviceFlowGroupList) Execute(args []string) error {
+	grp := &GroupList{}
+	grp.ListOutputOptions = options.ListOutputOptions
+	grp.GroupListOptions = options.GroupListOptions
+	grp.Args.Id = string(options.Args.Id)
+	grp.Method = "device-groups"
+	return grp.Execute(args)
 }
 
 func (options *DeviceInspect) Execute(args []string) error {
