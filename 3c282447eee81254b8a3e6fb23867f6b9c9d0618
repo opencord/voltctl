@@ -139,6 +139,24 @@
       "revId": "3c282447eee81254b8a3e6fb23867f6b9c9d0618",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9b638bea_8b021bda",
+        "filename": "internal/pkg/commands/groups.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2021-05-17T15:23:26Z",
+      "side": 1,
+      "message": "then which one is used between this one an the one in the devices.go class ? having two methods seems fairly redundant to me.",
+      "parentUuid": "10205301_5d47b8ba",
+      "revId": "3c282447eee81254b8a3e6fb23867f6b9c9d0618",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }
