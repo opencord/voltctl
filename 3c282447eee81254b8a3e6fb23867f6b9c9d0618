@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "0b49b9dc_f8e7d6c3",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 1000726
+      },
+      "writtenOn": "2021-05-17T12:17:31Z",
+      "side": 1,
+      "message": "devicegrouplist already exists.",
+      "parentUuid": "1f3bddc7_b888e368",
+      "revId": "3c282447eee81254b8a3e6fb23867f6b9c9d0618",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8d24dc9c_e7cf96a9",
         "filename": "internal/pkg/commands/groups.go",
         "patchSetId": 4
@@ -33,6 +51,24 @@
       "revId": "3c282447eee81254b8a3e6fb23867f6b9c9d0618",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7d1a38f_166bf927",
+        "filename": "internal/pkg/commands/groups.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1000726
+      },
+      "writtenOn": "2021-05-17T12:17:31Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8d24dc9c_e7cf96a9",
+      "revId": "3c282447eee81254b8a3e6fb23867f6b9c9d0618",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "d2d62f01_923cfa34",
+        "filename": "internal/pkg/commands/groups.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1000726
+      },
+      "writtenOn": "2021-05-17T12:17:31Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "9be912f3_21d934f9",
+      "revId": "3c282447eee81254b8a3e6fb23867f6b9c9d0618",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "332865ff_ddf12b1f",
         "filename": "internal/pkg/commands/groups.go",
         "patchSetId": 4
@@ -67,6 +121,24 @@
       "revId": "3c282447eee81254b8a3e6fb23867f6b9c9d0618",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10205301_5d47b8ba",
+        "filename": "internal/pkg/commands/groups.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1000726
+      },
+      "writtenOn": "2021-05-17T12:17:31Z",
+      "side": 1,
+      "message": "None but since I wanted to make all methods for groups clubbed here, that\u0027s why copied to groupList type struct",
+      "parentUuid": "332865ff_ddf12b1f",
+      "revId": "3c282447eee81254b8a3e6fb23867f6b9c9d0618",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }
