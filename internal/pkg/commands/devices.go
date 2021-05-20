@@ -48,8 +48,8 @@ const (
 	DEFAULT_DEVICE_PM_CONFIG_GROUP_LIST_FORMAT  = "table{{.GroupName}}\t{{.Enabled}}\t{{.GroupFreq}}"
 	DEFAULT_DEVICE_VALUE_GET_FORMAT             = "table{{.Name}}\t{{.Result}}"
 	DEFAULT_DEVICE_IMAGE_LIST_GET_FORMAT        = "table{{.Name}}\t{{.Url}}\t{{.Crc}}\t{{.DownloadState}}\t{{.ImageVersion}}\t{{.LocalDir}}\t{{.ImageState}}\t{{.FileSize}}"
-	ONU_IMAGE_LIST_FORMAT                       = "table{{.Version}}\t{{.Committed}}\t{{.Active}}\t{{.Valid}}\t{{.ProductCode}}"
-	ONU_IMAGE_STATUS_FORMAT                     = "table{{.Version}}\t{{.DownloadState}}\t{{.Reason}}\t{{.ImageState}}"
+	ONU_IMAGE_LIST_FORMAT                       = "table{{.Version}}\t{{.IsCommited}}\t{{.IsActive}}\t{{.IsValid}}\t{{.ProductCode}}\t{{.Hash}}"
+	ONU_IMAGE_STATUS_FORMAT                     = "table{{.DeviceId}}\t{{.ImageState.Version}}\t{{.ImageState.DownloadState}}\t{{.ImageState.Reason}}\t{{.ImageState.ImageState}}\t"
 	DEFAULT_DEVICE_GET_PORT_STATUS_FORMAT       = `
   TXBYTES:		{{.TxBytes}}
   TXPACKETS:		{{.TxPackets}}
@@ -275,7 +275,7 @@ type OnuDownloadImage struct {
 	Args struct {
 		ImageVersion      string     `positional-arg-name:"IMAGE_VERSION" required:"yes"`
 		Url               string     `positional-arg-name:"IMAGE_URL" required:"yes"`
-		vendor            string     `positional-arg-name:"IMAGE_VENDOR"`
+		Vendor            string     `positional-arg-name:"IMAGE_VENDOR"`
 		ActivateOnSuccess bool       `positional-arg-name:"IMAGE_ACTIVATE_ON_SUCCESS"`
 		CommitOnSuccess   bool       `positional-arg-name:"IMAGE_COMMIT_ON_SUCCESS"`
 		Crc               uint32     `positional-arg-name:"IMAGE_CRC"`
@@ -1490,7 +1490,7 @@ func (options *OnuDownloadImage) Execute(args []string) error {
 		Image: &voltha.Image{
 			Url:     options.Args.Url,
 			Crc32:   options.Args.Crc,
-			Vendor:  options.Args.vendor,
+			Vendor:  options.Args.Vendor,
 			Version: options.Args.ImageVersion,
 		},
 		ActivateOnSuccess: options.Args.ActivateOnSuccess,
