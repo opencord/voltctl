@@ -157,6 +157,24 @@
       "revId": "3c282447eee81254b8a3e6fb23867f6b9c9d0618",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7c4b2a89_a4edea6f",
+        "filename": "internal/pkg/commands/groups.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1000726
+      },
+      "writtenOn": "2021-05-20T07:43:45Z",
+      "side": 1,
+      "message": "There are 3 structs, one for device and one for logical device group. The one in groups is for both since I wanted to have a common Execute function for both.",
+      "parentUuid": "9b638bea_8b021bda",
+      "revId": "3c282447eee81254b8a3e6fb23867f6b9c9d0618",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }
