@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "29bf79b4_1ad5e436",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2021-05-26T09:35:13Z",
+      "side": 1,
+      "message": "ah, I see. ok",
+      "parentUuid": "7c1454d3_a9102d9c",
+      "revId": "8b6cdfc9f6a52e8bafe42f17d3d123bd1021e22e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f8c2d3b6_2ce83975",
         "filename": "internal/pkg/commands/logicaldevices.go",
         "patchSetId": 8
