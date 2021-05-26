@@ -341,6 +341,16 @@ type OnuPonOpticalInfo struct {
 		Id DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
 	} `positional-args:"yes"`
 }
+
+type GetOnuStats struct {
+	ListOutputOptions
+	Args struct {
+		OltId  DeviceId `positional-arg-name:"OLT_DEVICE_ID" required:"yes"`
+		IntfId uint32   `positional-arg-name:"PON_INTF_ID" required:"yes"`
+		OnuId  uint32   `positional-arg-name:"ONU_ID" required:"yes"`
+	} `positional-args:"yes"`
+}
+
 type DeviceOpts struct {
 	List    DeviceList     `command:"list"`
 	Create  DeviceCreate   `command:"create"`
@@ -398,6 +408,7 @@ type DeviceOpts struct {
 		Stats       DeviceGetPortStats `command:"portstats"`
 		UniStatus   UniStatus          `command:"unistatus"`
 		OpticalInfo OnuPonOpticalInfo  `command:"onu_pon_optical_info"`
+		OnuStats    GetOnuStats        `command:"onu_stats"`
 	} `command:"getextval"`
 }
 
@@ -1874,6 +1885,52 @@ func (options *DeviceGetPortStats) Execute(args []string) error {
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
 		Data:      rv.GetResponse().GetPortCoutners(),
+	}
+	GenerateOutput(&result)
+	return nil
+}
+
+func (options *GetOnuStats) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	client := extension.NewExtensionClient(conn)
+
+	singleGetValReq := extension.SingleGetValueRequest{
+		TargetId: string(options.Args.OltId),
+		Request: &extension.GetValueRequest{
+			Request: &extension.GetValueRequest_OnuPonInfo{
+				OnuPonInfo: &extension.GetOnuCountersRequest{
+					IntfId: options.Args.IntfId,
+					OnuId:  options.Args.OnuId,
+				},
+			},
+		},
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+	defer cancel()
+	rv, err := client.GetExtValue(ctx, &singleGetValReq)
+	if err != nil {
+		Error.Printf("Error getting value on device Id %s,err=%s\n", options.Args.OltId, ErrorToString(err))
+		return err
+	}
+
+	if rv.Response.Status != extension.GetValueResponse_OK {
+		return fmt.Errorf("failed to get onu stats %v", rv.Response.ErrReason.String())
+	}
+	outputFormat := CharReplacer.Replace(options.Format)
+	data, formatStr := buildOnuStatsOutputFormat(rv.GetResponse().GetOnuPonCounters())
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("device-get-onu-status", "format", formatStr)
+	}
+
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      data,
 	}
 	GenerateOutput(&result)
 	return nil
