@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "760277c0_a84c6094",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2021-05-26T08:19:50Z",
+      "side": 1,
+      "message": "DeviceGroupList",
+      "revId": "8b6cdfc9f6a52e8bafe42f17d3d123bd1021e22e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8c2d3b6_2ce83975",
+        "filename": "internal/pkg/commands/logicaldevices.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2021-05-26T08:19:50Z",
+      "side": 1,
+      "message": "LogicalDeviceGroupList",
+      "revId": "8b6cdfc9f6a52e8bafe42f17d3d123bd1021e22e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}
