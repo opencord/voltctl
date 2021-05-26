@@ -73,6 +73,12 @@ const (
   MEAN_OPTICAL_LAUNCH_POWER__dBm: {{.MeanOpticalLaunchPower}}
   LASER_BIAS_CURRENT__mA:         {{.LaserBiasCurrent}}
   TEMPERATURE__Celsius:           {{.Temperature}}`
+	DEFAULT_RX_POWER_STATUS_FORMAT = `
+	INTF_ID: {{.IntfId}}
+	ONU_ID: {{.OnuId}}
+	STATUS: {{.Status}}
+	FAIL_REASON: {{.FailReason}}
+	RX_POWER : {{.RxPower}}`
 )
 
 type DeviceList struct {
@@ -351,6 +357,15 @@ type GetOnuStats struct {
 	} `positional-args:"yes"`
 }
 
+type RxPower struct {
+	ListOutputOptions
+	Args struct {
+		Id     DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+		PortNo uint32   `positional-arg-name:"PORT_NO" required:"yes"`
+		OnuNo  uint32   `positional-arg-name:"ONU_NO" required:"yes"`
+	} `positional-args:"yes"`
+}
+
 type DeviceOpts struct {
 	List    DeviceList     `command:"list"`
 	Create  DeviceCreate   `command:"create"`
@@ -409,6 +424,7 @@ type DeviceOpts struct {
 		UniStatus   UniStatus          `command:"unistatus"`
 		OpticalInfo OnuPonOpticalInfo  `command:"onu_pon_optical_info"`
 		OnuStats    GetOnuStats        `command:"onu_stats"`
+		RxPower     RxPower            `command:"rxpower"`
 	} `command:"getextval"`
 }
 
@@ -2013,6 +2029,50 @@ func (options *OnuPonOpticalInfo) Execute(args []string) error {
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
 		Data:      rv.GetResponse().GetOnuOpticalInfo(),
+	}
+	GenerateOutput(&result)
+	return nil
+}
+
+func (options *RxPower) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	client := extension.NewExtensionClient(conn)
+
+	singleGetValReq := extension.SingleGetValueRequest{
+		TargetId: string(options.Args.Id),
+		Request: &extension.GetValueRequest{
+			Request: &extension.GetValueRequest_RxPower{
+				RxPower: &extension.GetRxPowerRequest{
+					IntfId: options.Args.PortNo,
+					OnuId:  options.Args.OnuNo,
+				},
+			},
+		},
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+	defer cancel()
+	rv, err := client.GetExtValue(ctx, &singleGetValReq)
+	if err != nil {
+		Error.Printf("Error getting value on device Id %s,err=%s\n", options.Args.Id, ErrorToString(err))
+		return err
+	}
+	if rv.Response.Status != extension.GetValueResponse_OK {
+		return fmt.Errorf("failed to get rx power %v", rv.Response.ErrReason.String())
+	}
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("device-get-rx-power", "format", DEFAULT_RX_POWER_STATUS_FORMAT)
+	}
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      rv.GetResponse().GetRxPower(),
 	}
 	GenerateOutput(&result)
 	return nil
