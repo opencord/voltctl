@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7c1454d3_a9102d9c",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 1000726
+      },
+      "writtenOn": "2021-05-26T09:34:23Z",
+      "side": 1,
+      "message": "As said, device group list already exists in the same package. I cannot remove unused device group directly as it will change the no\u0027s of the field for backward compatibility. Will create a jira for that. Only after that we can rename this.",
+      "parentUuid": "760277c0_a84c6094",
+      "revId": "8b6cdfc9f6a52e8bafe42f17d3d123bd1021e22e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f8c2d3b6_2ce83975",
         "filename": "internal/pkg/commands/logicaldevices.go",
         "patchSetId": 8
@@ -33,6 +51,24 @@
       "revId": "8b6cdfc9f6a52e8bafe42f17d3d123bd1021e22e",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d335579_eb12558a",
+        "filename": "internal/pkg/commands/logicaldevices.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1000726
+      },
+      "writtenOn": "2021-05-26T09:34:23Z",
+      "side": 1,
+      "message": "So just to make similar with deviceflowgrouplist I added logicaldeviceflowgrouplist here",
+      "parentUuid": "f8c2d3b6_2ce83975",
+      "revId": "8b6cdfc9f6a52e8bafe42f17d3d123bd1021e22e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }
