@@ -126,6 +126,24 @@
     },
     {
       "key": {
+        "uuid": "2151c27b_eb39cc5a",
+        "filename": "internal/pkg/commands/groups.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000726
+      },
+      "writtenOn": "2021-05-27T15:15:27Z",
+      "side": 1,
+      "message": "There is a jira https://jira.opencord.org/browse/VOL-4142 for removal of devicegroups as it is not valid now. So for this reason, I kept the file name as groups.",
+      "parentUuid": "37c8564e_86e8bca0",
+      "revId": "8b6cdfc9f6a52e8bafe42f17d3d123bd1021e22e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f8c2d3b6_2ce83975",
         "filename": "internal/pkg/commands/logicaldevices.go",
         "patchSetId": 8
