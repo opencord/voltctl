@@ -90,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "7aa4c3e8_191f5118",
+        "filename": "internal/pkg/commands/groups.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2021-05-27T07:45:52Z",
+      "side": 1,
+      "message": "\u003e I think groups is simpler.\n\nI agree, the flows groups is not a concept we really have, it\u0027s a byproduct in the name due to duplication that needs to be removed, calling this groups is good.",
+      "parentUuid": "ae229d31_8dc1ea1b",
+      "revId": "8b6cdfc9f6a52e8bafe42f17d3d123bd1021e22e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f8c2d3b6_2ce83975",
         "filename": "internal/pkg/commands/logicaldevices.go",
         "patchSetId": 8
