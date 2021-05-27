@@ -108,6 +108,24 @@
     },
     {
       "key": {
+        "uuid": "37c8564e_86e8bca0",
+        "filename": "internal/pkg/commands/groups.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000056
+      },
+      "writtenOn": "2021-05-27T13:25:45Z",
+      "side": 1,
+      "message": "My thoughts are to clearly specify what this file handles. If we only have groups.go then are we implying that this file will handle any type of groups? We also have devicegroups.go in the command directory.",
+      "parentUuid": "7aa4c3e8_191f5118",
+      "revId": "8b6cdfc9f6a52e8bafe42f17d3d123bd1021e22e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f8c2d3b6_2ce83975",
         "filename": "internal/pkg/commands/logicaldevices.go",
         "patchSetId": 8
