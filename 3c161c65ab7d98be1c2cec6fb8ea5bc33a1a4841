@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "23f37c9b_8d17d78e",
+        "filename": "internal/pkg/commands/groups.go",
+        "patchSetId": 12
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1000056
+      },
+      "writtenOn": "2021-05-31T14:32:23Z",
+      "side": 1,
+      "message": "We are retrieving flow groups but the option is \"device-groups\".  Are we implicitly stating that a group in voltha is a flow group? If that\u0027s the case then why not making \"-groups\" as a flag when retrieving flows?",
+      "revId": "3c161c65ab7d98be1c2cec6fb8ea5bc33a1a4841",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}
