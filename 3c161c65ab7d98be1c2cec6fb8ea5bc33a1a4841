@@ -16,6 +16,24 @@
       "revId": "3c161c65ab7d98be1c2cec6fb8ea5bc33a1a4841",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c2f5475_a5126b06",
+        "filename": "internal/pkg/commands/groups.go",
+        "patchSetId": 12
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1000116
+      },
+      "writtenOn": "2021-06-03T11:04:02Z",
+      "side": 1,
+      "message": "no, the groups are separated from flows, they are distinct and could live one without the other. Meaning flows can exist with no groups and groups could (depending on Operator\u0027s choice) live with no flows.",
+      "parentUuid": "23f37c9b_8d17d78e",
+      "revId": "3c161c65ab7d98be1c2cec6fb8ea5bc33a1a4841",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
     }
   ]
 }
