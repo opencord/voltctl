@@ -285,6 +285,7 @@ type DeviceOnuActivateImageUpdate struct {
 }
 
 type OnuDownloadImage struct {
+	ListOutputOptions
 	Args struct {
 		ImageVersion      string     `positional-arg-name:"IMAGE_VERSION" required:"yes"`
 		Url               string     `positional-arg-name:"IMAGE_URL" required:"yes"`
@@ -297,6 +298,7 @@ type OnuDownloadImage struct {
 }
 
 type OnuActivateImage struct {
+	ListOutputOptions
 	Args struct {
 		ImageVersion    string     `positional-arg-name:"IMAGE_VERSION" required:"yes"`
 		CommitOnSuccess bool       `positional-arg-name:"IMAGE_COMMIT_ON_SUCCESS"`
@@ -305,6 +307,7 @@ type OnuActivateImage struct {
 }
 
 type OnuAbortUpgradeImage struct {
+	ListOutputOptions
 	Args struct {
 		ImageVersion string     `positional-arg-name:"IMAGE_VERSION" required:"yes"`
 		IDs          []DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
@@ -312,6 +315,7 @@ type OnuAbortUpgradeImage struct {
 }
 
 type OnuCommitImage struct {
+	ListOutputOptions
 	Args struct {
 		ImageVersion string     `positional-arg-name:"IMAGE_VERSION" required:"yes"`
 		IDs          []DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
@@ -1541,11 +1545,23 @@ func (options *OnuDownloadImage) Execute(args []string) error {
 		CommitOnSuccess:   options.Args.CommitOnSuccess,
 	}
 
-	_, err = client.DownloadImageToDevice(ctx, &downloadImage)
+	deviceImageResp, err := client.DownloadImageToDevice(ctx, &downloadImage)
 	if err != nil {
 		return err
 	}
 
+	outputFormat := GetCommandOptionWithDefault("onu-image-download", "format", ONU_IMAGE_STATUS_FORMAT)
+	// Make sure json output prints an empty list, not "null"
+	if deviceImageResp.DeviceImageStates == nil {
+		deviceImageResp.DeviceImageStates = make([]*voltha.DeviceImageState, 0)
+	}
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      deviceImageResp.DeviceImageStates,
+	}
+	GenerateOutput(&result)
 	return nil
 
 }
@@ -1575,10 +1591,23 @@ func (options *OnuActivateImage) Execute(args []string) error {
 		CommitOnSuccess: options.Args.CommitOnSuccess,
 	}
 
-	_, err = client.ActivateImage(ctx, &downloadImage)
+	deviceImageResp, err := client.ActivateImage(ctx, &downloadImage)
 	if err != nil {
 		return err
 	}
+
+	outputFormat := GetCommandOptionWithDefault("onu-image-activate", "format", ONU_IMAGE_STATUS_FORMAT)
+	// Make sure json output prints an empty list, not "null"
+	if deviceImageResp.DeviceImageStates == nil {
+		deviceImageResp.DeviceImageStates = make([]*voltha.DeviceImageState, 0)
+	}
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      deviceImageResp.DeviceImageStates,
+	}
+	GenerateOutput(&result)
 
 	return nil
 
@@ -1608,10 +1637,23 @@ func (options *OnuAbortUpgradeImage) Execute(args []string) error {
 		Version:  options.Args.ImageVersion,
 	}
 
-	_, err = client.AbortImageUpgradeToDevice(ctx, &downloadImage)
+	deviceImageResp, err := client.AbortImageUpgradeToDevice(ctx, &downloadImage)
 	if err != nil {
 		return err
 	}
+
+	outputFormat := GetCommandOptionWithDefault("onu-image-abort", "format", ONU_IMAGE_STATUS_FORMAT)
+	// Make sure json output prints an empty list, not "null"
+	if deviceImageResp.DeviceImageStates == nil {
+		deviceImageResp.DeviceImageStates = make([]*voltha.DeviceImageState, 0)
+	}
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      deviceImageResp.DeviceImageStates,
+	}
+	GenerateOutput(&result)
 
 	return nil
 
@@ -1640,10 +1682,23 @@ func (options *OnuCommitImage) Execute(args []string) error {
 		Version:  options.Args.ImageVersion,
 	}
 
-	_, err = client.CommitImage(ctx, &downloadImage)
+	deviceImageResp, err := client.CommitImage(ctx, &downloadImage)
 	if err != nil {
 		return err
 	}
+
+	outputFormat := GetCommandOptionWithDefault("onu-image-commit", "format", ONU_IMAGE_STATUS_FORMAT)
+	// Make sure json output prints an empty list, not "null"
+	if deviceImageResp.DeviceImageStates == nil {
+		deviceImageResp.DeviceImageStates = make([]*voltha.DeviceImageState, 0)
+	}
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      deviceImageResp.DeviceImageStates,
+	}
+	GenerateOutput(&result)
 
 	return nil
 
