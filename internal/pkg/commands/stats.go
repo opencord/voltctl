@@ -16,6 +16,7 @@
 package commands
 
 import (
+	"fmt"
 	"github.com/opencord/voltctl/pkg/model"
 	"github.com/opencord/voltha-protos/v4/go/extension"
 	"strings"
@@ -37,15 +38,14 @@ func (t *tagBuilder) buildOutputString() string {
 }
 func (t *tagBuilder) addFieldInFormat(name string) {
 	if !t.firstField {
-		t.tag.WriteString("\t")
+		t.tag.WriteString("\n")
 	}
 	t.firstField = false
+	str := fmt.Sprintf("%s:    ", name)
+	t.tag.WriteString(str)
 	t.tag.WriteString("{{.")
 	t.tag.WriteString(name)
 	t.tag.WriteString("}}")
-}
-func (t *tagBuilder) addTableInFormat() {
-	t.tag.WriteString("table")
 }
 
 /*
@@ -55,7 +55,6 @@ func (t *tagBuilder) addTableInFormat() {
 func buildOnuStatsOutputFormat(counters *extension.GetOnuCountersResponse) (model.OnuStats, string) {
 	onuStats := model.OnuStats{}
 	tagBuilder := NewTagBuilder()
-	tagBuilder.addTableInFormat()
 	if counters.IsIntfId != nil {
 		intfId := counters.GetIntfId()
 		onuStats.IntfId = &intfId
@@ -192,4 +191,97 @@ func buildOnuStatsOutputFormat(counters *extension.GetOnuCountersResponse) (mode
 		tagBuilder.addFieldInFormat("Timestamp")
 	}
 	return onuStats, tagBuilder.buildOutputString()
+}
+
+/*
+ * Construct a template format string based on the fields required by the
+ * results.
+ */
+func buildOnuEthernetFrameExtendedPmOutputFormat(counters *extension.GetOmciEthernetFrameExtendedPmResponse) model.OnuEthernetFrameExtendedPm {
+	onuStats := model.OnuEthernetFrameExtendedPm{}
+
+	dropEvents := counters.Upstream.GetDropEvents()
+	onuStats.UDropEvents = &dropEvents
+
+	octets := counters.Upstream.GetOctets()
+	onuStats.UOctets = &octets
+
+	frames := counters.Upstream.GetFrames()
+	onuStats.UFrames = &frames
+
+	broadcastFrames := counters.Upstream.GetBroadcastFrames()
+	onuStats.UBroadcastFrames = &broadcastFrames
+
+	multicastFrames := counters.Upstream.GetMulticastFrames()
+	onuStats.UMulticastFrames = &multicastFrames
+
+	crcErroredFrames := counters.Upstream.GetCrcErroredFrames()
+	onuStats.UCrcErroredFrames = &crcErroredFrames
+
+	undersizeFrames := counters.Upstream.GetUndersizeFrames()
+	onuStats.UUndersizeFrames = &undersizeFrames
+
+	oversizeFrames := counters.Upstream.GetOversizeFrames()
+	onuStats.UOversizeFrames = &oversizeFrames
+
+	frames_64Octets := counters.Upstream.GetFrames_64Octets()
+	onuStats.UFrames_64Octets = &frames_64Octets
+
+	frames_65To_127Octets := counters.Upstream.GetFrames_65To_127Octets()
+	onuStats.UFrames_65To_127Octets = &frames_65To_127Octets
+
+	frames_128To_255Octets := counters.Upstream.GetFrames_128To_255Octets()
+	onuStats.UFrames_128To_255Octets = &frames_128To_255Octets
+
+	frames_256To_511Octets := counters.Upstream.GetFrames_256To_511Octets()
+	onuStats.UFrames_256To_511Octets = &frames_256To_511Octets
+
+	frames_512To_1023Octets := counters.Upstream.GetFrames_512To_1023Octets()
+	onuStats.UFrames_512To_1023Octets = &frames_512To_1023Octets
+
+	frames_1024To_1518Octets := counters.Upstream.GetFrames_1024To_1518Octets()
+	onuStats.UFrames_1024To_1518Octets = &frames_1024To_1518Octets
+
+	dDropEvents := counters.Downstream.GetDropEvents()
+	onuStats.DDropEvents = &dDropEvents
+
+	dOctets := counters.Downstream.GetOctets()
+	onuStats.DOctets = &dOctets
+
+	dFrames := counters.Downstream.GetFrames()
+	onuStats.DFrames = &dFrames
+
+	dBroadcastFrames := counters.Downstream.GetBroadcastFrames()
+	onuStats.DBroadcastFrames = &dBroadcastFrames
+
+	dMulticastFrames := counters.Downstream.GetMulticastFrames()
+	onuStats.DMulticastFrames = &dMulticastFrames
+
+	dCrcErroredFrames := counters.Downstream.GetCrcErroredFrames()
+	onuStats.DCrcErroredFrames = &dCrcErroredFrames
+
+	dUndersizeFrames := counters.Downstream.GetUndersizeFrames()
+	onuStats.DUndersizeFrames = &dUndersizeFrames
+
+	dOversizeFrames := counters.Downstream.GetOversizeFrames()
+	onuStats.DOversizeFrames = &dOversizeFrames
+
+	dFrames_64Octets := counters.Downstream.GetFrames_64Octets()
+	onuStats.DFrames_64Octets = &dFrames_64Octets
+
+	dFrames_65To_127Octets := counters.Downstream.GetFrames_65To_127Octets()
+	onuStats.DFrames_65To_127Octets = &dFrames_65To_127Octets
+
+	dFrames_128To_255Octets := counters.Downstream.GetFrames_128To_255Octets()
+	onuStats.DFrames_128To_255Octets = &dFrames_128To_255Octets
+
+	dFrames_256To_511Octets := counters.Downstream.GetFrames_256To_511Octets()
+	onuStats.DFrames_256To_511Octets = &dFrames_256To_511Octets
+
+	dFrames_512To_1023Octets := counters.Downstream.GetFrames_512To_1023Octets()
+	onuStats.DFrames_512To_1023Octets = &dFrames_512To_1023Octets
+
+	dFrames_1024To_1518Octets := counters.Downstream.GetFrames_1024To_1518Octets()
+	onuStats.DFrames_1024To_1518Octets = &dFrames_1024To_1518Octets
+	return onuStats
 }
