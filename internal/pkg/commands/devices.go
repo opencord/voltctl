@@ -79,6 +79,8 @@ const (
 	STATUS: {{.Status}}
 	FAIL_REASON: {{.FailReason}}
 	RX_POWER : {{.RxPower}}`
+	DEFAULT_ETHERNET_FRAME_EXTENDED_PM_COUNTERS_FORMAT = `Upstream:	{{.Upstream}}
+  Downstream:	{{.Downstream}}`
 )
 
 type DeviceList struct {
@@ -368,6 +370,13 @@ type GetOnuStats struct {
 	} `positional-args:"yes"`
 }
 
+type GetOnuEthernetFrameExtendedPmCounters struct {
+	ListOutputOptions
+	Args struct {
+		Id DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+	} `positional-args:"yes"`
+}
+
 type RxPower struct {
 	ListOutputOptions
 	Args struct {
@@ -432,11 +441,12 @@ type DeviceOpts struct {
 		List         OnuListImages        `command:"list" `
 	} `command:"onuimage"`
 	GetExtVal struct {
-		Stats       DeviceGetPortStats `command:"portstats"`
-		UniStatus   UniStatus          `command:"unistatus"`
-		OpticalInfo OnuPonOpticalInfo  `command:"onu_pon_optical_info"`
-		OnuStats    GetOnuStats        `command:"onu_stats"`
-		RxPower     RxPower            `command:"rxpower"`
+		Stats                   DeviceGetPortStats                    `command:"portstats"`
+		UniStatus               UniStatus                             `command:"unistatus"`
+		OpticalInfo             OnuPonOpticalInfo                     `command:"onu_pon_optical_info"`
+		OnuStats                GetOnuStats                           `command:"onu_stats"`
+		EthernetFrameExtendedPm GetOnuEthernetFrameExtendedPmCounters `command:"ethernet_frame_extended_pm"`
+		RxPower                 RxPower                               `command:"rxpower"`
 	} `command:"getextval"`
 }
 
@@ -2019,6 +2029,50 @@ func (options *GetOnuStats) Execute(args []string) error {
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
 		Data:      data,
+	}
+	GenerateOutput(&result)
+	return nil
+}
+
+func (options *GetOnuEthernetFrameExtendedPmCounters) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	client := extension.NewExtensionClient(conn)
+
+	singleGetValReq := extension.SingleGetValueRequest{
+		TargetId: string(options.Args.Id),
+		Request: &extension.GetValueRequest{
+			Request: &extension.GetValueRequest_OnuInfo{
+				OnuInfo: &extension.GetOmciEthernetFrameExtendedPmRequest{
+					OnuDeviceId: string(options.Args.Id),
+				},
+			},
+		},
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+	defer cancel()
+	rv, err := client.GetExtValue(ctx, &singleGetValReq)
+	if err != nil {
+		Error.Printf("Error getting value on device Id %s,err=%s\n", options.Args.Id, ErrorToString(err))
+		return err
+	}
+
+	if rv.Response.Status != extension.GetValueResponse_OK {
+		return fmt.Errorf("failed to get ethernet frame extended pm counters %v", rv.Response.ErrReason.String())
+	}
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("device-get-onu-status", "format", DEFAULT_ETHERNET_FRAME_EXTENDED_PM_COUNTERS_FORMAT)
+	}
+
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      rv.GetResponse().GetOnuCounters(),
 	}
 	GenerateOutput(&result)
 	return nil
