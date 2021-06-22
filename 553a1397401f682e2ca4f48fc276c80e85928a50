@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67539b39_e642bb11",
+        "filename": "internal/pkg/commands/stats.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2021-06-22T14:35:08Z",
+      "side": 1,
+      "message": "this changes the code from building a tab delineated row to a return delineated result. is this really what is wanted for all commands that use this utility?",
+      "range": {
+        "startLine": 41,
+        "startChar": 20,
+        "endLine": 41,
+        "endChar": 24
+      },
+      "revId": "553a1397401f682e2ca4f48fc276c80e85928a50",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}
