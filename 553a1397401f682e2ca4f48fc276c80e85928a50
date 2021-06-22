@@ -22,6 +22,30 @@
       "revId": "553a1397401f682e2ca4f48fc276c80e85928a50",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f11fdc7f_659e88cd",
+        "filename": "internal/pkg/commands/stats.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1000726
+      },
+      "writtenOn": "2021-06-22T14:39:00Z",
+      "side": 1,
+      "message": "yes actually the no of columns in a row are huge so instead of putting it in display in a tabular format, it will display each field horizontally so that it is easier to understand. We already have this format defined as constants for specific other commands as well. Here i cannot define constants as the fields are optional.",
+      "parentUuid": "67539b39_e642bb11",
+      "range": {
+        "startLine": 41,
+        "startChar": 20,
+        "endLine": 41,
+        "endChar": 24
+      },
+      "revId": "553a1397401f682e2ca4f48fc276c80e85928a50",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": false
     }
   ]
 }
