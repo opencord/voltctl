@@ -24,6 +24,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/user"
 	"path/filepath"
 	"reflect"
 	"regexp"
@@ -295,14 +296,57 @@ func ApplyOptionOverrides(stack *configv3.StackConfigSpec) {
 	}
 }
 
-func ReadConfig() {
-	if len(GlobalOptions.Config) == 0 {
+func homeDir() (string, error) {
+
+	// First attempt is using the current user information, if that
+	// fails we attempt to use the environment variables via a call
+	// to os.UserHomeDir()
+	cur, err := user.Current()
+	if err != nil {
 		home, err := os.UserHomeDir()
 		if err != nil {
-			Warn.Printf("Unable to discover the user's home directory: %s", err)
-			home = "~"
+			return "", errors.New("unable to get current user or determine home directory via environment")
+		}
+		return home, nil
+	}
+	if len(cur.HomeDir) == 0 {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return "", errors.New("unable to get determine home directory via user information or environment")
+		}
+		return home, nil
+	}
+	return cur.HomeDir, nil
+}
+
+func ReadConfig() {
+	// assume that the config file was specified until it is
+	// determined it was not
+	if len(GlobalOptions.Config) == 0 {
+		home, err := homeDir()
+		if err != nil {
+			Error.Fatalf("Unable to create default configuration file path: %s", err.Error())
 		}
 		GlobalOptions.Config = filepath.Join(home, ".volt", "config")
+	}
+
+	// If the config file value is `~` or begins with `~/` then
+	// attempt to expand that to the user's home directory
+	if GlobalOptions.Config == "~" {
+		home, err := homeDir()
+		if err != nil {
+			Error.Fatalf("Unable to expand config file path '%s': %s",
+				GlobalOptions.Config, err)
+		}
+		GlobalOptions.Config = home
+	} else if strings.HasPrefix(GlobalOptions.Config, "~/") {
+		home, err := homeDir()
+		if err != nil {
+			Error.Fatalf("Unable to expand config file path '%s': %s",
+				GlobalOptions.Config, err)
+		}
+		GlobalOptions.Config = filepath.Join(home,
+			GlobalOptions.Config[2:])
 	}
 
 	if info, err := os.Stat(GlobalOptions.Config); err == nil && !info.IsDir() {
@@ -327,7 +371,6 @@ func ReadConfig() {
 			}
 		}
 	}
-
 }
 
 func NewConnection() (*grpc.ClientConn, error) {
