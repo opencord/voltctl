@@ -16,6 +16,24 @@
       "revId": "238e625b882e02dad153eb65c30096f16f1c4048",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b014d5a5_4508eca1",
+        "filename": "internal/pkg/commands/command.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 1000003
+      },
+      "writtenOn": "2021-06-28T19:22:00Z",
+      "side": 1,
+      "message": "Agreed. Separated this so that the error message was more descriptive, i.e. via the error message someone troubleshooting could better distinguish what the issue was.",
+      "parentUuid": "0e48c499_7e974ccd",
+      "revId": "238e625b882e02dad153eb65c30096f16f1c4048",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
     }
   ]
 }
