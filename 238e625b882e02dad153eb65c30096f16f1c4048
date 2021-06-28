@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0e48c499_7e974ccd",
+        "filename": "internal/pkg/commands/command.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 1000056
+      },
+      "writtenOn": "2021-06-28T19:14:13Z",
+      "side": 1,
+      "message": "nit:  could check for len(cur.HomeDir) \u003d\u003d 0 here.",
+      "revId": "238e625b882e02dad153eb65c30096f16f1c4048",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388",
+      "unresolved": true
+    }
+  ]
+}
