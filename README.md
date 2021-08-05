@@ -228,6 +228,27 @@ adapter-open-olt    github.com/opencord/voltha-openolt-adapter/internal/pkg/reso
 adapter-open-olt    main
 ```
 
+If you do not see packages in your output it is possible you are not retrieving the data from the correct path in ``ETCD``.
+The data is stored according to the helm chart defined value for `kv_store_data_prefix`.
+
+If you deployed according to the README in the [voltha-helm-charts README]() the value for `kv_store_data_prefix` is
+`service/voltha/{{ .Release.Name }}_{{ .Values.global.stack_name }}`, e.g `service/voltha/voltha1_voltha1`.
+
+If you are unsure about the `kv_store_data_prefix` you can check through one of the pods, e.g. `rw-core`.
+Make sure to use the correct namespace for `-n` by checking it with `kubectl get pods -A` and then issue:
+```shell
+$ kubectl describe -n voltha1 $(kubectl -n voltha1 get pods -l app=rw-core -o name) | grep KV
+KV_STORE_DATAPATH_PREFIX:  service/voltha/voltha1_voltha1
+```
+
+You can set the path for any `voltctl` command by exporting the `KV_STORE_DATAPATH_PREFIX` variable,
+e.g. `KV_STORE_DATAPATH_PREFIX=service/voltha/voltha1_voltha1`.
+
+A full example command is:
+```shell
+KV_STORE_DATAPATH_PREFIX=service/voltha/voltha1_voltha1 voltctl log package list adapter-open-olt
+```
+
 ### Configuring the message size
 
 When you run VOLTHA with a high number of OLTs/ONUs is possible that the gRPC response exceeds the default 4MB in size.
