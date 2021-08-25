@@ -47,6 +47,7 @@ type OnuStats struct {
 }
 
 type OnuEthernetFrameExtendedPm struct {
+	PmFormat                  string  `json:"pm_format"`
 	UDropEvents               *uint64 `json:"upstream_drop_events,omitempty"`
 	UOctets                   *uint64 `json:"upstream_octets,omitempty"`
 	UFrames                   *uint64 `json:"upstream_frames,omitempty"`

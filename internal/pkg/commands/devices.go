@@ -106,7 +106,8 @@ DFrames_65To_127Octets:	        {{.DFrames_65To_127Octets}}
 DFrames_128To_255Octets:	{{.DFrames_128To_255Octets}}
 DFrames_256To_511Octets:	{{.DFrames_256To_511Octets}}
 DFrames_512To_1023Octets:	{{.DFrames_512To_1023Octets}}
-DFrames_1024To_1518Octets:	{{.DFrames_1024To_1518Octets}}`
+DFrames_1024To_1518Octets:	{{.DFrames_1024To_1518Octets}}
+PmFormat:	                {{.PmFormat}}`
 )
 
 type DeviceList struct {
