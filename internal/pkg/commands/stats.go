@@ -200,6 +200,8 @@ func buildOnuStatsOutputFormat(counters *extension.GetOnuCountersResponse) (mode
 func buildOnuEthernetFrameExtendedPmOutputFormat(counters *extension.GetOmciEthernetFrameExtendedPmResponse) model.OnuEthernetFrameExtendedPm {
 	onuStats := model.OnuEthernetFrameExtendedPm{}
 
+	onuStats.PmFormat = counters.GetOmciEthernetFrameExtendedPmFormat().String()
+
 	dropEvents := counters.Upstream.GetDropEvents()
 	onuStats.UDropEvents = &dropEvents
 
