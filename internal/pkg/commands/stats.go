@@ -18,7 +18,7 @@ package commands
 import (
 	"fmt"
 	"github.com/opencord/voltctl/pkg/model"
-	"github.com/opencord/voltha-protos/v4/go/extension"
+	"github.com/opencord/voltha-protos/v5/go/extension"
 	"strings"
 )
 

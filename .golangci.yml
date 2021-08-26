@@ -23,3 +23,9 @@ linters:
     - gofmt
     #- golint
     #- unparam
+    - errcheck
+
+issues:
+  exclude:
+    - "Package github.com/golang/protobuf/proto is deprecated"
+    - "Package github.com/golang/protobuf/jsonpb is deprecated"

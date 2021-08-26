@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"github.com/opencord/voltctl/pkg/format"
 	"github.com/opencord/voltctl/pkg/model"
-	"github.com/opencord/voltha-protos/v4/go/openflow_13"
-	"github.com/opencord/voltha-protos/v4/go/voltha"
+	"github.com/opencord/voltha-protos/v5/go/openflow_13"
+	"github.com/opencord/voltha-protos/v5/go/voltha"
 	"sort"
 	"strings"
 )

@@ -28,12 +28,11 @@ import (
 	"github.com/Shopify/sarama"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/opencord/voltctl/pkg/filter"
 	"github.com/opencord/voltctl/pkg/format"
-	"github.com/opencord/voltha-protos/v4/go/voltha"
+	"github.com/opencord/voltha-protos/v5/go/voltha"
 )
 
 const (
@@ -124,8 +123,7 @@ func DecodeTimestamp(tsIntf interface{}) (time.Time, error) {
 	ts, okay := tsIntf.(*timestamp.Timestamp)
 	if okay {
 		// Voltha-Protos 3.2.3 and above
-		result, err := ptypes.Timestamp(ts)
-		return result, err
+		return ts.AsTime(), nil
 	}
 	tsFloat, okay := tsIntf.(float32)
 	if okay {
@@ -231,8 +229,9 @@ func PrintMessage(outputAs string, b []byte) error {
 	}
 
 	if outputAs == "json" {
-		marshaler := jsonpb.Marshaler{EmitDefaults: true, AnyResolver: &VolthaAnyResolver{}}
+		marshaler := jsonpb.Marshaler{EmitDefaults: true}
 		asJson, err := marshaler.MarshalToString(ms)
+
 		if err != nil {
 			return fmt.Errorf("Failed to marshal the json: %s", err)
 		}

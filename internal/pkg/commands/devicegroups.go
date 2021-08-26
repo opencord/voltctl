@@ -21,7 +21,7 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/opencord/voltctl/pkg/format"
-	"github.com/opencord/voltha-protos/v4/go/voltha"
+	"github.com/opencord/voltha-protos/v5/go/voltha"
 )
 
 const (
