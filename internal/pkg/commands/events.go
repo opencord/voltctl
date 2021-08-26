@@ -231,8 +231,9 @@ func PrintMessage(outputAs string, b []byte) error {
 	}
 
 	if outputAs == "json" {
-		marshaler := jsonpb.Marshaler{EmitDefaults: true, AnyResolver: &VolthaAnyResolver{}}
+		marshaler := jsonpb.Marshaler{EmitDefaults: true}
 		asJson, err := marshaler.MarshalToString(ms)
+
 		if err != nil {
 			return fmt.Errorf("Failed to marshal the json: %s", err)
 		}

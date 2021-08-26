@@ -21,11 +21,12 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/opencord/voltctl/pkg/format"
+	"github.com/opencord/voltctl/pkg/model"
 	"github.com/opencord/voltha-protos/v4/go/voltha"
 )
 
 const (
-	DEFAULT_OUTPUT_FORMAT = "table{{ .Id }}\t{{ .Vendor }}\t{{ .Type }}\t{{ .Endpoint }}\t{{ .Version }}\t{{ .CurrentReplica }}\t{{ .TotalReplicas }}\t{{ since .LastCommunication}}"
+	DEFAULT_OUTPUT_FORMAT = "table{{ .Id }}\t{{ .Vendor }}\t{{ .Type }}\t{{ .Endpoint }}\t{{ .Version }}\t{{ .CurrentReplica }}\t{{ .TotalReplicas }}\t{{ gosince .LastCommunication}}"
 )
 
 type AdapterList struct {
@@ -60,6 +61,10 @@ func (options *AdapterList) Execute(args []string) error {
 	if err != nil {
 		return err
 	}
+	data := make([]model.AdapterInstance, len(adapters.Items))
+	for i, item := range adapters.Items {
+		data[i].PopulateFrom(item)
+	}
 
 	outputFormat := CharReplacer.Replace(options.Format)
 	if outputFormat == "" {
@@ -82,7 +87,7 @@ func (options *AdapterList) Execute(args []string) error {
 		OrderBy:   orderBy,
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
-		Data:      adapters.Items,
+		Data:      data,
 	}
 	GenerateOutput(&result)
 
