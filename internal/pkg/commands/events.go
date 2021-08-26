@@ -33,7 +33,7 @@ import (
 	flags "github.com/jessevdk/go-flags"
 	"github.com/opencord/voltctl/pkg/filter"
 	"github.com/opencord/voltctl/pkg/format"
-	"github.com/opencord/voltha-protos/v4/go/voltha"
+	"github.com/opencord/voltha-protos/v5/go/voltha"
 )
 
 const (
@@ -231,8 +231,9 @@ func PrintMessage(outputAs string, b []byte) error {
 	}
 
 	if outputAs == "json" {
-		marshaler := jsonpb.Marshaler{EmitDefaults: true, AnyResolver: &VolthaAnyResolver{}}
+		marshaler := jsonpb.Marshaler{EmitDefaults: true}
 		asJson, err := marshaler.MarshalToString(ms)
+
 		if err != nil {
 			return fmt.Errorf("Failed to marshal the json: %s", err)
 		}
