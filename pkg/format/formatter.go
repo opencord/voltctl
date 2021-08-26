@@ -94,7 +94,8 @@ func (f Format) Execute(writer io.Writer, withHeaders bool, nameLimit int, data 
 
 	funcmap := template.FuncMap{
 		"timestamp": formatTimestamp,
-		"since":     formatSince}
+		"since":     formatSince,
+		"gosince":   formatGoSince}
 
 	tmpl, err := template.New("output").Funcs(funcmap).Parse(string(format))
 	if err != nil {
