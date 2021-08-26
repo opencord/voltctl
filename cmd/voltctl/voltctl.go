@@ -68,7 +68,6 @@ func main() {
 	commands.RegisterComponentCommands(parser)
 	commands.RegisterLogCommands(parser)
 	commands.RegisterEventCommands(parser)
-	commands.RegisterMessageCommands(parser)
 	commands.RegisterStackCommands(parser)
 
 	_, err = parser.Parse()
