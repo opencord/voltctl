@@ -16,9 +16,10 @@
 package format
 
 import (
+	"time"
+
 	"github.com/golang/protobuf/ptypes"
 	timestamppb "github.com/golang/protobuf/ptypes/timestamp"
-	"time"
 )
 
 // formats a Timestamp proto as a RFC3339 date string
@@ -31,6 +32,11 @@ func formatTimestamp(tsproto *timestamppb.Timestamp) (string, error) {
 		return "", err
 	}
 	return ts.Truncate(time.Second).Format(time.RFC3339), nil
+}
+
+// Computes the age of a timestamp and returns it in HMS format
+func formatGoSince(ts time.Time) (string, error) {
+	return time.Now().Sub(ts).Truncate(time.Second).String(), nil
 }
 
 // Computes the age of a timestamp and returns it in HMS format
