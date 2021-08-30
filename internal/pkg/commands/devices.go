@@ -398,8 +398,10 @@ type GetOnuStats struct {
 
 type GetOnuEthernetFrameExtendedPmCounters struct {
 	ListOutputOptions
+	Reset bool `long:"reset" description:"Reset the counters"`
 	Args struct {
-		Id DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+		Id       DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+		UniIndex *uint32  `positional-arg-name:"UNI_INDEX"`
 	} `positional-args:"yes"`
 }
 
@@ -2066,17 +2068,37 @@ func (options *GetOnuEthernetFrameExtendedPmCounters) Execute(args []string) err
 	}
 	defer conn.Close()
 	client := extension.NewExtensionClient(conn)
+	var singleGetValReq extension.SingleGetValueRequest
 
-	singleGetValReq := extension.SingleGetValueRequest{
-		TargetId: string(options.Args.Id),
-		Request: &extension.GetValueRequest{
-			Request: &extension.GetValueRequest_OnuInfo{
-				OnuInfo: &extension.GetOmciEthernetFrameExtendedPmRequest{
-					OnuDeviceId: string(options.Args.Id),
+	if options.Args.UniIndex != nil {
+		singleGetValReq = extension.SingleGetValueRequest{
+			TargetId: string(options.Args.Id),
+			Request: &extension.GetValueRequest{
+				Request: &extension.GetValueRequest_OnuInfo{
+					OnuInfo: &extension.GetOmciEthernetFrameExtendedPmRequest{
+						OnuDeviceId: string(options.Args.Id),
+                                        	Reset_:      options.Reset,
+						IsUniIndex: &extension.GetOmciEthernetFrameExtendedPmRequest_UniIndex{
+							UniIndex: *options.Args.UniIndex,
+						},
+					},
 				},
 			},
-		},
+		}
+	} else {
+		singleGetValReq = extension.SingleGetValueRequest{
+			TargetId: string(options.Args.Id),
+			Request: &extension.GetValueRequest{
+				Request: &extension.GetValueRequest_OnuInfo{
+					OnuInfo: &extension.GetOmciEthernetFrameExtendedPmRequest{
+						OnuDeviceId: string(options.Args.Id),
+                                        	Reset_:      options.Reset,
+					},
+				},
+			},
+		}
 	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
 	defer cancel()
 	rv, err := client.GetExtValue(ctx, &singleGetValReq)
