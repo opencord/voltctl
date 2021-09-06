@@ -398,7 +398,8 @@ type GetOnuStats struct {
 
 type GetOnuEthernetFrameExtendedPmCounters struct {
 	ListOutputOptions
-	Args struct {
+	Reset bool `long:"reset" description:"Reset the counters"`
+	Args  struct {
 		Id DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
 	} `positional-args:"yes"`
 }
@@ -2066,13 +2067,13 @@ func (options *GetOnuEthernetFrameExtendedPmCounters) Execute(args []string) err
 	}
 	defer conn.Close()
 	client := extension.NewExtensionClient(conn)
-
 	singleGetValReq := extension.SingleGetValueRequest{
 		TargetId: string(options.Args.Id),
 		Request: &extension.GetValueRequest{
 			Request: &extension.GetValueRequest_OnuInfo{
 				OnuInfo: &extension.GetOmciEthernetFrameExtendedPmRequest{
 					OnuDeviceId: string(options.Args.Id),
+					Reset_:      options.Reset,
 				},
 			},
 		},
