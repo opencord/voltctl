@@ -126,17 +126,18 @@ github.com/klauspost/compress/zstd/internal/xxhash
 github.com/modern-go/concurrent
 # github.com/modern-go/reflect2 v1.0.1
 github.com/modern-go/reflect2
-# github.com/opencord/voltha-lib-go/v7 v7.0.0
+# github.com/opencord/voltha-lib-go/v7 v7.0.0 => ../voltha-lib-go
 ## explicit
 github.com/opencord/voltha-lib-go/v7/pkg/config
 github.com/opencord/voltha-lib-go/v7/pkg/db
 github.com/opencord/voltha-lib-go/v7/pkg/db/kvstore
 github.com/opencord/voltha-lib-go/v7/pkg/log
-# github.com/opencord/voltha-protos/v5 v5.0.2
+# github.com/opencord/voltha-protos/v5 v5.0.2 => ../voltha-protos
 ## explicit
 github.com/opencord/voltha-protos/v5/go/common
 github.com/opencord/voltha-protos/v5/go/ext/config
 github.com/opencord/voltha-protos/v5/go/extension
+github.com/opencord/voltha-protos/v5/go/health
 github.com/opencord/voltha-protos/v5/go/omci
 github.com/opencord/voltha-protos/v5/go/openflow_13
 github.com/opencord/voltha-protos/v5/go/voltha
@@ -234,7 +235,7 @@ google.golang.org/appengine/internal/log
 google.golang.org/appengine/internal/remote_api
 google.golang.org/appengine/internal/urlfetch
 google.golang.org/appengine/urlfetch
-# google.golang.org/genproto v0.0.0-20210924002016-3dee208752a0
+# google.golang.org/genproto v0.0.0-20211101144312-62acf1d99145
 google.golang.org/genproto/googleapis/api/annotations
 google.golang.org/genproto/googleapis/rpc/status
 # google.golang.org/grpc v1.41.0 => google.golang.org/grpc v1.25.1
@@ -462,5 +463,7 @@ k8s.io/utils/integer
 # sigs.k8s.io/yaml v1.2.0
 sigs.k8s.io/yaml
 # github.com/coreos/bbolt v1.3.4 => go.etcd.io/bbolt v1.3.4
+# github.com/opencord/voltha-lib-go/v7 => ../voltha-lib-go
+# github.com/opencord/voltha-protos/v5 => ../voltha-protos
 # go.etcd.io/bbolt v1.3.4 => github.com/coreos/bbolt v1.3.4
 # google.golang.org/grpc => google.golang.org/grpc v1.25.1

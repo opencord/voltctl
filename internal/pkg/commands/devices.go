@@ -2262,12 +2262,12 @@ func (options *DeviceGetExtValue) Execute(args []string) error {
 
 	client := voltha.NewVolthaServiceClient(conn)
 
-	valueflag, okay := common.ValueType_Type_value[string(options.Args.Valueflag)]
+	valueflag, okay := extension.ValueType_Type_value[string(options.Args.Valueflag)]
 	if !okay {
 		Error.Printf("Unknown valueflag %s\n", options.Args.Valueflag)
 	}
 
-	val := voltha.ValueSpecifier{Id: string(options.Args.Id), Value: common.ValueType_Type(valueflag)}
+	val := extension.ValueSpecifier{Id: string(options.Args.Id), Value: extension.ValueType_Type(valueflag)}
 
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
 	defer cancel()
@@ -2279,7 +2279,7 @@ func (options *DeviceGetExtValue) Execute(args []string) error {
 	}
 
 	var rows []ReturnValueRow
-	for name, num := range common.ValueType_Type_value {
+	for name, num := range extension.ValueType_Type_value {
 		if num == 0 {
 			// EMPTY is not a real value
 			continue
