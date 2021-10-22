@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "534dde98_24f06ba4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000666
+      },
+      "writtenOn": "2021-10-22T10:29:17Z",
+      "side": 1,
+      "message": "I still think that a separate \u0027ResetOnuEthernetFrameExtendedPmCounters\u0027 would be a better option, but that is probably not (anymore) the point of discussion ...",
+      "revId": "806aa89f852704ec9a447945f7baa587a26de5d7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
