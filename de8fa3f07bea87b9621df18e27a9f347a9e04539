@@ -16,6 +16,24 @@
       "message": "Why to remove groups related commands?",
       "revId": "de8fa3f07bea87b9621df18e27a9f347a9e04539",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1797e1b6_a1c3deb6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000056
+      },
+      "writtenOn": "2021-11-05T20:23:17Z",
+      "side": 1,
+      "message": "They are not used.   Device groups was there since day one but never used (no semantics around it).   So it is removed as part of the cleanup. If we find a use for it then we can add it later.",
+      "parentUuid": "2970cdea_603d5627",
+      "revId": "de8fa3f07bea87b9621df18e27a9f347a9e04539",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
   ]
 }
