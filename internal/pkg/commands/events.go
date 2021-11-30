@@ -476,7 +476,7 @@ func startConsumer(topics []string, client sarama.Client) (chan *sarama.Consumer
 
 		hw, err := client.GetOffset("voltha.events", partitions[0], sarama.OffsetNewest)
 		if err != nil {
-			return nil, nil, nil, fmt.Errorf("Error in consume() getting highwater: Topic %v Partitions: %v", topic, partitions)
+			return nil, nil, nil, fmt.Errorf("Error in consume() getting highwater: Topic %v Partitions: %v (%s)", topic, partitions, err)
 		}
 		highwater[topic] = hw
 
