@@ -355,7 +355,7 @@ type OnuImageStatus struct {
 	ListOutputOptions
 	Args struct {
 		ImageVersion string     `positional-arg-name:"IMAGE_VERSION" required:"yes"`
-		IDs          []DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+		IDs          []DeviceId `positional-arg-name:"DEVICE_ID"`
 	} `positional-args:"yes"`
 }
 
@@ -1805,9 +1805,15 @@ func (options *OnuImageStatus) Execute(args []string) error {
 	defer cancel()
 
 	var devIDList []*common.ID
-	for _, i := range options.Args.IDs {
 
-		devIDList = append(devIDList, &common.ID{Id: string(i)})
+	if options.Args.IDs == nil {
+		//Use an empty IDs list to retrieve the status of all devices
+		//with the requested image version
+		devIDList = []*common.ID{}
+	} else {
+		for _, i := range options.Args.IDs {
+			devIDList = append(devIDList, &common.ID{Id: string(i)})
+		}
 	}
 
 	imageStatusReq := voltha.DeviceImageRequest{
