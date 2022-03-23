@@ -33,6 +33,7 @@ import (
 
 const (
 	DEFAULT_DEVICE_FORMAT         = "table{{ .Id }}\t{{.Type}}\t{{.Root}}\t{{.ParentId}}\t{{.SerialNumber}}\t{{.AdminState}}\t{{.OperStatus}}\t{{.ConnectStatus}}\t{{.Reason}}"
+	DEFAULT_DEVICE_ORDER          = "Type,Id"
 	DEFAULT_DEVICE_PORTS_FORMAT   = "table{{.PortNo}}\t{{.Label}}\t{{.Type}}\t{{.AdminState}}\t{{.OperStatus}}\t{{.DeviceId}}\t{{.Peers}}"
 	DEFAULT_DEVICE_INSPECT_FORMAT = `ID: {{.Id}}
   TYPE:          {{.Type}}
@@ -704,7 +705,7 @@ func (options *DeviceList) Execute(args []string) error {
 
 	orderBy := options.OrderBy
 	if orderBy == "" {
-		orderBy = GetCommandOptionWithDefault("device-list", "order", "")
+		orderBy = GetCommandOptionWithDefault("device-list", "order", DEFAULT_DEVICE_ORDER)
 	}
 
 	// Make sure json output prints an empty list, not "null"
