@@ -69,6 +69,7 @@ var (
 		"ClearActions":           1020,
 		"MeterId":                1030,
 	}
+	DEFAULT_FLOWS_ORDER = "Id"
 )
 
 /*
@@ -157,7 +158,7 @@ func (options *FlowList) Execute(args []string) error {
 
 	orderBy := options.OrderBy
 	if orderBy == "" {
-		orderBy = GetCommandOptionWithDefault(options.Method, "order", "")
+		orderBy = GetCommandOptionWithDefault(options.Method, "order", DEFAULT_FLOWS_ORDER)
 	}
 
 	result := CommandResult{

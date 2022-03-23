@@ -28,6 +28,7 @@ import (
 
 const (
 	DEFAULT_LOGICAL_DEVICE_FORMAT         = "table{{ .Id }}\t{{printf \"%016x\" .DatapathId}}\t{{.RootDeviceId}}\t{{.Desc.SerialNum}}\t{{.SwitchFeatures.NBuffers}}\t{{.SwitchFeatures.NTables}}\t{{printf \"0x%08x\" .SwitchFeatures.Capabilities}}"
+	DEFAULT_LOGICAL_DEVICE_ORDER          = "Id"
 	DEFAULT_LOGICAL_DEVICE_PORT_FORMAT    = "table{{.Id}}\t{{.DeviceId}}\t{{.DevicePortNo}}\t{{.RootPort}}\t{{.OfpPortStats.PortNo}}\t{{.OfpPort.HwAddr}}\t{{.OfpPort.Name}}\t{{printf \"0x%08x\" .OfpPort.State}}\t{{printf \"0x%08x\" .OfpPort.Curr}}\t{{.OfpPort.CurrSpeed}}"
 	DEFAULT_LOGICAL_DEVICE_INSPECT_FORMAT = `ID: {{.Id}}
   DATAPATHID: {{.DatapathId}}
@@ -148,7 +149,7 @@ func (options *LogicalDeviceList) Execute(args []string) error {
 	}
 	orderBy := options.OrderBy
 	if orderBy == "" {
-		orderBy = GetCommandOptionWithDefault("local-device-list", "order", "")
+		orderBy = GetCommandOptionWithDefault("local-device-list", "order", DEFAULT_LOGICAL_DEVICE_ORDER)
 	}
 
 	result := CommandResult{
