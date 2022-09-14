@@ -37,6 +37,9 @@ type ID = common.ID
 // IDs from public import voltha_protos/common.proto
 type IDs = common.IDs
 
+// Connection from public import voltha_protos/common.proto
+type Connection = common.Connection
+
 // AdminState from public import voltha_protos/common.proto
 type AdminState = common.AdminState
 
@@ -83,6 +86,7 @@ const OperStatus_ACTIVE = OperStatus_Types(common.OperStatus_ACTIVE)
 const OperStatus_FAILED = OperStatus_Types(common.OperStatus_FAILED)
 const OperStatus_RECONCILING = OperStatus_Types(common.OperStatus_RECONCILING)
 const OperStatus_RECONCILING_FAILED = OperStatus_Types(common.OperStatus_RECONCILING_FAILED)
+const OperStatus_REBOOTED = OperStatus_Types(common.OperStatus_REBOOTED)
 
 // ConnectStatus_Types from public import voltha_protos/common.proto
 type ConnectStatus_Types = common.ConnectStatus_Types
