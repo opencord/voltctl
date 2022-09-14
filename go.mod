@@ -16,10 +16,10 @@ require (
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/jhump/protoreflect v1.5.0
 	github.com/opencord/voltha-lib-go/v7 v7.1.0
-	github.com/opencord/voltha-protos/v5 v5.1.0
+	github.com/opencord/voltha-protos/v5 v5.2.6
 	github.com/stretchr/testify v1.7.0
 	google.golang.org/appengine v1.6.1 // indirect
-	google.golang.org/grpc v1.41.0
+	google.golang.org/grpc v1.44.0
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.0.0-20190819141258-3544db3b9e44
