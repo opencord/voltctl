@@ -109,6 +109,16 @@ DFrames_256To_511Octets:	{{.DFrames_256To_511Octets}}
 DFrames_512To_1023Octets:	{{.DFrames_512To_1023Octets}}
 DFrames_1024To_1518Octets:	{{.DFrames_1024To_1518Octets}}
 PmFormat:	                {{.PmFormat}}`
+	DEFAULT_ONU_OMCI_TX_RX_STATS_FORMAT = `BaseTxArFrames:        {{.BaseTxArFrames}}
+BaseRxAkFrames:        {{.BaseRxAkFrames}}
+BaseTxNoArFrames:      {{.BaseTxNoArFrames}}
+BaseRxNoAkFrames:      {{.BaseRxNoAkFrames}}
+ExtTxArFrames:         {{.ExtTxArFrames}}
+ExtRxAkFrames:         {{.ExtRxAkFrames}}
+ExtTxNoArFrames:       {{.ExtTxNoArFrames}}
+ExtRxNoAkFrames:       {{.ExtRxNoAkFrames}}
+TxOmciCounterRetries:  {{.TxOmciCounterRetries}}
+TxOmciCounterTimeouts: {{.TxOmciCounterTimeouts}}`
 )
 
 type DeviceList struct {
@@ -416,6 +426,13 @@ type RxPower struct {
 	} `positional-args:"yes"`
 }
 
+type OnuOmciTxRxStats struct {
+	ListOutputOptions
+	Args struct {
+		Id DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+	} `positional-args:"yes"`
+}
+
 type DeviceOpts struct {
 	List    DeviceList          `command:"list"`
 	Create  DeviceCreate        `command:"create"`
@@ -477,6 +494,7 @@ type DeviceOpts struct {
 		OnuStats                GetOnuStats                           `command:"onu_stats"`
 		EthernetFrameExtendedPm GetOnuEthernetFrameExtendedPmCounters `command:"ethernet_frame_extended_pm"`
 		RxPower                 RxPower                               `command:"rxpower"`
+		OnuOmciStats            OnuOmciTxRxStats                      `command:"onu_omci_stats"`
 	} `command:"getextval"`
 }
 
@@ -2321,6 +2339,49 @@ func (options *DeviceGetExtValue) Execute(args []string) error {
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
 		Data:      rows,
+	}
+	GenerateOutput(&result)
+	return nil
+}
+
+/*Device  get Onu OMCI TX RX Stats */
+func (options *OnuOmciTxRxStats) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	client := extension.NewExtensionClient(conn)
+
+	singleGetValReq := extension.SingleGetValueRequest{
+		TargetId: string(options.Args.Id),
+		Request: &extension.GetValueRequest{
+			Request: &extension.GetValueRequest_OnuOmciStats{
+				OnuOmciStats: &extension.GetOnuOmciTxRxStatsRequest{},
+			},
+		},
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+	defer cancel()
+	rv, err := client.GetExtValue(ctx, &singleGetValReq)
+	if err != nil {
+		Error.Printf("Error getting value on device Id %s,err=%s\n", options.Args.Id, ErrorToString(err))
+		return err
+	}
+
+	if rv.Response.Status != extension.GetValueResponse_OK {
+		return fmt.Errorf("failed to get onu omci tx rx stats %v", rv.Response.ErrReason.String())
+	}
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("device-get-onu-omci-tx-rx-stats", "format", DEFAULT_ONU_OMCI_TX_RX_STATS_FORMAT)
+	}
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      rv.GetResponse().GetOnuOmciStats(),
 	}
 	GenerateOutput(&result)
 	return nil
