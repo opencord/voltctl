@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b6a725f0_9f2ee55b",
+        "filename": "VERSION",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000097
+      },
+      "writtenOn": "2022-09-16T14:21:39Z",
+      "side": 1,
+      "message": "Can we bump up the minor version (so 1.8.0)? The last one, the patch level could be increased only for bug fixes.",
+      "revId": "4f7166f60bfbac548de5ba6b0909865bcd7c403b",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
