@@ -16,6 +16,24 @@
       "message": "Can we bump up the minor version (so 1.8.0)? The last one, the patch level could be increased only for bug fixes.",
       "revId": "4f7166f60bfbac548de5ba6b0909865bcd7c403b",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a906586a_3d4446ff",
+        "filename": "VERSION",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000404
+      },
+      "writtenOn": "2022-09-16T19:25:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b6a725f0_9f2ee55b",
+      "revId": "4f7166f60bfbac548de5ba6b0909865bcd7c403b",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
   ]
 }
