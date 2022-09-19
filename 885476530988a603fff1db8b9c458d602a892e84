@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8019be03_7f6c63ed",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2022-09-19T08:15:39Z",
+      "side": 1,
+      "message": "Thanks for the patch Serkant!\nHave you been able to test the new voltctl output yet?\nIf so, can you please share the output with us?",
+      "revId": "885476530988a603fff1db8b9c458d602a892e84",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
