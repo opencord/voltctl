@@ -33,6 +33,42 @@
       "message": "@Serkant: Downloaded and tested your patch - I would have two cosmetic change requests:\n\n- Could you, as in the output of \"voltctl device getextval ethernet_frame_extended_pm \u003cDevID\u003e\" use the CameCase format instead of the SNAKE_CASE one?\n\n- Is it possible to improve the formatting and output the counter values aligned with each other (see below)? \n\n// new command\nbbsim@bbsim:~/voltha_mini$ ~/code/src/github.com/opencord/voltctl/voltctl device getextval onu_omci_stats 2355a0ce-8153-41a4-9a36-03c418db9dd9\nBASE_TX_AR_FRAMES: 399\nBASE_RX_AK_FRAMES: 399\nBASE_TX_NO_AR_FRAMES: 0\nBASE_RX_NO_AK_FRAMES: 1\nEXTENDED_TX_AR_FRAMES: 0\nEXTENDED_RX_AK_FRAMES: 0\nEXTENDED_TX_NO_AR_FRAMES: 0\nEXTENDED_RX_NO_AK_FRAMES: 0\nTX_OMCI_COUNTER_RETRIES: 0\nTX_OMCI_COUNTER_TIMEOUTS: 0\n\n// existing command\nbbsim@bbsim:~/voltha_mini$ ~/code/src/github.com/opencord/voltctl/voltctl device getextval ethernet_frame_extended_pm 2355a0ce-8153-41a4-9a36-03c418db9dd9\nUpstream_Drop_Events:           400\nUpstream_Octets:                404\nUFrames:                        408\nUBroadcastFrames:               412\nUMulticastFrames:               416\nUCrcErroredFrames:              420\nUUndersizeFrames:               424\nUOversizeFrames:                428\nUFrames_64Octets:               432\nUFrames_65To_127Octets:         436\nUFrames_128To_255Octets:        440\nUFrames_256To_511Octets:        444\nUFrames_512To_1023Octets:       448\nUFrames_1024To_1518Octets:      452\nDDropEvents:                    400\nDOctets:                        404\nDFrames:                        408\nDBroadcastFrames:               412\nDMulticastFrames:               416\nDCrcErroredFrames:              420\nDUndersizeFrames:               424\nDOversizeFrames:                428\nDFrames_64Octets:               432\nDFrames_65To_127Octets:         436\nDFrames_128To_255Octets:        440\nDFrames_256To_511Octets:        444\nDFrames_512To_1023Octets:       448\nDFrames_1024To_1518Octets:      452\nPmFormat:                       SIXTY_FOUR_BIT\n\n",
       "revId": "885476530988a603fff1db8b9c458d602a892e84",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3d0491b_cafd3787",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000404
+      },
+      "writtenOn": "2022-09-20T19:26:43Z",
+      "side": 1,
+      "message": "Let me know if it\u0027s better with the latest patch.",
+      "parentUuid": "2114a935_dd182fde",
+      "revId": "885476530988a603fff1db8b9c458d602a892e84",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "64be5ac7_d7af6413",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000404
+      },
+      "writtenOn": "2022-09-20T19:26:43Z",
+      "side": 1,
+      "message": "Yes Holger, please see the jira comment link https://jira.opencord.org/browse/VOL-4766?focusedCommentId\u003d83400\u0026page\u003dcom.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#comment-83400",
+      "parentUuid": "8019be03_7f6c63ed",
+      "revId": "885476530988a603fff1db8b9c458d602a892e84",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
   ]
 }
