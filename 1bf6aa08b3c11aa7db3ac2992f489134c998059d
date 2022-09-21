@@ -22,6 +22,30 @@
       },
       "revId": "1bf6aa08b3c11aa7db3ac2992f489134c998059d",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a7c93ee2_d17e13a3",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 1000404
+      },
+      "writtenOn": "2022-09-21T09:30:16Z",
+      "side": 1,
+      "message": "should be ok now.",
+      "parentUuid": "6e14a183_7bf31658",
+      "range": {
+        "startLine": 112,
+        "startChar": 55,
+        "endLine": 112,
+        "endChar": 61
+      },
+      "revId": "1bf6aa08b3c11aa7db3ac2992f489134c998059d",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
   ]
 }
