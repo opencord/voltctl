@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e14a183_7bf31658",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2022-09-21T08:50:14Z",
+      "side": 1,
+      "message": "Unfortunately, I can\u0027t access JIRA and read your comment at this time. However, the new patch version looks good. Only one small thing: Before the counter value of \"BaseTxArFrames\" is still missing a space.",
+      "range": {
+        "startLine": 112,
+        "startChar": 55,
+        "endLine": 112,
+        "endChar": 61
+      },
+      "revId": "1bf6aa08b3c11aa7db3ac2992f489134c998059d",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
