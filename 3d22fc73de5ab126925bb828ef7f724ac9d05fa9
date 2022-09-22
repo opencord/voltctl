@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e073e1c9_320f9f5b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2022-09-22T06:43:59Z",
+      "side": 1,
+      "message": "Could someone with the appropriate permissions merge the patch? Thanks!",
+      "revId": "3d22fc73de5ab126925bb828ef7f724ac9d05fa9",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
