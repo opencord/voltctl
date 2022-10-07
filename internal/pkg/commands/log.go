@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 
 	flags "github.com/jessevdk/go-flags"
@@ -254,9 +255,15 @@ func constructConfigManager(ctx context.Context) (*config.ConfigManager, func(),
 		GlobalConfig.Current().KvStoreConfig.Timeout,
 		log.FatalLevel)
 	if err != nil {
-		return nil, nil, fmt.Errorf("Unable to create kvstore client %s", err)
+		return nil, nil, fmt.Errorf("unable to create kvstore client %s", err)
 	}
 
+	//voltha-helm-charts sets the KV_STORE_DATA_PREFIX env variable in the following format
+	//kv_store_data_prefix: 'service/{{ .Values.global.stack_name }}_voltha'
+	//set the KV_STORE_DATA_PREFIX using the current stack name to read correct configuration from KV.
+	if GlobalConfig.CurrentStack != "" {
+		os.Setenv("KV_STORE_DATAPATH_PREFIX", fmt.Sprintf("service/%s_voltha", GlobalConfig.CurrentStack))
+	}
 	cm := config.NewConfigManager(ctx, client, supportedKvStoreType, GlobalConfig.Current().KvStore, GlobalConfig.Current().KvStoreConfig.Timeout)
 	return cm, func() { client.Close(ctx) }, nil
 }
