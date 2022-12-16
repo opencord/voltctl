@@ -1398,3 +1398,5 @@ func (options *ListLogCorrelationOpts) Execute(args []string) error {
 	GenerateOutput(&result)
 	return nil
 }
+
+// [EOF]
