@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3104213e_ed83208b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000948
+      },
+      "writtenOn": "2022-12-16T08:02:50Z",
+      "side": 1,
+      "message": "Experimenting to trigger a release build",
+      "revId": "bbd0593cded36fc86a5f7b56ca8dff7515399f1a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
