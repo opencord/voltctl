@@ -1,4 +1,40 @@
-help:
+# -*- makefile -*-
+# -----------------------------------------------------------------------
+# Copyright 2019-2023 Open Networking Foundation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# -----------------------------------------------------------------------
+
+$(if $(DEBUG),$(warning ENTER))
+
+.DEFAULT_GOAL := help
+
+TOP         ?= .
+MAKEDIR     ?= $(TOP)/makefiles
+
+$(if $(VERBOSE),$(eval export VERBOSE=$(VERBOSE))) # visible to include(s)
+
+##--------------------##
+##---]  INCLUDES  [---##
+##--------------------##
+include $(MAKEDIR)/include.mk
+ifdef LOCAL_LINT
+  include $(MAKEDIR)/lint/golang/sca.mk
+endif
+
+## Are lint-style and lint-sanity targets defined in docker ?
+help ::
+	@echo
 	@echo "release      - build binaries using cross compliing for the support architectures"
 	@echo "build        - build the binary as a local executable"
 	@echo "install      - build and install the binary into \$$GOPATH/bin"
@@ -55,6 +91,22 @@ GO_JUNIT_REPORT   = docker run --rm --user $$(id -u):$$(id -g) -v ${CURDIR}:/app
 GOCOVER_COBERTURA = docker run --rm --user $$(id -u):$$(id -g) -v ${CURDIR}:/app -i voltha/voltha-ci-tools:${VOLTHA_TOOLS_VERSION}-gocover-cobertura gocover-cobertura
 GOLANGCI_LINT     = docker run --rm --user $$(id -u):$$(id -g) -v ${CURDIR}:/app $(shell test -t 0 && echo "-it") -v gocache:/.cache -v gocache-${VOLTHA_TOOLS_VERSION}:/go/pkg -e GOGC=10 voltha/voltha-ci-tools:${VOLTHA_TOOLS_VERSION}-golangci-lint golangci-lint
 
+## -----------------------------------------------------------------------
+## Why is docker an implicit dependency for "make lint" (?)
+##   o A fixed version is required for jenkins build/release jobs.
+##   o Devs should have the option of using whatever is available
+##     including bleeding edge software and tool upgrades w/o overhead.
+## -----------------------------------------------------------------------
+## Usage:
+##   % export LOCAL_DEV_MODE=1
+##   % make lint
+##   % make check
+## -----------------------------------------------------------------------
+ifdef LOCAL_DEV_MODE
+  GO            := $(clean-env) go
+  GOLANGCI_LINT := golangci-lint
+endif
+
 release:
 	@mkdir -p $(RELEASE_DIR)
 	@${GO_SH} ' \
@@ -64,6 +116,7 @@ release:
 	    echo "$$OUT_PATH"; \
 	    GOOS=$${x%-*} GOARCH=$${x#*-} go build -mod=vendor -v $(LDFLAGS) -o "$$OUT_PATH" cmd/voltctl/voltctl.go; \
 	  done'
+
 ## Local Development Helpers
 local-lib-go:
 ifdef LOCAL_LIB_GO
@@ -83,31 +136,41 @@ run:
 
 lint-mod:
 	@echo "Running dependency check..."
-	@${GO} mod verify
+	@$(GO) mod verify
 	@echo "Dependency check OK. Running vendor check..."
 	@git status > /dev/null
 	@git diff-index --quiet HEAD -- go.mod go.sum vendor || (echo "ERROR: Staged or modified files must be committed before running this test" && git status -- go.mod go.sum vendor && exit 1)
 	@[[ `git ls-files --exclude-standard --others go.mod go.sum vendor` == "" ]] || (echo "ERROR: Untracked files must be cleaned up before running this test" && git status -- go.mod go.sum vendor && exit 1)
-	${GO} mod tidy
-	${GO} mod vendor
+	$(GO) mod tidy
+	$(GO) mod vendor
 	@git status > /dev/null
 	@git diff-index --quiet HEAD -- go.mod go.sum vendor || (echo "ERROR: Modified files detected after running go mod tidy / go mod vendor" && git status -- go.mod go.sum vendor && git checkout -- go.mod go.sum vendor && exit 1)
 	@[[ `git ls-files --exclude-standard --others go.mod go.sum vendor` == "" ]] || (echo "ERROR: Untracked files detected after running go mod tidy / go mod vendor" && git status -- go.mod go.sum vendor && git checkout -- go.mod go.sum vendor && exit 1)
 	@echo "Vendor check OK."
 
-lint: lint-mod
+ifndef LOCAL_LINT
+  lint : lint-mod
+endif
 
+## -----------------------------------------------------------------------
+##   Intent: Syntax check golang source
+## See Also: makefilles/lint/golang/sca.mk
+## -----------------------------------------------------------------------
 sca:
-	@rm -rf ./sca-report
+	@$(RM) -r ./sca-report
 	@mkdir -p ./sca-report
 	@echo "Running static code analysis..."
-	@${GOLANGCI_LINT} run --deadline=20m --out-format junit-xml ./... | tee ./sca-report/sca-report.xml
+	@${GOLANGCI_LINT} run --deadline=20m --out-format junit-xml ./... \
+	    | tee ./sca-report/sca-report.xml
 	@echo ""
 	@echo "Static code analysis OK"
 
+## -----------------------------------------------------------------------
+## Intent: Evaluate test targets (docker required)
+## -----------------------------------------------------------------------
 test:
 	@mkdir -p ./tests/results
-	@${GO} test -mod=vendor -v -coverprofile ./tests/results/go-test-coverage.out -covermode count ./... 2>&1 | tee ./tests/results/go-test-results.out ;\
+	@$(GO) test -mod=vendor -v -coverprofile ./tests/results/go-test-coverage.out -covermode count ./... 2>&1 | tee ./tests/results/go-test-results.out ;\
 	RETURN=$$? ;\
 	${GO_JUNIT_REPORT} < ./tests/results/go-test-results.out > ./tests/results/go-test-results.xml ;\
 	${GOCOVER_COBERTURA} < ./tests/results/go-test-coverage.out > ./tests/results/go-test-coverage.xml ;\
@@ -118,9 +181,36 @@ view-coverage:
 
 check: lint sca test
 
-clean:
-	rm -rf voltctl voltctl.cp release sca-report
-
 mod-update:
-	${GO} mod tidy
-	${GO} mod vendor
+	$(GO) mod tidy
+	$(GO) mod vendor
+
+## ---------------------------------------------------------
+## ---------------------------------------------------------
+clean:
+	$(RM) -r voltctl voltctl.cp release sca-report
+
+## ---------------------------------------------------------
+## This belongs in a library makefile: makefiles/go/clean.mk
+## ---------------------------------------------------------
+go-clean-cache += -cache
+go-clean-cache += -fuzzcache
+go-clean-cache += -modcache
+go-clean-cache += -testcache
+
+go-clean-args += -i # installed binaries
+go-clean-args += -r # recursive
+go-clean-args += -x # verbose removal
+
+sterile: clean
+	$(GO) clean $(go-clean-cache)
+	$(GO) clean $(go-clean-args)
+
+## [SEE ALSO]
+## -----------------------------------------------------------------------
+##   o https://dave.cheney.net/tag/gogc
+## -----------------------------------------------------------------------
+
+$(if $(DEBUG),$(warning LEAVE))
+
+# [EOF]
