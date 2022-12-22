@@ -119,6 +119,8 @@ ExtTxNoArFrames:       {{.ExtTxNoArFrames}}
 ExtRxNoAkFrames:       {{.ExtRxNoAkFrames}}
 TxOmciCounterRetries:  {{.TxOmciCounterRetries}}
 TxOmciCounterTimeouts: {{.TxOmciCounterTimeouts}}`
+	DEFAULT_DEVICE_ALARMS_FORMAT = "table{{ .ClassId }}\t{{.InstanceId}}\t{{.Name}}\t{{.Description}}"
+	DEFAULT_DEVICE_ALARMS_ORDER  = "ClassId,InstanceId"
 )
 
 type DeviceList struct {
@@ -433,6 +435,13 @@ type OnuOmciTxRxStats struct {
 	} `positional-args:"yes"`
 }
 
+type GetOnuOmciActiveAlarms struct {
+	ListOutputOptions
+	Args struct {
+		Id DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+	} `positional-args:"yes"`
+}
+
 type DeviceOpts struct {
 	List    DeviceList          `command:"list"`
 	Create  DeviceCreate        `command:"create"`
@@ -495,6 +504,7 @@ type DeviceOpts struct {
 		EthernetFrameExtendedPm GetOnuEthernetFrameExtendedPmCounters `command:"ethernet_frame_extended_pm"`
 		RxPower                 RxPower                               `command:"rxpower"`
 		OnuOmciStats            OnuOmciTxRxStats                      `command:"onu_omci_stats"`
+		OnuOmciActiveAlarms     GetOnuOmciActiveAlarms                `command:"onu_omci_active_alarms"`
 	} `command:"getextval"`
 }
 
@@ -2382,6 +2392,56 @@ func (options *OnuOmciTxRxStats) Execute(args []string) error {
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
 		Data:      rv.GetResponse().GetOnuOmciStats(),
+	}
+	GenerateOutput(&result)
+	return nil
+}
+
+/*Device  get Onu Active Alarms */
+func (options *GetOnuOmciActiveAlarms) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	client := extension.NewExtensionClient(conn)
+
+	singleGetValReq := extension.SingleGetValueRequest{
+		TargetId: string(options.Args.Id),
+		Request: &extension.GetValueRequest{
+			Request: &extension.GetValueRequest_OnuActiveAlarms{
+				OnuActiveAlarms: &extension.GetOnuOmciActiveAlarmsRequest{},
+			},
+		},
+	}
+	Info.Printf("Getting omci_active_alarms for  device Id %s\n", options.Args.Id)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+	defer cancel()
+	rv, err := client.GetExtValue(ctx, &singleGetValReq)
+	if err != nil {
+		Error.Printf("Error getting value on device Id %s,err=%s\n", options.Args.Id, ErrorToString(err))
+		return err
+	}
+
+	if rv.Response.Status != extension.GetValueResponse_OK {
+		return fmt.Errorf("failed to get onu omci active alarms list  %v", rv.Response.ErrReason.String())
+	}
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("device-get-onu-omci-active-alarms", "format", DEFAULT_DEVICE_ALARMS_FORMAT)
+	}
+
+	orderBy := options.OrderBy
+	if orderBy == "" {
+		orderBy = GetCommandOptionWithDefault("device-list", "order", DEFAULT_DEVICE_ALARMS_ORDER)
+	}
+
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		OrderBy:   orderBy,
+		NameLimit: options.NameLimit,
+		Data:      rv.GetResponse().GetOnuActiveAlarms().GetActiveAlarms(),
 	}
 	GenerateOutput(&result)
 	return nil
