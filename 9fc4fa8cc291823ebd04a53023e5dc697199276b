@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ecac00ca_6d12fce1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000948
+      },
+      "writtenOn": "2022-12-26T14:20:47Z",
+      "side": 1,
+      "message": "Makefile additions to support conditional (~LOCAL\u003d) syntax checking outside of docker.\nAlso fixed a problem that prevented go test --coverprefix from generating coverage stats.",
+      "revId": "9fc4fa8cc291823ebd04a53023e5dc697199276b",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
