@@ -31,4 +31,6 @@ ifdef LOCAL_LINT
   # include $(MAKEDIR)/lint/yaml.mk              # venv needed -- alt: yamllint
 endif
 
+  include $(MAKEDIR)/lint/golang/vet.mk
+
 # [EOF]

@@ -17,7 +17,7 @@
 
 $(if $(DEBUG),$(warning ENTER))
 
-GOLANG_FILES ?= $(error PYTHON_FILES= is required)
+GOLANG_FILES ?= $(error GOLANG_FILES= is required)
 
 .PHONY: lint-golang-sca
 
