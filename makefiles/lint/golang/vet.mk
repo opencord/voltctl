@@ -13,30 +13,34 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-# SPDX-FileCopyrightText: 2017-2023 Open Networking Foundation (ONF) and the ONF Contributors
-# SPDX-License-Identifier: Apache-2.0
 # -----------------------------------------------------------------------
 
 $(if $(DEBUG),$(warning ENTER))
 
+GOLANG_FILES ?= $(error GOLANG_FILES= is required)
+
+.PHONY: lint-golang-vet
+
+lint : lint-golang-vet
+
 ## -----------------------------------------------------------------------
+## Intent: Run "go vet" on golang sources.
+## -----------------------------------------------------------------------
+lint-vet-args := $(null)
+lint-vet-args += --vettool=assign
+lint-vet-args += --vettool=unreachable
+
+lint-golang-vet:
+	find . -name '*.go' -print0 \
+	    | xargs -0 --max-args=1 --no-run-if-empty dirname \
+	    | sort -u \
+	    | xargs --max-args=1 --verbose go vet $(lint-vet-args)
+
+## -----------------------------------------------------------------------
+## Intent: Document targets
 ## -----------------------------------------------------------------------
 help::
-	@echo "  todo                       Display future enhancement list"
-
-todo ::
-	@echo
-	@echo "[TODO: voltctl]"
-	@echo "  o vendor/ is under revision control."
-	@echo "    - go mod vendor will remove and recreate: invalid git state"
-	@echo "    - delete vendor/ checkin and/or clone from a central repository."
-	@echo "  o make lint-sanity"
-	@echo "    - make help target, not implemented"
-	@echo "    - see makefiles/lint/golang/vet.mk (WIP)"
-	@echo "  o make lint-style"
-	@echo "    - make help target, not implemented"
-	@echo "    - see make ska and makefiles/lint/golang/ska.mk"
+	@echo "  lint-golang-vet            Go vetting: detect code problems"
 
 $(if $(DEBUG),$(warning LEAVE))
 
