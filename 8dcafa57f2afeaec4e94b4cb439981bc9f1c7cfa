@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e510d17_46754e43",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2023-01-05T08:11:12Z",
+      "side": 1,
+      "message": "The voltha-protos have to be released first to be able to insert their new version here.\nAfter 2.11 has been released, please increment the minor version (major.minor.patch) in the VERSION file. ",
+      "revId": "8dcafa57f2afeaec4e94b4cb439981bc9f1c7cfa",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
