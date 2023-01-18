@@ -16,6 +16,23 @@
       "message": "Bump version string so we can get feedback from downstream release packaging (golang interpreter).",
       "revId": "d9ca90701f766f177ee55b434fb8c9471aa0240a",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c38936a3_e0db4460",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000947
+      },
+      "writtenOn": "2023-01-18T23:25:11Z",
+      "side": 1,
+      "message": "LGTM",
+      "revId": "d9ca90701f766f177ee55b434fb8c9471aa0240a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
   ]
 }
