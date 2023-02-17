@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b9fe8caf_aff5f4da",
+        "filename": "VERSION",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2023-02-17T07:13:20Z",
+      "side": 1,
+      "message": "Please change version to 1.9.1",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 6
+      },
+      "revId": "58a25aebcb7061bc73715eb49d7b8c9c7b9c52b0",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f105c7c_b95a808c",
+        "filename": "vendor/github.com/opencord/voltha-protos/v5/go/extension/extensions.pb.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 1501,
+      "author": {
+        "id": 1000671
+      },
+      "writtenOn": "2023-02-17T07:13:20Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be handled in a separate feature patch?",
+      "range": {
+        "startLine": 1501,
+        "startChar": 5,
+        "endLine": 1501,
+        "endChar": 26
+      },
+      "revId": "58a25aebcb7061bc73715eb49d7b8c9c7b9c52b0",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
