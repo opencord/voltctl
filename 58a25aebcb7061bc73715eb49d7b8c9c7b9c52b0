@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a5e9af54_6ca886d4",
+        "filename": "VERSION",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000959
+      },
+      "writtenOn": "2023-02-17T07:28:50Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "b9fe8caf_aff5f4da",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 6
+      },
+      "revId": "58a25aebcb7061bc73715eb49d7b8c9c7b9c52b0",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8f105c7c_b95a808c",
         "filename": "vendor/github.com/opencord/voltha-protos/v5/go/extension/extensions.pb.go",
         "patchSetId": 3
@@ -37,6 +61,30 @@
       "writtenOn": "2023-02-17T07:13:20Z",
       "side": 1,
       "message": "Shouldn\u0027t this be handled in a separate feature patch?",
+      "range": {
+        "startLine": 1501,
+        "startChar": 5,
+        "endLine": 1501,
+        "endChar": 26
+      },
+      "revId": "58a25aebcb7061bc73715eb49d7b8c9c7b9c52b0",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5d1ae954_64ea60ae",
+        "filename": "vendor/github.com/opencord/voltha-protos/v5/go/extension/extensions.pb.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 1501,
+      "author": {
+        "id": 1000959
+      },
+      "writtenOn": "2023-02-17T07:28:50Z",
+      "side": 1,
+      "message": "The voltha-protos with the version 5.4.1 has the changes for the olt_rx_power included , hence they are being shown as part of the review. The voltctl command implementation for olt_rx_power will be handled in a separate patch.",
+      "parentUuid": "8f105c7c_b95a808c",
       "range": {
         "startLine": 1501,
         "startChar": 5,
