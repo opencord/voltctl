@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "99c9cd22_69958bad",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000948
+      },
+      "writtenOn": "2023-03-26T15:26:29Z",
+      "side": 1,
+      "message": "Sanity check failed due to inability to retrieve voltctl binary.\nunit test exercising built binary succeeded so merge so we can progress to fixing the published voltctl binary on github.",
+      "revId": "272f9e5b838e6b69aea326765d47b63cec194a15",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
