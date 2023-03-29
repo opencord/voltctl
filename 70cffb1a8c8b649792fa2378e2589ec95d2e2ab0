@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "94e2391e_240bab38",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000948
+      },
+      "writtenOn": "2023-03-29T19:40:53Z",
+      "side": 1,
+      "message": "Re-run release --draft job with the latest edits from repo:ci-management",
+      "revId": "70cffb1a8c8b649792fa2378e2589ec95d2e2ab0",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
