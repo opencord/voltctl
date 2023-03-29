@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd01d6fd_adf543ba",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000948
+      },
+      "writtenOn": "2023-03-29T16:43:03Z",
+      "side": 1,
+      "message": "sanity test failure is known.\ndeploying edits to fix the github release job.",
+      "revId": "f863afbdbd49e249dc4b2fcb0ee516c587841467",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
