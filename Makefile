@@ -22,12 +22,16 @@ $(if $(DEBUG),$(warning ENTER))
 TOP         ?= .
 MAKEDIR     ?= $(TOP)/makefiles
 
+quoted = $(quote-single)$(1)$(quote-single)
+
 $(if $(VERBOSE),$(eval export VERBOSE=$(VERBOSE))) # visible to include(s)
 
 ##--------------------##
 ##---]  INCLUDES  [---##
 ##--------------------##
 include $(MAKEDIR)/include.mk
+include $(MAKEDIR)/release/include.mk
+
 ifdef LOCAL_LINT
   include $(MAKEDIR)/lint/golang/sca.mk
 endif
@@ -35,7 +39,6 @@ endif
 ## Are lint-style and lint-sanity targets defined in docker ?
 help ::
 	@echo
-	@echo "release      - build binaries using cross compliing for the support architectures"
 	@echo "build        - build the binary as a local executable"
 	@echo "install      - build and install the binary into \$$GOPATH/bin"
 	@echo "run          - runs voltctl using the command specified as \$$CMD"
@@ -48,7 +51,7 @@ help ::
 	@echo "check        - runs targets that should be run before a commit"
 	@echo "clean        - remove temporary and generated files"
 
-SHELL=bash -e -o pipefail
+# SHELL=bash -e -o pipefail
 
 VERSION=$(shell cat ./VERSION)
 GITCOMMIT=$(shell git rev-parse HEAD)
@@ -85,11 +88,14 @@ RELEASE_OS_ARCH ?= linux-amd64 linux-arm64 windows-amd64 darwin-amd64
 # tool containers
 VOLTHA_TOOLS_VERSION ?= 2.4.0
 
-GO                = docker run --rm --user $$(id -u):$$(id -g) -v ${CURDIR}:/app $(shell test -t 0 && echo "-it") -v gocache:/.cache -v gocache-${VOLTHA_TOOLS_VERSION}:/go/pkg voltha/voltha-ci-tools:${VOLTHA_TOOLS_VERSION}-golang go
-GO_SH             = docker run --rm --user $$(id -u):$$(id -g) -v ${CURDIR}:/app $(shell test -t 0 && echo "-it") -v gocache:/.cache -v gocache-${VOLTHA_TOOLS_VERSION}:/go/pkg voltha/voltha-ci-tools:${VOLTHA_TOOLS_VERSION}-golang sh -c
-GO_JUNIT_REPORT   = docker run --rm --user $$(id -u):$$(id -g) -v ${CURDIR}:/appecho  -i voltha/voltha-ci-tools:${VOLTHA_TOOLS_VERSION}-go-junit-report go-junit-report
-GOCOVER_COBERTURA = docker run --rm --user $$(id -u):$$(id -g) -v ${CURDIR}:/app -i voltha/voltha-ci-tools:${VOLTHA_TOOLS_VERSION}-gocover-cobertura gocover-cobertura
-GOLANGCI_LINT     = docker run --rm --user $$(id -u):$$(id -g) -v ${CURDIR}:/app $(shell test -t 0 && echo "-it") -v gocache:/.cache -v gocache-${VOLTHA_TOOLS_VERSION}:/go/pkg -e GOGC=10 voltha/voltha-ci-tools:${VOLTHA_TOOLS_VERSION}-golangci-lint golangci-lint
+docker-run = docker run --rm --user $$(id -u):$$(id -g)#     # Docker command stem
+docker-run-app = $(docker-run) -v ${CURDIR}:/app#            # w/filesystem mount
+
+GO                = $(docker-run-app) $(shell test -t 0 && echo "-it") -v gocache:/.cache -v gocache-${VOLTHA_TOOLS_VERSION}:/go/pkg voltha/voltha-ci-tools:${VOLTHA_TOOLS_VERSION}-golang go
+GO_SH             = $(docker-run-app) $(shell test -t 0 && echo "-it") -v gocache:/.cache -v gocache-${VOLTHA_TOOLS_VERSION}:/go/pkg voltha/voltha-ci-tools:${VOLTHA_TOOLS_VERSION}-golang sh -c
+GO_JUNIT_REPORT   = $(docker-run) -v ${CURDIR}:/appecho  -i voltha/voltha-ci-tools:${VOLTHA_TOOLS_VERSION}-go-junit-report go-junit-report
+GOCOVER_COBERTURA = $(docker-run-app) -i voltha/voltha-ci-tools:${VOLTHA_TOOLS_VERSION}-gocover-cobertura gocover-cobertura
+GOLANGCI_LINT     = $(docker-run-app) $(shell test -t 0 && echo "-it") -v gocache:/.cache -v gocache-${VOLTHA_TOOLS_VERSION}:/go/pkg -e GOGC=10 voltha/voltha-ci-tools:${VOLTHA_TOOLS_VERSION}-golangci-lint golangci-lint
 
 ## -----------------------------------------------------------------------
 ## Why is docker an implicit dependency for "make lint" (?)
@@ -107,33 +113,42 @@ ifdef LOCAL_DEV_MODE
   GOLANGCI_LINT := golangci-lint
 endif
 
-release:
-	@mkdir -p $(RELEASE_DIR)
-	@${GO_SH} ' \
-	  set -e -o pipefail; \
-	  for x in ${RELEASE_OS_ARCH}; do \
-	    OUT_PATH="$(RELEASE_DIR)/$(RELEASE_NAME)-$(subst -dev,_dev,$(VERSION))-$$x"; \
-	    echo "$$OUT_PATH"; \
-	    GOOS=$${x%-*} GOARCH=$${x#*-} go build -mod=vendor -v $(LDFLAGS) -o "$$OUT_PATH" cmd/voltctl/voltctl.go; \
-	  done'
+## -----------------------------------------------------------------------
+## Intent: Cross-compile binaries for release
+## -----------------------------------------------------------------------
+release: release-build
 
+## -----------------------------------------------------------------------
 ## Local Development Helpers
+## -----------------------------------------------------------------------
 local-lib-go:
 ifdef LOCAL_LIB_GO
-	rm -rf vendor/github.com/opencord/voltha-lib-go/v7/pkg
+	$(RM) -r vendor/github.com/opencord/voltha-lib-go/v7/pkg
 	mkdir -p vendor/github.com/opencord/voltha-lib-go/v7/pkg
 	cp -r ${LOCAL_LIB_GO}/pkg/* vendor/github.com/opencord/voltha-lib-go/v7/pkg/
 endif
 
+## -----------------------------------------------------------------------
+## Itent:
+## -----------------------------------------------------------------------
 build: local-lib-go
 	go build -mod=vendor $(LDFLAGS) cmd/voltctl/voltctl.go
 
+## -----------------------------------------------------------------------
+## Itent:
+## -----------------------------------------------------------------------
 install:
 	go install -mod=vendor $(LDFLAGS) cmd/voltctl/voltctl.go
 
+## -----------------------------------------------------------------------
+## Itent:
+## -----------------------------------------------------------------------
 run:
 	go run -mod=vendor $(LDFLAGS) cmd/voltctl/voltctl.go $(CMD)
 
+## -----------------------------------------------------------------------
+## Itent:
+## -----------------------------------------------------------------------
 lint-mod:
 	@echo "Running dependency check..."
 	@$(GO) mod verify
@@ -176,25 +191,31 @@ test:
 	${GOCOVER_COBERTURA} < ./tests/results/go-test-coverage.out > ./tests/results/go-test-coverage.xml ;\
 	exit $$RETURN
 
+## -----------------------------------------------------------------------
+## -----------------------------------------------------------------------
 view-coverage:
 	go tool cover -html ./tests/results/go-test-coverage.out
 
+## -----------------------------------------------------------------------
+## -----------------------------------------------------------------------
 check: lint sca test
 
+## -----------------------------------------------------------------------
+## -----------------------------------------------------------------------
 mod-update:
 	$(GO) mod tidy
 	$(GO) mod vendor
 
 ## ---------------------------------------------------------
 ## ---------------------------------------------------------
-clean:
-	$(RM) -r voltctl voltctl.cp release sca-report
+clean ::
+	$(RM) -r voltctl voltctl.cp sca-report
 
 ## ---------------------------------------------------------
 ## This belongs in a library makefile: makefiles/go/clean.mk
 ## ---------------------------------------------------------
 go-clean-cache += -cache
-go-clean-cache += -fuzzcache
+# go-clean-cache += -fuzzcache
 go-clean-cache += -modcache
 go-clean-cache += -testcache
 

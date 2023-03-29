@@ -1,6 +1,6 @@
 # -*- makefile -*-
 # -----------------------------------------------------------------------
-# Copyright 2022 Open Networking Foundation (ONF) and the ONF Contributors
+# Copyright 2022-2023 Open Networking Foundation (ONF) and the ONF Contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,18 +14,41 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# SPDX-FileCopyrightText: 2022 Open Networking Foundation (ONF) and the ONF Contributors
+# SPDX-FileCopyrightText: 2022-2023 Open Networking Foundation (ONF) and the ONF Contributors
 # SPDX-License-Identifier: Apache-2.0
 # -----------------------------------------------------------------------
+# ONF.makefile.version = 1.0
+# -----------------------------------------------------------------------
 
-null        :=#
-space       := $(null) $(null)
-dot         ?= .
+$(if $(DEBUG),$(warning ENTER))
 
+# include makefiles/constants.mk
+export dot          :=.
+export null         :=#
+export space        := $(null) $(null)
+export quote-single := $(null)"$(null)# colorization-closing-quote(")
+export quote-double := $(null)'$(null)# colorization-closing-quote(')
+
+# [DEBUG] make {target} HIDE=
 HIDE        ?= @
-# SHELL       := bash -e -o pipefail
 
-env-clean   = /usr/bin/env --ignore-environment
+env-clean      ?= /usr/bin/env --ignore-environment
+xargs-n1       := xargs -0 -t -n1 --no-run-if-empty
+xargs-n1-clean := $(env-clean) $(xargs-n1)
 
+## -----------------------------------------------------------------------
+## Default shell:
+##   o set -e            enable error checking
+##   o set -u            report undefined errors
+##   o set -o pipefail   propogate shell pipeline failures.
+## -----------------------------------------------------------------------
+SHELL ?= /bin/bash
+have-shell-bash := $(filter bash,$(subst /,$(space),$(SHELL)))
+$(if $(have-shell-bash),$(null),\
+  $(eval export SHELL := bash -euo pipefail))
+
+export SHELL ?= bash -euo pipefail
+
+$(if $(DEBUG),$(warning LEAVE))
 
 # [EOF]

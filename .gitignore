@@ -2,7 +2,7 @@
 tests
 /voltctl
 voltctl.cp
-release
+/release
 *.log
 sca-report
 .idea/
