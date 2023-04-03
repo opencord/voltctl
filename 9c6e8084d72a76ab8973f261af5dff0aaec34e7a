@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8fa07a82_02e5eb98",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000948
+      },
+      "writtenOn": "2023-04-03T17:17:51Z",
+      "side": 1,
+      "message": "Let the patch run, attempting a new release build",
+      "revId": "9c6e8084d72a76ab8973f261af5dff0aaec34e7a",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
