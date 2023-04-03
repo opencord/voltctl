@@ -22,7 +22,7 @@ $(if $(DEBUG),$(warning ENTER))
 ##   o Generate volctl binaries in a docker container container
 ##   o Copy container:/apps/release to localhost:{pwd}/release
 ## -----------------------------------------------------------------------
-## [TODO] Replace ${GO_SH} $(single-quote) ..   with $(call quoted,cmd-text)
+## [TODO] Replace ${GO_SH} $(quote-single) ..   with $(call quoted,cmd-text)
 ## -----------------------------------------------------------------------
 release-build :
 
@@ -32,7 +32,11 @@ release-build :
 	@echo "** Sandbox: $(shell /bin/pwd)"
 	@echo "** -----------------------------------------------------------------------"
 
-	@echo -e "\n** golang attributes"
+        # [DEBUG] Yes this will take a while but where-4-art-thou-golang-in-docker-image-(?)
+	@echo -e "\n** golang interpreter"
+        # find '/usr/local' '/go' '/usr/bin' '/bin' -name 'go' ! -type d -ls;
+	${GO_SH} $(quote-single) find / -name 'go' ! -type d -print $(quote-single)
+
 	$(HIDE)${GO_SH} $(call quoted,which$(space)-a$(space)go)
 	$(HIDE)${GO_SH} $(call quoted,go$(space)version)
 
@@ -40,22 +44,53 @@ release-build :
 	$(RM) -r "./$(RELEASE_DIR)"
 	mkdir -vp "$(RELEASE_DIR)"
 
+	$(MAKE) docker-debug
+
 	@echo
+	@echo '** -----------------------------------------------------------------------'
 	@echo '** Docker builds bins into mounted filesystem:'
 	@echo '**   container:/app/relase'
 	@echo '**   localhost:{pwd}/release'
-	@${GO_SH} $(single-quote) \
+	@echo '** -----------------------------------------------------------------------'
+	$(HIDE)${GO_SH} $(quote-single) \
+	  echo ;\
 	  set -e -o pipefail; \
+	  set -x ; \
 	  for x in ${RELEASE_OS_ARCH}; do \
+	    echo ;\
+	    echo "** RELEASE_OS_ARCH: Build arch is $$x"; \
 	    OUT_PATH="$(RELEASE_DIR)/$(RELEASE_NAME)-$(subst -dev,_dev,$(VERSION))-$$x"; \
-	    echo "$$OUT_PATH"; \
+            echo ;\
+            echo "** Building: $$OUT_PATH (ENTER)"; \
 	    GOOS=$${x%-*} GOARCH=$${x#*-} go build -mod=vendor -v $(LDFLAGS) -o "$$OUT_PATH" cmd/voltctl/voltctl.go; \
+            echo "** Building: $$OUT_PATH (LEAVE)"; \
 	done \
-$(single-quote)
+$(quote-single)
 
 	@echo
+	@echo "** -----------------------------------------------------------------------"
 	@echo '** Post-build, files to release'
-	$(HIDE)find "$(RELEASE_DIR)" ! -type d -print
+	@echo "** -----------------------------------------------------------------------"
+	find "$(RELEASE_DIR)" ! -type d -print
+	@echo
+
+## -----------------------------------------------------------------------
+## Intent: Why is go not found reported after
+## -----------------------------------------------------------------------
+docker-debug:
+
+	@echo
+	@echo "** -----------------------------------------------------------------------"
+	@echo "** [TARGET] $@"
+	@echo "** -----------------------------------------------------------------------"
+
+	@echo
+	docker images
+
+	@echo
+	docker ps --all
+
+	@echo
 
 ## -----------------------------------------------------------------------
 ## -----------------------------------------------------------------------
