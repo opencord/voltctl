@@ -34,7 +34,7 @@ release-build :
 
         # [DEBUG] Yes this will take a while but where-4-art-thou-golang-in-docker-image-(?)
 	@echo -e "\n** golang interpreter"
-        # find '/usr/local' '/go' '/usr/bin' '/bin' -name 'go' ! -type d -ls;
+        # find '/usr/local' '/go' '/usr/bin' '/bin' -name 'go' ! -type d -print;
         # -${GO_SH} $(quote-single) find / -name 'go' ! -type d -print $(quote-single)
 
 	-$(HIDE)${GO_SH} $(call quoted,which$(space)-a$(space)go)
@@ -48,13 +48,25 @@ release-build :
 
 	@echo
 	@echo '** -----------------------------------------------------------------------'
+	@echo '** Filesystem: docker-container::/app  (wanted: release/)'
+	@echo '** -----------------------------------------------------------------------'
+	${GO_SH} $(quote-single)find /app \( -name ".git" -o -name "vendor" -o -name "makefiles" -o -name "internal" -o -name "pkg" \) -prune -o -print$(quote-single)
+	@echo
+	@echo '** /app/release permissions'
+#	${GO_SH} $(quote-single)umask 022 && chmod 700 /app/release $(quote-single)
+	${GO_SH} $(quote-single)/bin/ls -ld /app/release $(quote-single)
+
+	@echo
+	@echo '** -----------------------------------------------------------------------'
 	@echo '** Docker builds bins into mounted filesystem:'
 	@echo '**   container:/app/relase'
 	@echo '**   localhost:{pwd}/release'
 	@echo '** -----------------------------------------------------------------------'
+
+#       NOTE: Use double quotes in echo strings else command breakage
 	${GO_SH} $(quote-single) \
-	  echo ;\
-	  echo 'Building release binaries:' ;\
+          echo ;\
+	  echo "build: ENTER" ;\
 	  set -e -o pipefail; \
 	  set -x ; \
 	  for x in ${RELEASE_OS_ARCH}; do \
@@ -65,7 +77,8 @@ release-build :
             echo "** Building: $$OUT_PATH (ENTER)"; \
 	    GOOS=$${x%-*} GOARCH=$${x#*-} go build -mod=vendor -v $(LDFLAGS) -o "$$OUT_PATH" cmd/voltctl/voltctl.go; \
             echo "** Building: $$OUT_PATH (LEAVE)"; \
-	done \
+	  done ;\
+	  echo "build: LEAVE" \
 $(quote-single)
 
 	@echo
