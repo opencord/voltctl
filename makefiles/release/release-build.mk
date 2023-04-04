@@ -35,10 +35,10 @@ release-build :
         # [DEBUG] Yes this will take a while but where-4-art-thou-golang-in-docker-image-(?)
 	@echo -e "\n** golang interpreter"
         # find '/usr/local' '/go' '/usr/bin' '/bin' -name 'go' ! -type d -ls;
-	${GO_SH} $(quote-single) find / -name 'go' ! -type d -print $(quote-single)
+        # -${GO_SH} $(quote-single) find / -name 'go' ! -type d -print $(quote-single)
 
-	$(HIDE)${GO_SH} $(call quoted,which$(space)-a$(space)go)
-	$(HIDE)${GO_SH} $(call quoted,go$(space)version)
+	-$(HIDE)${GO_SH} $(call quoted,which$(space)-a$(space)go)
+	-$(HIDE)${GO_SH} $(call quoted,go$(space)version)
 
 	@echo -e "\n** Create filesystem target for docker volume: $(RELEASE_DIR)"
 	$(RM) -r "./$(RELEASE_DIR)"
@@ -71,7 +71,7 @@ $(quote-single)
 	@echo "** -----------------------------------------------------------------------"
 	@echo '** Post-build, files to release'
 	@echo "** -----------------------------------------------------------------------"
-	find "$(RELEASE_DIR)" ! -type d -print
+	-find "$(RELEASE_DIR)" ! -type d -print
 	@echo
 
 ## -----------------------------------------------------------------------
