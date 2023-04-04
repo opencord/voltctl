@@ -52,8 +52,9 @@ release-build :
 	@echo '**   container:/app/relase'
 	@echo '**   localhost:{pwd}/release'
 	@echo '** -----------------------------------------------------------------------'
-	$(HIDE)${GO_SH} $(quote-single) \
+	${GO_SH} $(quote-single) \
 	  echo ;\
+	  echo 'Building release binaries:' ;\
 	  set -e -o pipefail; \
 	  set -x ; \
 	  for x in ${RELEASE_OS_ARCH}; do \

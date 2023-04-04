@@ -26,8 +26,8 @@ $(if $(DEBUG),$(warning ENTER))
 export dot          :=.
 export null         :=#
 export space        := $(null) $(null)
-export quote-single := $(null)"$(null)# colorization-closing-quote(")
-export quote-double := $(null)'$(null)# colorization-closing-quote(')
+export quote-single := $(null)'$(null)# colorization-closing-quote(')
+export quote-double := $(null)"$(null)# colorization-closing-quote(")
 
 # [DEBUG] make {target} HIDE=
 HIDE        ?= @
