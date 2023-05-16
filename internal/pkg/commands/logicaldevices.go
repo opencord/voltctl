@@ -1,5 +1,6 @@
 /*
- * Copyright 2019-present Ciena Corporation
+ * Copyright 2019-2023 Ciena Corporation
+ * Copyright 2019-2023 Open Networking Foundation (ONF) and the ONF Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +22,9 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/opencord/voltctl/pkg/format"
+	mtrs "github.com/opencord/voltha-lib-go/v7/pkg/meters"
 	"github.com/opencord/voltha-protos/v5/go/openflow_13"
+	tp_pb "github.com/opencord/voltha-protos/v5/go/tech_profile"
 	"github.com/opencord/voltha-protos/v5/go/voltha"
 	"strings"
 )
@@ -30,6 +33,8 @@ const (
 	DEFAULT_LOGICAL_DEVICE_FORMAT         = "table{{ .Id }}\t{{printf \"%016x\" .DatapathId}}\t{{.RootDeviceId}}\t{{.Desc.SerialNum}}\t{{.SwitchFeatures.NBuffers}}\t{{.SwitchFeatures.NTables}}\t{{printf \"0x%08x\" .SwitchFeatures.Capabilities}}"
 	DEFAULT_LOGICAL_DEVICE_ORDER          = "Id"
 	DEFAULT_LOGICAL_DEVICE_PORT_FORMAT    = "table{{.Id}}\t{{.DeviceId}}\t{{.DevicePortNo}}\t{{.RootPort}}\t{{.OfpPortStats.PortNo}}\t{{.OfpPort.HwAddr}}\t{{.OfpPort.Name}}\t{{printf \"0x%08x\" .OfpPort.State}}\t{{printf \"0x%08x\" .OfpPort.Curr}}\t{{.OfpPort.CurrSpeed}}"
+	DEFAULT_LOGICAL_DEVICE_METER_FORMAT   = "table{{.MeterId}}\t{{.TrafficShaping.Cir}}\t{{.TrafficShaping.Cbs}}\t{{.TrafficShaping.Pir}}\t{{.TrafficShaping.Pbs}}\t{{.TrafficShaping.Gir}}"
+	DEFAULT_LOGICAL_DEVICE_METER_ORDER    = "MeterId"
 	DEFAULT_LOGICAL_DEVICE_INSPECT_FORMAT = `ID: {{.Id}}
   DATAPATHID: {{.DatapathId}}
   ROOTDEVICEID: {{.RootDeviceId}}
@@ -37,6 +42,11 @@ const (
 )
 
 type LogicalDeviceId string
+
+type LogicalDeviceMeterData struct {
+	MeterId        uint32
+	TrafficShaping *tp_pb.TrafficShapingInfo
+}
 
 type LogicalDeviceList struct {
 	ListOutputOptions
@@ -65,6 +75,13 @@ type LogicalDevicePortList struct {
 	} `positional-args:"yes"`
 }
 
+type LogicalDeviceMeterList struct {
+	ListOutputOptions
+	Args struct {
+		Id LogicalDeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+	} `positional-args:"yes"`
+}
+
 type LogicalDeviceInspect struct {
 	OutputOptionsJson
 	Args struct {
@@ -79,7 +96,8 @@ type LogicalDeviceOpts struct {
 	Port   struct {
 		List LogicalDevicePortList `command:"list"`
 	} `command:"port"`
-	Inspect LogicalDeviceInspect `command:"inspect"`
+	Meters  LogicalDeviceMeterList `command:"meters"`
+	Inspect LogicalDeviceInspect   `command:"inspect"`
 }
 
 var logicalDeviceOpts = LogicalDeviceOpts{}
@@ -214,6 +232,67 @@ func (options *LogicalDevicePortList) Execute(args []string) error {
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
 		Data:      ports.Items,
+	}
+
+	GenerateOutput(&result)
+	return nil
+}
+
+func (options *LogicalDeviceMeterList) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+	defer cancel()
+
+	id := voltha.ID{Id: string(options.Args.Id)}
+
+	meters, err := client.ListLogicalDeviceMeters(ctx, &id)
+	if err != nil {
+		return err
+	}
+
+	items := make([]*LogicalDeviceMeterData, 0)
+	for _, v := range meters.Items {
+		if v.Config == nil {
+			continue
+		}
+
+		data := &LogicalDeviceMeterData{}
+
+		data.MeterId = v.Config.MeterId
+		data.TrafficShaping, err = mtrs.GetTrafficShapingInfo(ctx, v.Config)
+		if err != nil {
+			return err
+		}
+
+		items = append(items, data)
+	}
+
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("logical-device-meters", "format", DEFAULT_LOGICAL_DEVICE_METER_FORMAT)
+	}
+	if options.Quiet {
+		outputFormat = "{{.MeterId}}"
+	}
+	orderBy := options.OrderBy
+	if orderBy == "" {
+		orderBy = GetCommandOptionWithDefault("logical-device-meters", "order", DEFAULT_LOGICAL_DEVICE_METER_ORDER)
+	}
+
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		Filter:    options.Filter,
+		OrderBy:   orderBy,
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      items,
 	}
 
 	GenerateOutput(&result)
