@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "64b51be3_c35fca80",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000404
+      },
+      "writtenOn": "2023-05-16T19:13:40Z",
+      "side": 1,
+      "message": "It would be nice to add an example of the output to the Jira ticket.",
+      "revId": "42495e11a94af0bf52737ff8a1b4c2e56d1ce463",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
