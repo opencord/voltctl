@@ -16,6 +16,23 @@
       "message": "It would be nice to add an example of the output to the Jira ticket.",
       "revId": "42495e11a94af0bf52737ff8a1b4c2e56d1ce463",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a036908_046fe28a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000948
+      },
+      "writtenOn": "2023-05-16T20:22:48Z",
+      "side": 1,
+      "message": "Embedded file copyright notices should span 2023\nhttps://github.com/joey-onf/copyright/blob/origin/master/notice\n\nCopyright 2019-2023 Open Networking Foundation (ONF) and the ONF Contributors\n",
+      "revId": "42495e11a94af0bf52737ff8a1b4c2e56d1ce463",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
   ]
 }
