@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8482aa4f_17b85546",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000948
+      },
+      "writtenOn": "2023-08-18T18:35:12Z",
+      "side": 1,
+      "message": "recheck\n\nJob will likely fail on version check not being incremented (due to re-run)\nbut lets see what the release commit hook will do with this patch.",
+      "revId": "0da1d344ad558bb90b61f249f9771d2fe1df3060",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
