@@ -119,8 +119,9 @@ ExtTxNoArFrames:       {{.ExtTxNoArFrames}}
 ExtRxNoAkFrames:       {{.ExtRxNoAkFrames}}
 TxOmciCounterRetries:  {{.TxOmciCounterRetries}}
 TxOmciCounterTimeouts: {{.TxOmciCounterTimeouts}}`
-	DEFAULT_DEVICE_ALARMS_FORMAT = "table{{ .ClassId }}\t{{.InstanceId}}\t{{.Name}}\t{{.Description}}"
-	DEFAULT_DEVICE_ALARMS_ORDER  = "ClassId,InstanceId"
+	DEFAULT_DEVICE_ALARMS_FORMAT       = "table{{ .ClassId }}\t{{.InstanceId}}\t{{.Name}}\t{{.Description}}"
+	DEFAULT_DEVICE_ALARMS_ORDER        = "ClassId,InstanceId"
+	DEFAULT_PON_RX_POWER_STATUS_FORMAT = "table{{.OnuSn}}\t{{.Status}}\t{{.FailReason}}\t{{.RxPower}}\t"
 )
 
 type DeviceList struct {
@@ -428,6 +429,15 @@ type RxPower struct {
 	} `positional-args:"yes"`
 }
 
+type PonRxPower struct {
+	ListOutputOptions
+	Args struct {
+		Id        DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+		PortLabel string   `positional-arg-name:"PORT_LABEL" required:"yes"`
+		SerialNo  string   `positional-arg-name:"ONU_SERIAL_NUMBER"`
+	} `positional-args:"yes"`
+}
+
 type OnuOmciTxRxStats struct {
 	ListOutputOptions
 	Args struct {
@@ -505,6 +515,7 @@ type DeviceOpts struct {
 		RxPower                 RxPower                               `command:"rxpower"`
 		OnuOmciStats            OnuOmciTxRxStats                      `command:"onu_omci_stats"`
 		OnuOmciActiveAlarms     GetOnuOmciActiveAlarms                `command:"onu_omci_active_alarms"`
+		PonRxPower              PonRxPower                            `command:"pon_rx_power"`
 	} `command:"getextval"`
 }
 
@@ -2442,6 +2453,50 @@ func (options *GetOnuOmciActiveAlarms) Execute(args []string) error {
 		OrderBy:   orderBy,
 		NameLimit: options.NameLimit,
 		Data:      rv.GetResponse().GetOnuActiveAlarms().GetActiveAlarms(),
+	}
+	GenerateOutput(&result)
+	return nil
+}
+
+func (options *PonRxPower) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	client := extension.NewExtensionClient(conn)
+
+	singleGetValReq := extension.SingleGetValueRequest{
+		TargetId: string(options.Args.Id),
+		Request: &extension.GetValueRequest{
+			Request: &extension.GetValueRequest_OltRxPower{
+				OltRxPower: &extension.GetOltRxPowerRequest{
+					PortLabel: options.Args.PortLabel,
+					OnuSn:     options.Args.SerialNo,
+				},
+			},
+		},
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+	defer cancel()
+	rv, err := client.GetExtValue(ctx, &singleGetValReq)
+	if err != nil {
+		Error.Printf("Error getting value on device Id %s,err=%s\n", options.Args.Id, ErrorToString(err))
+		return err
+	}
+	if rv.Response.Status != extension.GetValueResponse_OK {
+		return fmt.Errorf("failed to get rx power %v", rv.Response.ErrReason.String())
+	}
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("device-get-pon-rx-power", "format", DEFAULT_PON_RX_POWER_STATUS_FORMAT)
+	}
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      rv.GetResponse().GetOltRxPower().GetRxPower(),
 	}
 	GenerateOutput(&result)
 	return nil
