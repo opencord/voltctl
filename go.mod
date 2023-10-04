@@ -16,7 +16,7 @@ require (
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/jhump/protoreflect v1.5.0
 	github.com/opencord/voltha-lib-go/v7 v7.1.0
-	github.com/opencord/voltha-protos/v5 v5.4.1
+	github.com/opencord/voltha-protos/v5 v5.4.10
 	github.com/stretchr/testify v1.7.0
 	google.golang.org/appengine v1.6.1 // indirect
 	google.golang.org/grpc v1.44.0
