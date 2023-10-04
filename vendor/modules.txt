@@ -133,7 +133,7 @@ github.com/opencord/voltha-lib-go/v7/pkg/db
 github.com/opencord/voltha-lib-go/v7/pkg/db/kvstore
 github.com/opencord/voltha-lib-go/v7/pkg/log
 github.com/opencord/voltha-lib-go/v7/pkg/meters
-# github.com/opencord/voltha-protos/v5 v5.4.1
+# github.com/opencord/voltha-protos/v5 v5.4.10
 ## explicit
 github.com/opencord/voltha-protos/v5/go/common
 github.com/opencord/voltha-protos/v5/go/ext/config
@@ -142,6 +142,8 @@ github.com/opencord/voltha-protos/v5/go/health
 github.com/opencord/voltha-protos/v5/go/omci
 github.com/opencord/voltha-protos/v5/go/openflow_13
 github.com/opencord/voltha-protos/v5/go/tech_profile
+github.com/opencord/voltha-protos/v5/go/voip_system_profile
+github.com/opencord/voltha-protos/v5/go/voip_user_profile
 github.com/opencord/voltha-protos/v5/go/voltha
 # github.com/opentracing/opentracing-go v1.2.0
 github.com/opentracing/opentracing-go
