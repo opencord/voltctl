@@ -16,6 +16,24 @@
       "message": "more or less the same comments as here: https://gerrit.opencord.org/c/voltha-go/+/34782",
       "revId": "2ff16e977393e7517b81ed94a696f4a52485a8cf",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e6fa58ab_57399dfa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000948
+      },
+      "writtenOn": "2023-11-01T19:06:54Z",
+      "side": 1,
+      "message": "Updated commit message with URL pointers for VERSION file syntax and links to the go mod ~vendor tool.",
+      "parentUuid": "5aa8eb47_d46a29d3",
+      "revId": "2ff16e977393e7517b81ed94a696f4a52485a8cf",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
   ]
 }
