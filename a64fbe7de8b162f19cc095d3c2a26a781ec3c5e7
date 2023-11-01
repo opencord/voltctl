@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5fd3432a_fc8b7119",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000948
+      },
+      "writtenOn": "2023-11-01T19:10:10Z",
+      "side": 1,
+      "message": "recheck\n\nNeed to pull in Jan(s) frozen kail install patch v0.16.1\n\nFailed trying to install source-only tarball download:\n15:35:33  etc/godownloader.sh -b .\n15:35:33  boz/kail info checking GitHub for latest tag\n15:35:33  boz/kail info found version: 0.17.0 for v0.17.0/linux/amd64\n\n15:35:33 voltha-system-tests/makefiles/commands/kail.mk:38: recipe for target \u0027/w/workspace/verify_voltctl_sanity-test/bin/kail\u0027 failed",
+      "revId": "a64fbe7de8b162f19cc095d3c2a26a781ec3c5e7",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
