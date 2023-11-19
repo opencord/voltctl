@@ -11,18 +11,15 @@ replace (
 require (
 	github.com/Shopify/sarama v1.29.1
 	github.com/golang/protobuf v1.5.2
-	github.com/googleapis/gnostic v0.3.0 // indirect
 	github.com/imdario/mergo v0.3.7 // indirect
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/jhump/protoreflect v1.5.0
 	github.com/opencord/voltha-lib-go/v7 v7.1.0
 	github.com/opencord/voltha-protos/v5 v5.4.10
 	github.com/stretchr/testify v1.7.0
-	google.golang.org/appengine v1.6.1 // indirect
 	google.golang.org/grpc v1.44.0
-	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0
-	k8s.io/api v0.0.0-20190819141258-3544db3b9e44
-	k8s.io/apimachinery v0.0.0-20190817020851-f2f3a405f61d
-	k8s.io/client-go v0.0.0-20190819141724-e14f31a72a77 // go get k8s.io/client-go@kubernetes-1.15.3
+	k8s.io/api v0.20.0-alpha.2
+	k8s.io/apimachinery v0.20.0-alpha.2
+	k8s.io/client-go v0.20.0-alpha.2 // go get k8s.io/client-go@kubernetes-1.15.3
 )
