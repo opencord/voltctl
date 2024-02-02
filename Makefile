@@ -1,6 +1,6 @@
 # -*- makefile -*-
 # -----------------------------------------------------------------------
-# Copyright 2019-2023 Open Networking Foundation
+# Copyright 2019-2024 Open Networking Foundation (ONF) and the ONF Contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -156,8 +156,9 @@ lint-mod:
 	@git status > /dev/null
 	@git diff-index --quiet HEAD -- go.mod go.sum vendor || (echo "ERROR: Staged or modified files must be committed before running this test" && git status -- go.mod go.sum vendor && exit 1)
 	@[[ `git ls-files --exclude-standard --others go.mod go.sum vendor` == "" ]] || (echo "ERROR: Untracked files must be cleaned up before running this test" && git status -- go.mod go.sum vendor && exit 1)
-	$(GO) mod tidy
-	$(GO) mod vendor
+
+	$(HIDE)$(MAKE) --no-print-directory mod-update
+
 	@git status > /dev/null
 	@git diff-index --quiet HEAD -- go.mod go.sum vendor || (echo "ERROR: Modified files detected after running go mod tidy / go mod vendor" && git status -- go.mod go.sum vendor && git checkout -- go.mod go.sum vendor && exit 1)
 	@[[ `git ls-files --exclude-standard --others go.mod go.sum vendor` == "" ]] || (echo "ERROR: Untracked files detected after running go mod tidy / go mod vendor" && git status -- go.mod go.sum vendor && git checkout -- go.mod go.sum vendor && exit 1)
@@ -166,6 +167,10 @@ lint-mod:
 ifndef LOCAL_LINT
   lint : lint-mod
 endif
+
+## -----------------------------------------------------------------------
+## -----------------------------------------------------------------------
+# lint: lint-mod lint-dockerfile ## Run all lint targets
 
 ## -----------------------------------------------------------------------
 ##   Intent: Syntax check golang source
@@ -202,9 +207,35 @@ check: lint sca test
 
 ## -----------------------------------------------------------------------
 ## -----------------------------------------------------------------------
-mod-update:
-	$(GO) mod tidy
-	$(GO) mod vendor
+.PHONY: mod-update
+mod-update: go-version mod-tidy mod-vendor
+
+## -----------------------------------------------------------------------
+## -----------------------------------------------------------------------
+.PHONY: go-version
+go-version :
+	$(call banner-enter,Target $@)
+	${GO} version
+	$(call banner-leave,Target $@)
+
+## -----------------------------------------------------------------------
+## -----------------------------------------------------------------------
+.PHONY: mod-tidy
+mod-tidy :
+	$(call banner-enter,Target $@)
+	${GO} mod tidy
+	$(call banner-leave,Target $@)
+
+## -----------------------------------------------------------------------
+## -----------------------------------------------------------------------
+.PHONY: mod-vendor
+mod-vendor : mod-tidy
+mod-vendor :
+	$(call banner-enter,Target $@)
+	$(if $(LOCAL_FIX_PERMS),chmod o+w $(CURDIR))
+	${GO} mod vendor
+	$(if $(LOCAL_FIX_PERMS),chmod o-w $(CURDIR))
+	$(call banner-leave,Target $@)
 
 ## ---------------------------------------------------------
 ## ---------------------------------------------------------
@@ -223,7 +254,7 @@ go-clean-args += -i # installed binaries
 go-clean-args += -r # recursive
 go-clean-args += -x # verbose removal
 
-sterile: clean
+sterile :: clean
 	$(GO) clean $(go-clean-cache)
 	$(GO) clean $(go-clean-args)
 

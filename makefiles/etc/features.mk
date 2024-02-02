@@ -17,20 +17,31 @@
 # SPDX-FileCopyrightText: 2024 Open Networking Foundation (ONF) and the ONF Contributors
 # SPDX-License-Identifier: Apache-2.0
 # -----------------------------------------------------------------------
+# Usage:
+#
+# mytarget:
+#     $(call banner-enter,target $@)
+#     @echo "Hello World"
+#     $(call banner-leave,target $@)
+# -----------------------------------------------------------------------
 
 $(if $(DEBUG),$(warning ENTER))
 
-## -----------------------------------------------------------------------
-## -----------------------------------------------------------------------
-help::
-	@echo "  todo                       Display future enhancement list"
+target-banner = ** ---------------------------------------------------------------------------
 
-todo ::
-	@echo
-	@echo "[TODO: voltctl]"
-	@echo "  o vendor/ is under revision control."
-	@echo "    - go mod vendor will remove and recreate: invalid git state"
-	@echo "    - delete vendor/ checkin and/or clone from a central repository."
+## -----------------------------------------------------------------------
+## Intent: Return a command line able to display a banner hilighting
+##         make target processing within a logfile.
+## -----------------------------------------------------------------------
+banner-enter=\
+    @echo -e \
+    "\n"\
+    "$(target-banner)\n"\
+    "** $(MAKE) ENTER: $(1)\n"\
+    "$(target-banner)"\
+
+banner-leave=\
+    @echo -e "** $(MAKE) LEAVE: $(1)"
 
 $(if $(DEBUG),$(warning LEAVE))
 

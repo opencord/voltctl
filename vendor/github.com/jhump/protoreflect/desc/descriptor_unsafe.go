@@ -1,4 +1,6 @@
-//+build !appengine,!gopherjs,!purego
+//go:build !appengine && !gopherjs && !purego
+// +build !appengine,!gopherjs,!purego
+
 // NB: other environments where unsafe is unappropriate should use "purego" build tag
 // https://github.com/golang/go/issues/23172
 
@@ -34,10 +36,7 @@ func (md *MessageDescriptor) FindFieldByJSONName(jsonName string) *FieldDescript
 		// slow path: compute the index
 		index = map[string]*FieldDescriptor{}
 		for _, f := range md.fields {
-			jn := f.proto.GetJsonName()
-			if jn == "" {
-				jn = f.proto.GetName()
-			}
+			jn := f.GetJSONName()
 			index[jn] = f
 		}
 		atomic.StorePointer(addrOfJsonNames, *(*unsafe.Pointer)(unsafe.Pointer(&index)))

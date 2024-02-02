@@ -1,6 +1,6 @@
 # -*- makefile -*-
 # -----------------------------------------------------------------------
-# Copyright 2017-2023 Open Networking Foundation
+# Copyright 2017-2024 Open Networking Foundation (ONF) and the ONF Contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,13 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# SPDX-FileCopyrightText: 2017-2023 Open Networking Foundation (ONF) and the ONF Contributors
+# SPDX-FileCopyrightText: 2024 Open Networking Foundation (ONF) and the ONF Contributors
 # SPDX-License-Identifier: Apache-2.0
 # -----------------------------------------------------------------------
 
 $(if $(DEBUG),$(warning ENTER))
 
-MAKEDIR ?= $(error MAKEDIR= is required)
+MAKEDIR     ?= $(error MAKEDIR= is required)
+ONF_MAKEDIR ?= $(MAKEDIR)
 
 ## -----------------------------------------------------------------------
 ## -----------------------------------------------------------------------
@@ -29,6 +30,8 @@ help::
         # @echo "  test                          Sanity check chart versions"
 
 include $(MAKEDIR)/consts.mk
+include $(ONF_MAKEDIR)/utils/include.mk      # dependency-less helper macros
+include $(ONF_MAKEDIR)/etc/include.mk        # banner macros
 include $(MAKEDIR)/todo.mk
 include $(MAKEDIR)/lint/include.mk
 
