@@ -14,9 +14,9 @@ require (
 	github.com/googleapis/gnostic v0.3.0 // indirect
 	github.com/imdario/mergo v0.3.7 // indirect
 	github.com/jessevdk/go-flags v1.4.0
-	github.com/jhump/protoreflect v1.5.0
-	github.com/opencord/voltha-lib-go/v7 v7.1.0
-	github.com/opencord/voltha-protos/v5 v5.4.10
+	github.com/jhump/protoreflect v1.10.2
+	github.com/opencord/voltha-lib-go/v7 v7.5.3
+	github.com/opencord/voltha-protos/v5 v5.4.11
 	github.com/stretchr/testify v1.7.0
 	google.golang.org/appengine v1.6.1 // indirect
 	google.golang.org/grpc v1.44.0
