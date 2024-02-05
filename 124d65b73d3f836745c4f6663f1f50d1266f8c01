@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f2349a74_6600f5dc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000948
+      },
+      "writtenOn": "2024-02-05T23:25:16Z",
+      "side": 1,
+      "message": "sanity test failures reported:\nhttps://jenkins.opencord.org/job/verify_voltctl_sanity-test/508/\n\nUnrelated to the branch additions, force and cleanup failure post release.",
+      "revId": "124d65b73d3f836745c4f6663f1f50d1266f8c01",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
