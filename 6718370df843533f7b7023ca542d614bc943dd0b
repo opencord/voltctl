@@ -16,6 +16,23 @@
       "message": "recheck\n\nlftools: 0.37.4\nglobal-jjb: v0.57.3\n",
       "revId": "6718370df843533f7b7023ca542d614bc943dd0b",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e31ce77_f4394a6c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000948
+      },
+      "writtenOn": "2024-03-11T17:54:43Z",
+      "side": 1,
+      "message": "recheck\n\nValidate JJB upgrade v4",
+      "revId": "6718370df843533f7b7023ca542d614bc943dd0b",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
   ]
 }
