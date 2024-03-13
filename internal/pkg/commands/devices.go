@@ -119,6 +119,11 @@ ExtTxNoArFrames:       {{.ExtTxNoArFrames}}
 ExtRxNoAkFrames:       {{.ExtRxNoAkFrames}}
 TxOmciCounterRetries:  {{.TxOmciCounterRetries}}
 TxOmciCounterTimeouts: {{.TxOmciCounterTimeouts}}`
+	DEFAULT_ONU_STATS_FROM_OLT_FORMAT = `GemId:			{{.GemId}}
+RxPackets: 			   {{.RxPackets}}
+RxBytes:			   {{.RxBytes}}
+TxPackets:			   {{.TxPackets}}
+TxBytes:			   {{.TxBytes}}`
 	DEFAULT_DEVICE_ALARMS_FORMAT       = "table{{ .ClassId }}\t{{.InstanceId}}\t{{.Name}}\t{{.Description}}"
 	DEFAULT_DEVICE_ALARMS_ORDER        = "ClassId,InstanceId"
 	DEFAULT_PON_RX_POWER_STATUS_FORMAT = "table{{.OnuSn}}\t{{.Status}}\t{{.FailReason}}\t{{.RxPower}}\t"
@@ -420,6 +425,13 @@ type GetOnuEthernetFrameExtendedPmCounters struct {
 	} `positional-args:"yes"`
 }
 
+type GetOnuAllocGemStatsFromOlt struct {
+	ListOutputOptions
+	Args struct {
+		Id DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+	} `positional-args:"yes"`
+}
+
 type RxPower struct {
 	ListOutputOptions
 	Args struct {
@@ -516,6 +528,7 @@ type DeviceOpts struct {
 		OnuOmciStats            OnuOmciTxRxStats                      `command:"onu_omci_stats"`
 		OnuOmciActiveAlarms     GetOnuOmciActiveAlarms                `command:"onu_omci_active_alarms"`
 		PonRxPower              PonRxPower                            `command:"pon_rx_power"`
+		OnuAllocGemStats        GetOnuAllocGemStatsFromOlt            `command:"onu_alloc_gem_from_olt"`
 	} `command:"getextval"`
 }
 
@@ -2167,6 +2180,49 @@ func (options *GetOnuEthernetFrameExtendedPmCounters) Execute(args []string) err
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
 		Data:      data,
+	}
+	GenerateOutput(&result)
+	return nil
+}
+
+func (options *GetOnuAllocGemStatsFromOlt) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	client := extension.NewExtensionClient(conn)
+
+	singleGetValReq := extension.SingleGetValueRequest{
+		TargetId: string(options.Args.Id),
+		Request: &extension.GetValueRequest{
+			Request: &extension.GetValueRequest_OnuStatsFromOlt{
+				OnuStatsFromOlt: &extension.GetOnuStatsFromOltRequest{
+					OnuDeviceId: string(options.Args.Id),
+				},
+			},
+		},
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+	defer cancel()
+	rv, err := client.GetExtValue(ctx, &singleGetValReq)
+	if err != nil {
+		Error.Printf("Error getting value on device Id %s,err=%s\n", options.Args.Id, ErrorToString(err))
+		return err
+	}
+
+	if rv.Response.Status != extension.GetValueResponse_OK {
+		return fmt.Errorf("failed to get onu alloc gem stats from olt %v", rv.Response.ErrReason.String())
+	}
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("device-get-onu-status", "format", DEFAULT_ONU_STATS_FROM_OLT_FORMAT)
+	}
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      rv.GetResponse().GetOnuStatsFromOltResponse(),
 	}
 	GenerateOutput(&result)
 	return nil
