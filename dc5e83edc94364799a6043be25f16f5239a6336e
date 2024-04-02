@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "11af66ef_4c83a24e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000948
+      },
+      "writtenOn": "2024-04-02T14:37:45Z",
+      "side": 1,
+      "message": "Credentials regenerated, let(s) see if we can just perform publishing (have my doubts).\nIf not bump the version string again.\n",
+      "revId": "dc5e83edc94364799a6043be25f16f5239a6336e",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
