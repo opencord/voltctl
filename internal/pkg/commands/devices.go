@@ -122,6 +122,7 @@ TxOmciCounterTimeouts: {{.TxOmciCounterTimeouts}}`
 	DEFAULT_DEVICE_ALARMS_FORMAT       = "table{{ .ClassId }}\t{{.InstanceId}}\t{{.Name}}\t{{.Description}}"
 	DEFAULT_DEVICE_ALARMS_ORDER        = "ClassId,InstanceId"
 	DEFAULT_PON_RX_POWER_STATUS_FORMAT = "table{{.OnuSn}}\t{{.Status}}\t{{.FailReason}}\t{{.RxPower}}\t"
+	DEFAULT_ONU_DISTANCE_FORMAT        = `Distance`
 )
 
 type DeviceList struct {
@@ -136,6 +137,7 @@ type DeviceCreate struct {
 }
 
 type DeviceId string
+type OnuId string
 
 type MetricName string
 type GroupName string
@@ -452,6 +454,14 @@ type GetOnuOmciActiveAlarms struct {
 	} `positional-args:"yes"`
 }
 
+type GetOnuDistance struct {
+	ListOutputOptions
+	Args struct {
+		Id    DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+		OnuId OnuId    `positional-arg-name:"ONU_ID" required:"yes"`
+	} `positional-args:"yes"` //onu device id
+}
+
 type DeviceOpts struct {
 	List    DeviceList          `command:"list"`
 	Create  DeviceCreate        `command:"create"`
@@ -516,6 +526,7 @@ type DeviceOpts struct {
 		OnuOmciStats            OnuOmciTxRxStats                      `command:"onu_omci_stats"`
 		OnuOmciActiveAlarms     GetOnuOmciActiveAlarms                `command:"onu_omci_active_alarms"`
 		PonRxPower              PonRxPower                            `command:"pon_rx_power"`
+		OnuDistance             GetOnuDistance                        `command:"onu_distance"`
 	} `command:"getextval"`
 }
 
@@ -2454,6 +2465,53 @@ func (options *GetOnuOmciActiveAlarms) Execute(args []string) error {
 		NameLimit: options.NameLimit,
 		Data:      rv.GetResponse().GetOnuActiveAlarms().GetActiveAlarms(),
 	}
+	GenerateOutput(&result)
+	return nil
+}
+
+/*Device  get Onu Active Alarms */
+func (options *GetOnuDistance) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	client := extension.NewExtensionClient(conn)
+
+	singleGetValReq := extension.SingleGetValueRequest{
+		TargetId: string(options.Args.Id),
+		Request: &extension.GetValueRequest{
+			Request: &extension.GetValueRequest_Distance{
+				Distance: &extension.GetDistanceRequest{
+					OnuDeviceId: string(options.Args.OnuId),
+				},
+			},
+		},
+	}
+	Info.Printf("Getting onu distance for  device Id %s\n", options.Args.Id)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+	defer cancel()
+	rv, err := client.GetExtValue(ctx, &singleGetValReq)
+	if err != nil {
+		Error.Printf("Error getting value on device Id %s,err=%s\n", options.Args.Id, ErrorToString(err))
+		return err
+	}
+
+	if rv.Response.Status != extension.GetValueResponse_OK {
+		return fmt.Errorf("failed to get onu distance stats  %v", rv.Response.ErrReason.String())
+	}
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("get-onu-distance", "format", DEFAULT_ONU_DISTANCE_FORMAT)
+	}
+
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      rv.GetResponse().GetDistance().GetDistance(),
+	}
+	fmt.Println("onu distance : ", rv)
 	GenerateOutput(&result)
 	return nil
 }
