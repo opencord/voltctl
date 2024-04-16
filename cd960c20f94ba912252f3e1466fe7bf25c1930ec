@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "757868c1_cf038a2b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1001011
+      },
+      "writtenOn": "2024-04-16T11:42:21Z",
+      "side": 1,
+      "message": "protos are still under review for this MR that is\n https://gerrit.opencord.org/c/voltha-protos/+/35128",
+      "revId": "cd960c20f94ba912252f3e1466fe7bf25c1930ec",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
