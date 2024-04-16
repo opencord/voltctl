@@ -16,6 +16,24 @@
       "message": "protos are still under review for this MR that is\n https://gerrit.opencord.org/c/voltha-protos/+/35128",
       "revId": "cd960c20f94ba912252f3e1466fe7bf25c1930ec",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "340340b6_f5bd547b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000948
+      },
+      "writtenOn": "2024-04-16T13:46:54Z",
+      "side": 1,
+      "message": "fyi\u003e  If you want to:\n  * Within the gerrit UI this patch can be marked as WIP/work-in-progress.\n  * State implies the patch is available for review input but not ready to merge.\n  * Later on after repo:voltha-protos has been updated the WIP attribute can be removed so the patch can be merged.",
+      "parentUuid": "757868c1_cf038a2b",
+      "revId": "cd960c20f94ba912252f3e1466fe7bf25c1930ec",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
   ]
 }
