@@ -119,9 +119,17 @@ ExtTxNoArFrames:       {{.ExtTxNoArFrames}}
 ExtRxNoAkFrames:       {{.ExtRxNoAkFrames}}
 TxOmciCounterRetries:  {{.TxOmciCounterRetries}}
 TxOmciCounterTimeouts: {{.TxOmciCounterTimeouts}}`
-	DEFAULT_DEVICE_ALARMS_FORMAT       = "table{{ .ClassId }}\t{{.InstanceId}}\t{{.Name}}\t{{.Description}}"
-	DEFAULT_DEVICE_ALARMS_ORDER        = "ClassId,InstanceId"
-	DEFAULT_PON_RX_POWER_STATUS_FORMAT = "table{{.OnuSn}}\t{{.Status}}\t{{.FailReason}}\t{{.RxPower}}\t"
+	DEFAULT_DEVICE_ALARMS_FORMAT         = "table{{ .ClassId }}\t{{.InstanceId}}\t{{.Name}}\t{{.Description}}"
+	DEFAULT_DEVICE_ALARMS_ORDER          = "ClassId,InstanceId"
+	DEFAULT_PON_RX_POWER_STATUS_FORMAT   = "table{{.OnuSn}}\t{{.Status}}\t{{.FailReason}}\t{{.RxPower}}\t"
+	DEFAULT_DEVICE_VALUE_GEM_PORT_FORMAT = `AllocId:		{{.AllocId}}
+AllocRxBytes:		        {{.AllocRxBytes}}
+GemId:			            {{.GemId}}
+TransmittedGEMFrames        {{.TransmittedGEMFrames}}
+ReceivedGEMFrames: 		    {{.ReceivedGEMFrames}}
+ReceivedPayloadBytes:	    {{.ReceivedPayloadBytes}}
+TransmittedPayloadBytes:	{{.TransmittedPayloadBytes}}
+EncryptionKeyErrors:	    {{.EncryptionKeyErrors}}`
 )
 
 type DeviceList struct {
@@ -419,7 +427,6 @@ type GetOnuEthernetFrameExtendedPmCounters struct {
 		UniIndex *uint32  `positional-arg-name:"UNI_INDEX"`
 	} `positional-args:"yes"`
 }
-
 type RxPower struct {
 	ListOutputOptions
 	Args struct {
@@ -446,6 +453,12 @@ type OnuOmciTxRxStats struct {
 }
 
 type GetOnuOmciActiveAlarms struct {
+	ListOutputOptions
+	Args struct {
+		Id DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+	} `positional-args:"yes"`
+}
+type GetOnuGEMStats struct {
 	ListOutputOptions
 	Args struct {
 		Id DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
@@ -516,7 +529,18 @@ type DeviceOpts struct {
 		OnuOmciStats            OnuOmciTxRxStats                      `command:"onu_omci_stats"`
 		OnuOmciActiveAlarms     GetOnuOmciActiveAlarms                `command:"onu_omci_active_alarms"`
 		PonRxPower              PonRxPower                            `command:"pon_rx_power"`
+		OnuGEMStats             GetOnuGEMStats                        `command:"onu_gem_stats"`
 	} `command:"getextval"`
+}
+type onugemstats struct {
+	AllocId                 uint32
+	AllocRxBytes            uint32
+	GemId                   uint32
+	TransmittedGEMFrames    uint32
+	ReceivedGEMFrames       uint32
+	ReceivedPayloadBytes    uint32
+	TransmittedPayloadBytes uint32
+	EncryptionKeyErrors     uint32
 }
 
 var deviceOpts = DeviceOpts{}
@@ -2500,4 +2524,63 @@ func (options *PonRxPower) Execute(args []string) error {
 	}
 	GenerateOutput(&result)
 	return nil
+}
+func (options *GetOnuGEMStats) Execute(args []string) error {
+
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	client := extension.NewExtensionClient(conn)
+	singleGetValReq := extension.SingleGetValueRequest{
+		TargetId: string(options.Args.Id),
+		Request: &extension.GetValueRequest{
+			Request: &extension.GetValueRequest_OnuAllocGemStats{
+				OnuAllocGemStats: &extension.GetOnuAllocGemHistoryRequest{},
+			},
+		},
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+	defer cancel()
+
+	rv, err := client.GetExtValue(ctx, &singleGetValReq)
+
+	if err != nil {
+		Error.Printf("Error getting value on device Id %s,err=%s\n", options.Args.Id, ErrorToString(err))
+		return err
+	}
+
+	if rv.Response.Status != extension.GetValueResponse_OK {
+		return fmt.Errorf("failed to get gem port response %v", rv.Response.ErrReason.String())
+	}
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("device-get-gem-port", "format", DEFAULT_DEVICE_VALUE_GEM_PORT_FORMAT)
+	}
+	onugemhistoryresponse := rv.GetResponse().GetOnuAllocGemStatsResponse()
+	for _, OnuallocGemHistoryData := range onugemhistoryresponse.OnuAllocGemHistoryData {
+		data := onugemstats{}
+		data.AllocId = OnuallocGemHistoryData.OnuAllocIdInfo.AllocId
+		data.AllocRxBytes = OnuallocGemHistoryData.OnuAllocIdInfo.RxBytes
+		for _, gemStatsInfo := range OnuallocGemHistoryData.GemPortInfo {
+			data.GemId = gemStatsInfo.GemId
+			data.TransmittedGEMFrames = gemStatsInfo.TransmittedGEMFrames
+			data.ReceivedGEMFrames = gemStatsInfo.ReceivedGEMFrames
+			data.ReceivedPayloadBytes = gemStatsInfo.ReceivedPayloadBytes
+			data.TransmittedPayloadBytes = gemStatsInfo.TransmittedPayloadBytes
+			data.EncryptionKeyErrors = gemStatsInfo.EncryptionKeyErrors
+
+			result := CommandResult{
+				Format:    format.Format(outputFormat),
+				OutputAs:  toOutputType(options.OutputAs),
+				NameLimit: options.NameLimit,
+				Data:      &data,
+			}
+			GenerateOutput(&result)
+		}
+	}
+	return nil
+
 }
