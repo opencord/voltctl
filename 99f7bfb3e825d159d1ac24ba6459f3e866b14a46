@@ -50,6 +50,23 @@
       "message": "recheck",
       "revId": "99f7bfb3e825d159d1ac24ba6459f3e866b14a46",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6dd3c743_a8aeb0cc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000948
+      },
+      "writtenOn": "2024-04-19T14:59:48Z",
+      "side": 1,
+      "message": "recheck\n\nJenkins job queue is in a better state now, re-triggering jobs for current results.",
+      "revId": "99f7bfb3e825d159d1ac24ba6459f3e866b14a46",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
   ]
 }
