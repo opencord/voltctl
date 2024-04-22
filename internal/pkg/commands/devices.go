@@ -109,6 +109,48 @@ DFrames_256To_511Octets:	{{.DFrames_256To_511Octets}}
 DFrames_512To_1023Octets:	{{.DFrames_512To_1023Octets}}
 DFrames_1024To_1518Octets:	{{.DFrames_1024To_1518Octets}}
 PmFormat:	                {{.PmFormat}}`
+	DEFAULT_PON_PORT_STATS_FORMAT = `Pon Port:			{{.PonPort}}
+Bip Units:					{{.BipUnits}}
+Bip Errors:					{{.BipErrors}}
+RxPackets:					{{.RxPackets}}
+RxGem:						{{.RxGem}}
+RxGemDropped:				{{.RxGemDropped}}
+RxGemIdle:					{{.RxGemIdle}}
+RxGemCorrected:				{{.RxGemCorrected}}
+RxGemIllegal:				{{.RxGemIllegal}}
+RxCrcError:					{{.RxCrcError}}
+RxFragmentError:			{{.RxFragmentError}}
+RxPacketsDropped:			{{.RxPacketsDropped}}
+RxCpuOmciPacketsDropped:	{{.RxCpuOmciPacketsDropped}}
+RxCpu:						{{.RxCpu}}
+RxOmci:						{{.RxOmci}}
+RxOmciPacketsCrcError:		{{.RxOmciPacketsCrcError}}
+TxPackets:					{{.TxPackets}}
+TxGem:						{{.TxGem}}
+TxCpu:						{{.TxCpu}}
+TxOmci:						{{.TxOmci}}
+TxDroppedIllegalLength:		{{.TxDroppedIllegalLength}}
+TxDroppedTpidMiss:			{{.TxDroppedTpidMiss}}
+TxDroppedVidMiss:			{{.TxDroppedVidMiss}}
+TxDroppedTotal:				{{.TxDroppedTotal}}`
+	DEFAULT_NNI_PORT_STATS_FORMAT = `Nni Port:			{{.NniPort}}
+RxBytes:					{{.RxBytes}}
+RxPackets:					{{.RxPackets}}
+RxUcastPackets:				{{.RxUcastPackets}}
+RxMcastPackets:				{{.RxMcastPackets}}
+RxBcastPackets:				{{.RxBcastPackets}}
+RxErrorPackets:				{{.RxErrorPackets}}
+RxFcsErrorPackets:			{{.RxFcsErrorPackets}}
+RxUndersizePackets:			{{.RxUndersizePackets}}
+RxOversizePackets:			{{.RxOversizePackets}}
+TxBytes:					{{.TxBytes}}
+TxPackets:					{{.TxPackets}}
+TxUcastPackets:				{{.TxUcastPackets}}
+TxMcastPackets:				{{.TxMcastPackets}}
+TxBcastPackets:				{{.TxBcastPackets}}
+TxErrorPackets:				{{.TxErrorPackets}}
+TxUndersizePackets:			{{.TxUndersizePackets}}
+TxOversizePackets:			{{.TxOversizePackets}}`
 	DEFAULT_ONU_OMCI_TX_RX_STATS_FORMAT = `BaseTxArFrames:        {{.BaseTxArFrames}}
 BaseRxAkFrames:        {{.BaseRxAkFrames}}
 BaseTxNoArFrames:      {{.BaseTxNoArFrames}}
@@ -420,6 +462,24 @@ type GetOnuEthernetFrameExtendedPmCounters struct {
 	} `positional-args:"yes"`
 }
 
+type GetPonPortStats struct {
+	ListOutputOptions
+	Reset bool `long:"reset" description:"Reset the counters"`
+	Args  struct {
+		Id        DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+		PortLabel string   `positional-arg-name:"PORT_LABEL" required:"yes"`
+	} `positional-args:"yes"`
+}
+
+type GetNniPortStats struct {
+	ListOutputOptions
+	Reset bool `long:"reset" description:"Reset the counters"`
+	Args  struct {
+		Id        DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+		PortLabel string   `positional-arg-name:"PORT_LABEL" required:"yes"`
+	} `positional-args:"yes"`
+}
+
 type RxPower struct {
 	ListOutputOptions
 	Args struct {
@@ -516,6 +576,8 @@ type DeviceOpts struct {
 		OnuOmciStats            OnuOmciTxRxStats                      `command:"onu_omci_stats"`
 		OnuOmciActiveAlarms     GetOnuOmciActiveAlarms                `command:"onu_omci_active_alarms"`
 		PonRxPower              PonRxPower                            `command:"pon_rx_power"`
+		PonStats                GetPonPortStats                       `command:"itu_pon_stats"`
+		NniStats                GetNniPortStats                       `command:"nni_statistics"`
 	} `command:"getextval"`
 }
 
@@ -2103,6 +2165,96 @@ func (options *GetOnuStats) Execute(args []string) error {
 		OutputAs:  toOutputType(options.OutputAs),
 		NameLimit: options.NameLimit,
 		Data:      data,
+	}
+	GenerateOutput(&result)
+	return nil
+}
+
+func (options *GetPonPortStats) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	client := extension.NewExtensionClient(conn)
+
+	singleGetValReq := extension.SingleGetValueRequest{
+		TargetId: string(options.Args.Id),
+		Request: &extension.GetValueRequest{
+			Request: &extension.GetValueRequest_OltPonStats{
+				OltPonStats: &extension.GetPonStatsRequest{
+					PortInfo: &extension.GetPonStatsRequest_PortLabel{
+						PortLabel: options.Args.PortLabel,
+					},
+				},
+			},
+		},
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+	defer cancel()
+	rv, err := client.GetExtValue(ctx, &singleGetValReq)
+	if err != nil {
+		Error.Printf("Error getting value on device Id %s,err=%s\n", options.Args.Id, ErrorToString(err))
+		return err
+	}
+
+	if rv.Response.Status != extension.GetValueResponse_OK {
+		return fmt.Errorf("failed to get pon port stats %v", rv.Response.ErrReason.String())
+	}
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("device-get-pon-stats", "format", DEFAULT_PON_PORT_STATS_FORMAT)
+	}
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      rv.GetResponse().GetOltPonStatsResponse(),
+	}
+	GenerateOutput(&result)
+	return nil
+}
+
+func (options *GetNniPortStats) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	client := extension.NewExtensionClient(conn)
+
+	singleGetValReq := extension.SingleGetValueRequest{
+		TargetId: string(options.Args.Id),
+		Request: &extension.GetValueRequest{
+			Request: &extension.GetValueRequest_OltNniStats{
+				OltNniStats: &extension.GetNNIStatsRequest{
+					PortInfo: &extension.GetNNIStatsRequest_PortLabel{
+						PortLabel: options.Args.PortLabel,
+					},
+				},
+			},
+		},
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+	defer cancel()
+	rv, err := client.GetExtValue(ctx, &singleGetValReq)
+	if err != nil {
+		Error.Printf("Error getting value on device Id %s,err=%s\n", options.Args.Id, ErrorToString(err))
+		return err
+	}
+
+	if rv.Response.Status != extension.GetValueResponse_OK {
+		return fmt.Errorf("failed to get nni port stats %v", rv.Response.ErrReason.String())
+	}
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("device-get-nni-stats", "format", DEFAULT_NNI_PORT_STATS_FORMAT)
+	}
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      rv.GetResponse().GetOltNniStatsResponse(),
 	}
 	GenerateOutput(&result)
 	return nil
