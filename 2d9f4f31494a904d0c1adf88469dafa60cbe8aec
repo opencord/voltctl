@@ -16,6 +16,23 @@
       "message": "recheck\n\nJenkins job queue is in a better state now, re-triggering jobs for current results.",
       "revId": "2d9f4f31494a904d0c1adf88469dafa60cbe8aec",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7552b753_3dc7a36d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000948
+      },
+      "writtenOn": "2024-04-22T16:07:29Z",
+      "side": 1,
+      "message": "recheck\n\nRe-run the test to see if job failure is intermittent but have seen this failure with other patches recently.\n\n\n11:56:25  \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\n11:56:25  Voltha PODTests :: Test various end-to-end scenarios                          \n11:56:25  \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\n11:56:25  \n11:56:25  Sadis File:None\n11:59:33  Sanity E2E Test for OLT/ONU on POD :: Validates E2E Ping Connectiv... | FAIL |\n11:59:33  Keyword \u0027Verify Subscriber Access Flows Added For ONU\u0027 failed after retrying for 1 minute. The last error was: No added IPv4 DHCP downstream flow found for of:00000a0a0a0a0a0a\n11:59:33  ------------------------------------------------------------------------------\n12:00:21  Voltha PODTests :: Test various end-to-end scenarios                  | FAIL |\n12:00:21  1 critical test, 0 passed, 1 failed\n12:00:21  1 test total, 0 passed, 1 failed\n12:00:21  \u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\n",
+      "revId": "2d9f4f31494a904d0c1adf88469dafa60cbe8aec",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
   ]
 }
