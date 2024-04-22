@@ -33,6 +33,23 @@
       "message": "Sanity test failure reported:\n\n11:29:22  github.com/opencord/voltctl/internal/pkg/commands\n11:29:22  # github.com/opencord/voltctl/internal/pkg/commands\n11:29:22  internal/pkg/commands/devices.go:2211:14: undefined: extension.GetValueRequest_OnuStatsFromOlt\n11:29:22  internal/pkg/commands/devices.go:2232:46: rv.GetResponse().GetOnuStatsFromOltResponse undefined (type *extension.GetValueResponse has no field or method GetOnuStatsFromOltResponse)\n11:29:22  makefiles/release/release-build.mk:29: recipe for target \u0027release-build\u0027 failed\n11:29:22  make: *** [release-build] Error 2\n11:29:22  make: Leaving directory \u0027/w/workspace/verify_voltctl_sanity-test/voltctl\u0027",
       "revId": "801f6b4a225323e68acad70e6a12e38d47eac325",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "591c83ad_7857fba4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000948
+      },
+      "writtenOn": "2024-04-22T16:37:07Z",
+      "side": 1,
+      "message": "verify_voltctl_unit-test also reported a problem:\n\nhttps://jenkins.opencord.org/job/verify_voltctl_unit-test/651/console\n\n\n\n11:15:14 Status: Downloaded newer image for voltha/voltha-ci-tools:2.4.0-golangci-lint\n11:25:17 level\u003dwarning msg\u003d\"[runner] Can\u0027t run linter goanalysis_metalinter: SA1004: failed prerequisites: inspect@github.com/opencord/voltctl/cmd/voltctl\"\n11:25:21 level\u003dwarning msg\u003d\"[runner] Can\u0027t run linter unused: buildssa: analysis skipped: errors in package: [/app/internal/pkg/commands/devices.go:2211:24: GetValueRequest_OnuStatsFromOlt not declared by package extension /app/internal/pkg/commands/devices.go:2212:33: GetOnuStatsFromOltRequest not declared by package extension /app/internal/pkg/commands/devices.go:2232:47: rv.GetResponse().GetOnuStatsFromOltResponse undefined (type *extension.GetValueResponse has no field or method GetOnuStatsFromOltResponse) -: could not load export data: no export data for \\\"github.com/opencord/voltctl/internal/pkg/commands\\\"]\"\n11:25:21 level\u003derror msg\u003d\"Running error: buildssa: analysis skipped: errors in package: [/app/internal/pkg/commands/devices.go:2211:24: GetValueRequest_OnuStatsFromOlt not declared by package extension /app/internal/pkg/commands/devices.go:2212:33: GetOnuStatsFromOltRequest not declared by package extension /app/internal/pkg/commands/devices.go:2232:47: rv.GetResponse().GetOnuStatsFromOltResponse undefined (type *extension.GetValueResponse has no field or method GetOnuStatsFromOltResponse) -: could not load export data: no export data for \\\"github.com/opencord/voltctl/internal/pkg/commands\\\"]\"\n11:25:21 Makefile:180: recipe for target \u0027sca\u0027 failed\n11:25:21 make: *** [sca] Error 3\n11:25:21 Build step \u0027Execute shell\u0027 marked build as failure",
+      "revId": "801f6b4a225323e68acad70e6a12e38d47eac325",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
   ]
 }
