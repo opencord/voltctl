@@ -16,6 +16,23 @@
       "message": "recheck\n\nJenkins job queue is in a better state now, re-triggering jobs for current results.",
       "revId": "801f6b4a225323e68acad70e6a12e38d47eac325",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b80502bb_93b447c5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000948
+      },
+      "writtenOn": "2024-04-22T16:35:24Z",
+      "side": 1,
+      "message": "Sanity test failure reported:\n\n11:29:22  github.com/opencord/voltctl/internal/pkg/commands\n11:29:22  # github.com/opencord/voltctl/internal/pkg/commands\n11:29:22  internal/pkg/commands/devices.go:2211:14: undefined: extension.GetValueRequest_OnuStatsFromOlt\n11:29:22  internal/pkg/commands/devices.go:2232:46: rv.GetResponse().GetOnuStatsFromOltResponse undefined (type *extension.GetValueResponse has no field or method GetOnuStatsFromOltResponse)\n11:29:22  makefiles/release/release-build.mk:29: recipe for target \u0027release-build\u0027 failed\n11:29:22  make: *** [release-build] Error 2\n11:29:22  make: Leaving directory \u0027/w/workspace/verify_voltctl_sanity-test/voltctl\u0027",
+      "revId": "801f6b4a225323e68acad70e6a12e38d47eac325",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
   ]
 }
