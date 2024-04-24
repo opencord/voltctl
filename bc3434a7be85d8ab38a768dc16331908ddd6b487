@@ -67,6 +67,23 @@
       "message": "Stack deploy timeout on the last attempt.\nMahir initiated a recheck, let(s) see if the timeout is repeatable (suspect: no)\n\n12:08:55  volthaStackDeploy.groovy: Waiting for status\u003dRunning\n12:08:55  voltha-infra-onos-classic-onos-config-loader-667db8f67c-r6gck   0/1   Running   0     9m16s\n12:08:55  Cancelling nested steps due to timeout\n12:08:55  Sending interrupt signal to process",
       "revId": "bc3434a7be85d8ab38a768dc16331908ddd6b487",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a1d2b383_fd5128e9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000948
+      },
+      "writtenOn": "2024-04-24T13:22:52Z",
+      "side": 1,
+      "message": "Off to the races",
+      "revId": "bc3434a7be85d8ab38a768dc16331908ddd6b487",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
   ]
 }
