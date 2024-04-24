@@ -1,6 +1,6 @@
 # -*- makefile -*-
 # -----------------------------------------------------------------------
-# Copyright 2019-2024 Open Networking Foundation (ONF) and the ONF Contributors
+# Copyright 2019-2024 Open Networking Foundation Contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# -----------------------------------------------------------------------
+# SPDX-FileCopyrightText: 2019-2024 Open Networking Foundation Contributors
+# SPDX-License-Identifier: Apache-2.0
+# -----------------------------------------------------------------------
+# Intent: Build, test and release VOLTHA config tool voltctl
 # -----------------------------------------------------------------------
 
 $(if $(DEBUG),$(warning ENTER))
@@ -32,13 +37,11 @@ release-build :
 	@echo "** Sandbox: $(shell /bin/pwd)"
 	@echo "** -----------------------------------------------------------------------"
 
-        # [DEBUG] Yes this will take a while but where-4-art-thou-golang-in-docker-image-(?)
-	@echo -e "\n** golang interpreter"
-        # find '/usr/local' '/go' '/usr/bin' '/bin' -name 'go' ! -type d -print;
-        # -${GO_SH} $(quote-single) find / -name 'go' ! -type d -print $(quote-single)
+	@printf '\n** RUNNING: %% which -a go\n'
+	-${GO_SH} $(call quoted,which$(space)-a$(space)go)
 
-	-$(HIDE)${GO_SH} $(call quoted,which$(space)-a$(space)go)
-	-$(HIDE)${GO_SH} $(call quoted,go$(space)version)
+	@printf '\n** RUNNING: %% go version\n'
+	-${GO_SH} $(call quoted,go$(space)version)
 
 	@echo -e "\n** Create filesystem target for docker volume: $(RELEASE_DIR)"
 	$(RM) -r "./$(RELEASE_DIR)"
