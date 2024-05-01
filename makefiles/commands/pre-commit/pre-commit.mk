@@ -1,6 +1,6 @@
 # -*- makefile -*-
 # -----------------------------------------------------------------------
-# Copyright 2017-2024 Open Networking Foundation (ONF) and the ONF Contributors
+# Copyright 2022-2024 Open Networking Foundation (ONF) Contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,33 +14,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# SPDX-FileCopyrightText: 2024 Open Networking Foundation (ONF) and the ONF Contributors
+# SPDX-FileCopyrightText: 2022-2024 Open Networking Foundation Contributors
 # SPDX-License-Identifier: Apache-2.0
 # -----------------------------------------------------------------------
 
 $(if $(DEBUG),$(warning ENTER))
 
-MAKEDIR     ?= $(error MAKEDIR= is required)
-ONF_MAKEDIR ?= $(MAKEDIR)
-
-# Helpers -- eventually defined in lf/transition.mk
-onf-mk-dir   := $(MAKEDIR)
-sandbox-root ?= $(TOP)
+## -----------------------------------------------------------------------
+## Intent: Invoke the pre-commit command
+## -----------------------------------------------------------------------
+.PHONY: pre-commit
+pre-commit : venv
+	$(activate) && pre-commit
 
 ## -----------------------------------------------------------------------
 ## -----------------------------------------------------------------------
-help::
-	@echo "USAGE: $(MAKE) [options] [target] ..."
-        # @echo "  test                          Sanity check chart versions"
+help ::
+	@printf '  %-33.33s %s\n' 'pre-commit' \
+	  'Invoke command pre-commit'
+	@printf '  %-33.33s %s\n' 'pre-commit-help' \
+	  'Display extended target help (pre-commit-*)'
 
-include $(MAKEDIR)/consts.mk
-include $(ONF_MAKEDIR)/utils/include.mk      # dependency-less helper macros
-include $(ONF_MAKEDIR)/etc/include.mk        # banner macros
-include $(ONF_MAKEDIR)/virtualenv/include.mk#  # python, lint, JJB dependency
-include $(MAKEDIR)/todo.mk
-include $(MAKEDIR)/lint/include.mk
-
-include $(MAKEDIR)/commands/pre-commit/include.mk
+## -----------------------------------------------------------------------
+## -----------------------------------------------------------------------
+tox-help ::
+	@printf '  %-33.33s %s\n' 'tox-run' \
+	  'Self documenting alias for command tox'
 
 $(if $(DEBUG),$(warning LEAVE))
 
