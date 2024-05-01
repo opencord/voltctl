@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "04c3445c_f9b3a7bf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000948
+      },
+      "writtenOn": "2024-05-01T14:05:34Z",
+      "side": 1,
+      "message": "Ticket opened for the pingtest failure logged by the job.\nhttps://jira.opencord.org/browse/VOL-5331\n\n[FAIL] Voltha DT PODTests :: Test various end-to-end scenarios ",
+      "revId": "d21eb4b357b910e5ce707bc8ae4650ce5fe79dcc",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
