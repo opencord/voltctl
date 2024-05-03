@@ -50,6 +50,23 @@
       "message": "https://jenkins.opencord.org/job/verify_voltctl_sanity-test/537/console\n\nPatch job failure due to undef:\n\n12:33:50  github.com/opencord/voltctl/internal/pkg/commands\n12:33:50  # github.com/opencord/voltctl/internal/pkg/commands\n12:33:50  internal/pkg/commands/devices.go:2539:14: undefined: extension.GetValueRequest_OnuAllocGemStats\n12:33:50  internal/pkg/commands/devices.go:2562:43: rv.GetResponse().GetOnuAllocGemStatsResponse undefined (type *extension.GetValueResponse has no field or method GetOnuAllocGemStatsResponse)\n12:33:51  makefiles/release/release-build.mk:29: recipe for target \u0027release-build\u0027 failed\n12:33:51  make: *** [release-build] Error 2\n12:33:51  make: Leaving directory \u0027/w/workspace/verify_voltctl_sanity-test/voltctl\u0027\n",
       "revId": "15fe2b4cf1b9fc5ed654a0bcc0faee0c5f9539a4",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf4fef15_f58e696c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000948
+      },
+      "writtenOn": "2024-05-03T18:30:19Z",
+      "side": 1,
+      "message": "https://jenkins.opencord.org/job/verify_voltctl_unit-test/659/console\n\nPatch job failure due to:\n\n12:41:22 level\u003derror msg\u003d\"Running error: buildssa: analysis skipped: errors in package: \n",
+      "revId": "15fe2b4cf1b9fc5ed654a0bcc0faee0c5f9539a4",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
   ]
 }
