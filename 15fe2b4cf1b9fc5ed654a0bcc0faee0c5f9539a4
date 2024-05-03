@@ -33,6 +33,23 @@
       "message": "recheck",
       "revId": "15fe2b4cf1b9fc5ed654a0bcc0faee0c5f9539a4",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "31662398_89143c03",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000948
+      },
+      "writtenOn": "2024-05-03T18:28:17Z",
+      "side": 1,
+      "message": "https://jenkins.opencord.org/job/verify_voltctl_sanity-test/537/console\n\nPatch job failure due to undef:\n\n12:33:50  github.com/opencord/voltctl/internal/pkg/commands\n12:33:50  # github.com/opencord/voltctl/internal/pkg/commands\n12:33:50  internal/pkg/commands/devices.go:2539:14: undefined: extension.GetValueRequest_OnuAllocGemStats\n12:33:50  internal/pkg/commands/devices.go:2562:43: rv.GetResponse().GetOnuAllocGemStatsResponse undefined (type *extension.GetValueResponse has no field or method GetOnuAllocGemStatsResponse)\n12:33:51  makefiles/release/release-build.mk:29: recipe for target \u0027release-build\u0027 failed\n12:33:51  make: *** [release-build] Error 2\n12:33:51  make: Leaving directory \u0027/w/workspace/verify_voltctl_sanity-test/voltctl\u0027\n",
+      "revId": "15fe2b4cf1b9fc5ed654a0bcc0faee0c5f9539a4",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
   ]
 }
