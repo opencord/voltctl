@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a2d9124_0b7cdb5e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000948
+      },
+      "writtenOn": "2024-05-06T18:12:22Z",
+      "side": 1,
+      "message": "https://jenkins.opencord.org/job/verify_voltctl_sanity-test/542/console\n\nERR\u003e Sanity E2E Test for OLT/ONU on POD :: Validates E2E Ping Connectiv... | FAIL |\n\nAdding pre-commit tool config file unrelated to the end-2-end ping test failure.",
+      "revId": "498c8c701fbcfceeefcbc07a0d6a6caa5cb78240",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
