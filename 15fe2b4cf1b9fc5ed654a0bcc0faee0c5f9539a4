@@ -135,6 +135,23 @@
       "message": "\u003e Patch Set 2: Verified-1\n\u003e \n\u003e Build Failed \n\u003e \n\u003e https://jenkins.opencord.org/job/verify_voltctl_sanity-test/528/ : ABORTED\n\nrecheck",
       "revId": "15fe2b4cf1b9fc5ed654a0bcc0faee0c5f9539a4",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7cca043e_5d94aea6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1001011
+      },
+      "writtenOn": "2024-08-28T11:38:40Z",
+      "side": 1,
+      "message": "\u003e Patch Set 3: Verified-1\n\u003e \n\u003e Build Failed \n\u003e \n\u003e https://jenkins.opencord.org/job/verify_voltctl_unit-test/654/ : FAILURE\n\u003e \n\u003e https://jenkins.opencord.org/job/verify_voltctl_sanity-test/532/ : FAILURE\n\u003e \n\u003e https://jenkins.opencord.org/job/verify_voltctl_licensed/642/ : SUCCESS\n\nrecheck",
+      "revId": "15fe2b4cf1b9fc5ed654a0bcc0faee0c5f9539a4",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
   ]
 }
