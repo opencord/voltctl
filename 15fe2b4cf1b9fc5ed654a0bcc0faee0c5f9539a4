@@ -169,6 +169,23 @@
       "message": "\u003e Patch Set 3: Verified-1\n\u003e \n\u003e Build Failed \n\u003e \n\u003e https://jenkins.opencord.org/job/verify_voltctl_unit-test/654/ : FAILURE\n\u003e \n\u003e https://jenkins.opencord.org/job/verify_voltctl_sanity-test/532/ : FAILURE\n\u003e \n\u003e https://jenkins.opencord.org/job/verify_voltctl_licensed/642/ : SUCCESS\n\nrecheck",
       "revId": "15fe2b4cf1b9fc5ed654a0bcc0faee0c5f9539a4",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fd09a177_1a6e2ba6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000218
+      },
+      "writtenOn": "2024-08-28T16:36:13Z",
+      "side": 1,
+      "message": "error in verification Job:\n05:06:54  internal/pkg/commands/devices.go:2539:14: undefined: extension.GetValueRequest_OnuAllocGemStats\n05:06:54  internal/pkg/commands/devices.go:2562:43: rv.GetResponse().GetOnuAllocGemStatsResponse undefined (type *extension.GetValueResponse has no field or method GetOnuAllocGemStatsResponse)\n",
+      "revId": "15fe2b4cf1b9fc5ed654a0bcc0faee0c5f9539a4",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
   ]
 }
