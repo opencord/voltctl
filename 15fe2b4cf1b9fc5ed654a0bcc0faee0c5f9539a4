@@ -67,6 +67,23 @@
       "message": "https://jenkins.opencord.org/job/verify_voltctl_unit-test/659/console\n\nPatch job failure due to:\n\n12:41:22 level\u003derror msg\u003d\"Running error: buildssa: analysis skipped: errors in package: \n",
       "revId": "15fe2b4cf1b9fc5ed654a0bcc0faee0c5f9539a4",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d8c8bb2_2af84b66",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1001011
+      },
+      "writtenOn": "2024-08-28T11:01:09Z",
+      "side": 1,
+      "message": "\u003e Patch Set 3: Verified-1\n\u003e \n\u003e Build Failed \n\u003e \n\u003e https://jenkins.opencord.org/job/verify_voltctl_unit-test/654/ : FAILURE\n\u003e \n\u003e https://jenkins.opencord.org/job/verify_voltctl_sanity-test/532/ : FAILURE\n\u003e \n\u003e https://jenkins.opencord.org/job/verify_voltctl_licensed/642/ : SUCCESS\n\nrecheck",
+      "revId": "15fe2b4cf1b9fc5ed654a0bcc0faee0c5f9539a4",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
   ]
 }
