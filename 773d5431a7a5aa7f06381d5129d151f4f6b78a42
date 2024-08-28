@@ -16,6 +16,23 @@
       "message": "\u003e Patch Set 4: Verified-1\n\u003e \n\u003e Build Failed \n\u003e \n\u003e https://jenkins.opencord.org/job/verify_voltctl_sanity-test/543/ : ABORTED\n\nrebuild",
       "revId": "773d5431a7a5aa7f06381d5129d151f4f6b78a42",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6058c4f3_91f5ec39",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000957
+      },
+      "writtenOn": "2024-08-28T09:49:54Z",
+      "side": 1,
+      "message": "\u003e Patch Set 4: Verified-1\n\u003e \n\u003e Build Failed \n\u003e \n\u003e https://jenkins.opencord.org/job/verify_voltctl_sanity-test/543/ : ABORTED\n\nrecheck",
+      "revId": "773d5431a7a5aa7f06381d5129d151f4f6b78a42",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
   ]
 }
