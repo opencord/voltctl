@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a4b30ad1_1dc119d1",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 2540,
+      "author": {
+        "id": 1001013
+      },
+      "writtenOn": "2024-09-06T00:02:17Z",
+      "side": 1,
+      "message": "From Jenkins output:\n\n 22:16:57 level\u003dwarning msg\u003d\"[runner] Can\u0027t run linter unused: buildssa: analysis skipped: errors in package: [/app/internal/pkg/commands/devices.go:2539:24: GetValueRequest_OnuAllocGemStats not declared by package extension /app/internal/pkg/commands/devices.go:2540:34: GetOnuAllocGemHistoryRequest not declared by package extension /app/internal/pkg/commands/devices.go:2562:44: rv.GetResponse().GetOnuAllocGemStatsResponse undefined (type *extension.GetValueResponse has no field or method GetOnuAllocGemStatsResponse) -: could not load export data: no export data for \\\"github.com/opencord/voltctl/internal/pkg/commands\\\"]\"\n22:16:57 level\u003derror msg\u003d\"Running error: buildssa: analysis skipped: errors in package: [/app/internal/pkg/commands/devices.go:2539:24: GetValueRequest_OnuAllocGemStats not declared by package extension /app/internal/pkg/commands/devices.go:2540:34: GetOnuAllocGemHistoryRequest not declared by package extension /app/internal/pkg/commands/devices.go:2562:44: rv.GetResponse().GetOnuAllocGemStatsResponse undefined (type *extension.GetValueResponse has no field or method GetOnuAllocGemStatsResponse) -: could not load export data: no export data for \\\"github.com/opencord/voltctl/internal/pkg/commands\\\"]\"",
+      "range": {
+        "startLine": 2539,
+        "startChar": 0,
+        "endLine": 2540,
+        "endChar": 64
+      },
+      "revId": "6a69e5dbe5b999ba64710fbb14d076ef2dfeecbd",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
