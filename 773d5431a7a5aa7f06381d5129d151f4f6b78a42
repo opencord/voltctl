@@ -50,6 +50,23 @@
       "message": "recheck",
       "revId": "773d5431a7a5aa7f06381d5129d151f4f6b78a42",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ca33b08_92405a39",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000218
+      },
+      "writtenOn": "2024-09-10T00:15:16Z",
+      "side": 1,
+      "message": "@Akash please increase the version in VERSION file .",
+      "revId": "773d5431a7a5aa7f06381d5129d151f4f6b78a42",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
   ]
 }
