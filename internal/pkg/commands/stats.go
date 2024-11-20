@@ -17,9 +17,10 @@ package commands
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/opencord/voltctl/pkg/model"
 	"github.com/opencord/voltha-protos/v5/go/extension"
-	"strings"
 )
 
 type tagBuilder struct {
@@ -191,6 +192,56 @@ func buildOnuStatsOutputFormat(counters *extension.GetOnuCountersResponse) (mode
 		tagBuilder.addFieldInFormat("Timestamp")
 	}
 	return onuStats, tagBuilder.buildOutputString()
+}
+
+// Helper function to format the stats data
+func buildOffloadAppStatsOutputFormat(stats *extension.GetOffloadedAppsStatisticsResponse) (map[string]interface{}, string) {
+	formatStr := "table" // Default format
+
+	// Parse stats based on the app type
+	switch stats.Stats.(type) {
+	case *extension.GetOffloadedAppsStatisticsResponse_Dhcpv4RaStats:
+		return map[string]interface{}{
+			"in_bad_packets_from_client":           stats.GetDhcpv4RaStats().GetInBadPacketsFromClient(),
+			"in_bad_packets_from_server":           stats.GetDhcpv4RaStats().GetInBadPacketsFromServer(),
+			"in_packets_from_client":               stats.GetDhcpv4RaStats().GetInPacketsFromClient(),
+			"in_packets_from_server":               stats.GetDhcpv4RaStats().GetInPacketsFromServer(),
+			"out_packets_to_server":                stats.GetDhcpv4RaStats().GetOutPacketsToServer(),
+			"out_packets_to_client":                stats.GetDhcpv4RaStats().GetOutPacketsToClient(),
+			"option_82_inserted_packets_to_server": stats.GetDhcpv4RaStats().GetOption_82InsertedPacketsToServer(),
+			"option_82_removed_packets_to_client":  stats.GetDhcpv4RaStats().GetOption_82RemovedPacketsToClient(),
+			"option_82_not_inserted_to_server":     stats.GetDhcpv4RaStats().GetOption_82NotInsertedToServer(),
+		}, formatStr
+	case *extension.GetOffloadedAppsStatisticsResponse_Dhcpv6RaStats:
+		return map[string]interface{}{
+			"in_bad_packets_from_client":                stats.GetDhcpv6RaStats().GetInBadPacketsFromClient(),
+			"in_bad_packets_from_server":                stats.GetDhcpv6RaStats().GetInBadPacketsFromServer(),
+			"option_17_inserted_packets_to_server":      stats.GetDhcpv6RaStats().GetOption_17InsertedPacketsToServer(),
+			"option_17_removed_packets_to_client":       stats.GetDhcpv6RaStats().GetOption_17RemovedPacketsToClient(),
+			"option_18_inserted_packets_to_server":      stats.GetDhcpv6RaStats().GetOption_18InsertedPacketsToServer(),
+			"option_18_removed_packets_to_client":       stats.GetDhcpv6RaStats().GetOption_18RemovedPacketsToClient(),
+			"option_37_inserted_packets_to_server":      stats.GetDhcpv6RaStats().GetOption_37InsertedPacketsToServer(),
+			"option_37_removed_packets_to_client":       stats.GetDhcpv6RaStats().GetOption_37RemovedPacketsToClient(),
+			"outgoing_mtu_exceeded_packets_from_client": stats.GetDhcpv6RaStats().GetOutgoingMtuExceededPacketsFromClient(),
+		}, formatStr
+	case *extension.GetOffloadedAppsStatisticsResponse_PppoeIaStats:
+		return map[string]interface{}{
+			"in_bad_packets_from_client":                     stats.GetPppoeIaStats().GetInBadPacketsFromClient(),
+			"in_bad_packets_from_server":                     stats.GetPppoeIaStats().GetInBadPacketsFromServer(),
+			"in_packets_from_client":                         stats.GetPppoeIaStats().GetInPacketsFromClient(),
+			"in_packets_from_server":                         stats.GetPppoeIaStats().GetInPacketsFromServer(),
+			"out_packets_to_server":                          stats.GetPppoeIaStats().GetOutPacketsToServer(),
+			"out_packets_to_client":                          stats.GetPppoeIaStats().GetOutPacketsToClient(),
+			"vendor_specific_tag_inserted_packets_to_server": stats.GetPppoeIaStats().GetVendorSpecificTagInsertedPacketsToServer(),
+			"vendor_specific_tag_removed_packets_to_client":  stats.GetPppoeIaStats().GetVendorSpecificTagRemovedPacketsToClient(),
+			"outgoing_mtu_exceeded_packets_from_client":      stats.GetPppoeIaStats().GetOutgoingMtuExceededPacketsFromClient(),
+		}, formatStr
+
+	default:
+		return map[string]interface{}{
+			"error": "Unsupported app stats type",
+		}, formatStr
+	}
 }
 
 /*

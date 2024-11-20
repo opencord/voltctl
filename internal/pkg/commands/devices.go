@@ -411,6 +411,13 @@ type GetOnuStats struct {
 	} `positional-args:"yes"`
 }
 
+type GetOffloadAppStats struct {
+	ListOutputOptions
+	Args struct {
+		OltId    DeviceId                                                 `positional-arg-name:"OLT_DEVICE_ID" required:"yes"`
+		StatsFor extension.GetOffloadedAppsStatisticsRequest_OffloadedApp `positional-arg-name:"OFFLOADED_APP" required:"yes"`
+	} `positional-args:"yes"`
+}
 type GetOnuEthernetFrameExtendedPmCounters struct {
 	ListOutputOptions
 	Reset bool `long:"reset" description:"Reset the counters"`
@@ -516,6 +523,7 @@ type DeviceOpts struct {
 		OnuOmciStats            OnuOmciTxRxStats                      `command:"onu_omci_stats"`
 		OnuOmciActiveAlarms     GetOnuOmciActiveAlarms                `command:"onu_omci_active_alarms"`
 		PonRxPower              PonRxPower                            `command:"pon_rx_power"`
+		OffloadAppStats         GetOffloadAppStats                    `command:"offload_app_stats"`
 	} `command:"getextval"`
 }
 
@@ -2105,6 +2113,63 @@ func (options *GetOnuStats) Execute(args []string) error {
 		Data:      data,
 	}
 	GenerateOutput(&result)
+	return nil
+}
+
+func (options *GetOffloadAppStats) Execute(args []string) error {
+	// Establish a connection to the gRPC server
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := extension.NewExtensionClient(conn)
+
+	// Build the request
+	singleGetValReq := extension.SingleGetValueRequest{
+		TargetId: string(options.Args.OltId),
+		Request: &extension.GetValueRequest{
+			Request: &extension.GetValueRequest_OffloadedAppsStats{
+				OffloadedAppsStats: &extension.GetOffloadedAppsStatisticsRequest{
+					StatsFor: options.Args.StatsFor,
+				},
+			},
+		},
+	}
+
+	// Set a context with timeout
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+	defer cancel()
+
+	// Perform the gRPC call
+	rv, err := client.GetExtValue(ctx, &singleGetValReq)
+	if err != nil {
+		Error.Printf("Error getting value for device ID %s, err=%s\n", options.Args.OltId, ErrorToString(err))
+		return err
+	}
+
+	// Check response status
+	if rv.Response.Status != extension.GetValueResponse_OK {
+		return fmt.Errorf("failed to get offloaded app stats: %v", rv.Response.ErrReason.String())
+	}
+
+	// Process the response data
+	outputFormat := CharReplacer.Replace(options.Format)
+	data, formatStr := buildOffloadAppStatsOutputFormat(rv.GetResponse().GetOffloadedAppsStats())
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("device-get-offload-app-stats", "format", formatStr)
+	}
+
+	// Generate and display the output
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      data,
+	}
+	GenerateOutput(&result)
+
 	return nil
 }
 
