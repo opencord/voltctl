@@ -17,9 +17,10 @@ package commands
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/opencord/voltctl/pkg/model"
 	"github.com/opencord/voltha-protos/v5/go/extension"
-	"strings"
 )
 
 type tagBuilder struct {
@@ -191,6 +192,73 @@ func buildOnuStatsOutputFormat(counters *extension.GetOnuCountersResponse) (mode
 		tagBuilder.addFieldInFormat("Timestamp")
 	}
 	return onuStats, tagBuilder.buildOutputString()
+}
+
+func buildOffloadAppStatsOutputFormat(stats *extension.GetOffloadedAppsStatisticsResponse) (map[string]interface{}, string) {
+	formatStr := "table" // Default format
+
+	if stats == nil {
+		return map[string]interface{}{
+			"error": "No stats available in response",
+		}, formatStr
+	}
+
+	switch data := stats.GetStats().(type) {
+	case *extension.GetOffloadedAppsStatisticsResponse_Dhcpv4RaStats:
+		return map[string]interface{}{
+			"in_bad_packets_from_client":           data.Dhcpv4RaStats.InBadPacketsFromClient,
+			"in_bad_packets_from_server":           data.Dhcpv4RaStats.InBadPacketsFromServer,
+			"in_packets_from_client":               data.Dhcpv4RaStats.InPacketsFromClient,
+			"in_packets_from_server":               data.Dhcpv4RaStats.InPacketsFromServer,
+			"out_packets_to_server":                data.Dhcpv4RaStats.OutPacketsToServer,
+			"out_packets_to_client":                data.Dhcpv4RaStats.OutPacketsToClient,
+			"option_82_inserted_packets_to_server": data.Dhcpv4RaStats.Option_82InsertedPacketsToServer,
+			"option_82_removed_packets_to_client":  data.Dhcpv4RaStats.Option_82RemovedPacketsToClient,
+			"option_82_not_inserted_to_server":     data.Dhcpv4RaStats.Option_82NotInsertedToServer,
+			"additional_stats":                     convertMapStringToInterface(data.Dhcpv4RaStats.AdditionalStats),
+		}, formatStr
+
+	case *extension.GetOffloadedAppsStatisticsResponse_Dhcpv6RaStats:
+		return map[string]interface{}{
+			"in_bad_packets_from_client":                data.Dhcpv6RaStats.InBadPacketsFromClient,
+			"in_bad_packets_from_server":                data.Dhcpv6RaStats.InBadPacketsFromServer,
+			"option_17_inserted_packets_to_server":      data.Dhcpv6RaStats.Option_17InsertedPacketsToServer,
+			"option_17_removed_packets_to_client":       data.Dhcpv6RaStats.Option_17RemovedPacketsToClient,
+			"option_18_inserted_packets_to_server":      data.Dhcpv6RaStats.Option_18InsertedPacketsToServer,
+			"option_18_removed_packets_to_client":       data.Dhcpv6RaStats.Option_18RemovedPacketsToClient,
+			"option_37_inserted_packets_to_server":      data.Dhcpv6RaStats.Option_18InsertedPacketsToServer,
+			"option_37_removed_packets_to_client":       data.Dhcpv6RaStats.Option_18RemovedPacketsToClient,
+			"outgoing_mtu_exceeded_packets_from_client": data.Dhcpv6RaStats.OutgoingMtuExceededPacketsFromClient,
+			"additional_stats":                          convertMapStringToInterface(data.Dhcpv6RaStats.AdditionalStats),
+		}, formatStr
+
+	case *extension.GetOffloadedAppsStatisticsResponse_PppoeIaStats:
+		return map[string]interface{}{
+			"in_error_packets_from_client":                   data.PppoeIaStats.InErrorPacketsFromClient,
+			"in_error_packets_from_server":                   data.PppoeIaStats.InErrorPacketsFromServer,
+			"in_packets_from_client":                         data.PppoeIaStats.InPacketsFromClient,
+			"in_packets_from_server":                         data.PppoeIaStats.InPacketsFromServer,
+			"out_packets_to_server":                          data.PppoeIaStats.OutPacketsToServer,
+			"out_packets_to_client":                          data.PppoeIaStats.OutPacketsToClient,
+			"vendor_specific_tag_inserted_packets_to_server": data.PppoeIaStats.VendorSpecificTagInsertedPacketsToServer,
+			"vendor_specific_tag_removed_packets_to_client":  data.PppoeIaStats.VendorSpecificTagRemovedPacketsToClient,
+			"outgoing_mtu_exceeded_packets_from_client":      data.PppoeIaStats.OutgoingMtuExceededPacketsFromClient,
+			"additional_stats":                               convertMapStringToInterface(data.PppoeIaStats.AdditionalStats),
+		}, formatStr
+
+	default:
+		return map[string]interface{}{
+			"error": "Unsupported or unknown stats type",
+		}, formatStr
+	}
+}
+
+func convertMapStringToInterface(input map[string]string) map[string]interface{} {
+	result := make(map[string]interface{}, len(input))
+	for key, value := range input {
+		result[key] = value
+	}
+	return result
 }
 
 /*
