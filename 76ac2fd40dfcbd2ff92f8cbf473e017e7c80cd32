@@ -16,6 +16,23 @@
       "message": "\u003e Patch Set 3: Verified-1\n\u003e \n\u003e Build Failed \n\u003e \n\u003e https://jenkins.opencord.org/job/verify_voltctl_unit-test/676/ : FAILURE\n\u003e \n\u003e https://jenkins.opencord.org/job/verify_voltctl_sanity-test/555/ : SUCCESS\n\u003e \n\u003e https://jenkins.opencord.org/job/verify_voltctl_licensed/664/ : SUCCESS\n\nrecheck",
       "revId": "76ac2fd40dfcbd2ff92f8cbf473e017e7c80cd32",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ff32be07_7d1a28c1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000957
+      },
+      "writtenOn": "2024-12-04T09:23:18Z",
+      "side": 1,
+      "message": "\u003e Patch Set 3:\n\u003e \n\u003e Build Failed \n\u003e \n\u003e https://jenkins.opencord.org/job/verify_voltctl_unit-test/677/ : FAILURE\n\u003e \n\u003e https://jenkins.opencord.org/job/verify_voltctl_sanity-test/556/ : SUCCESS\n\u003e \n\u003e https://jenkins.opencord.org/job/verify_voltctl_licensed/665/ : SUCCESS\n\nrecheck",
+      "revId": "76ac2fd40dfcbd2ff92f8cbf473e017e7c80cd32",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
   ]
 }
