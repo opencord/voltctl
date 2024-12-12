@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "60064a7d_d43a6494",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000957
+      },
+      "writtenOn": "2024-12-12T09:27:39Z",
+      "side": 1,
+      "message": "\u003e Patch Set 4: Verified-1\n\u003e \n\u003e Build Failed \n\u003e \n\u003e https://jenkins.opencord.org/job/verify_voltctl_sanity-test/562/ : ABORTED\n\u003e \n\u003e https://jenkins.opencord.org/job/verify_voltctl_unit-test/683/ : ABORTED\n\u003e \n\u003e https://jenkins.opencord.org/job/verify_voltctl_licensed/671/ : SUCCESS\n\nrecheck",
+      "revId": "51b6b7ab327edc1e56815133e99bcb969af66135",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
