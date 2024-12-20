@@ -17,6 +17,7 @@ package commands
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
@@ -413,7 +414,7 @@ type GetOnuStats struct {
 	} `positional-args:"yes"`
 }
 
-type GetOffloadAppStats struct {
+type GetOffloadApp struct {
 	ListOutputOptions
 	Args struct {
 		OltId    DeviceId                                                 `positional-arg-name:"OLT_DEVICE_ID" required:"yes"`
@@ -421,17 +422,26 @@ type GetOffloadAppStats struct {
 	} `positional-args:"yes"`
 }
 
-type SetOffloadAppState struct {
+type SetOffloadApp struct {
+	ListOutputOptions
 	Args struct {
-		OltId  DeviceId                   `positional-arg-name:"OLT_DEVICE_ID" required:"yes"`
-		Config extension.AppOffloadConfig `json:"config" required:"yes"`
+		OltId  DeviceId `positional-arg-name:"OLT_DEVICE_ID" required:"yes"`
+		Config string   `positional-arg-name:"CONFIG" required:"yes"` // Accept JSON or CSV input
 	} `positional-args:"yes"`
 }
 
-type SetOnuOffloadState struct {
+type AppOffloadOnuConfig struct {
+	AgentRemoteID  string
+	AgentCircuitID string
+	OnuUniId       uint32
+}
+
+type SetOnuOffload struct {
+	ListOutputOptions
 	Args struct {
-		OnuDeviceId string                                       `positional-arg-name:"ONU_DEVICE_ID" required:"yes"`
-		PerUniInfo  []extension.AppOffloadOnuConfig_PerUniConfig `json:"per_uni_info" required:"yes"`
+		OltId       DeviceId `positional-arg-name:"OLT_DEVICE_ID" required:"yes"`
+		OnuDeviceId string   `positional-arg-name:"ONU_DEVICE_ID" required:"yes"`
+		PerUniInfo  string   `positional-arg-name:"PER_UNI_INFO" json:"per_uni_info" required:"yes"` // Accept list as JSON or CSV
 	} `positional-args:"yes"`
 }
 
@@ -549,11 +559,11 @@ type DeviceOpts struct {
 		OnuOmciActiveAlarms     GetOnuOmciActiveAlarms                `command:"onu_omci_active_alarms"`
 		PonRxPower              PonRxPower                            `command:"pon_rx_power"`
 		OnuDistance             GetOnuDistance                        `command:"onu_distance"`
-		OffloadAppStats         GetOffloadAppStats                    `command:"offload_app_stats"`
+		OffloadAppStats         GetOffloadApp                         `command:"offload_app_stats"`
 	} `command:"getextval"`
 	SetExtVal struct {
-		OffloadAppStatsSet SetOffloadAppState `command:"set_offload_app_stats"`
-		OnuOffloadStatsSet SetOnuOffloadState `command:"set_onu_offload_stats"`
+		OffloadAppStatsSet SetOffloadApp `command:"set_offload_app"`
+		OnuOffloadStatsSet SetOnuOffload `command:"set_onu_offload"`
 	} `command:"setextval"`
 }
 
@@ -2146,7 +2156,7 @@ func (options *GetOnuStats) Execute(args []string) error {
 	return nil
 }
 
-func (options *GetOffloadAppStats) Execute(args []string) error {
+func (options *GetOffloadApp) Execute(args []string) error {
 	// Establish a connection to the gRPC server
 	conn, err := NewConnection()
 	if err != nil {
@@ -2203,19 +2213,24 @@ func (options *GetOffloadAppStats) Execute(args []string) error {
 	return nil
 }
 
-func (options *SetOffloadAppState) Execute(args []string) error {
+func (options *SetOffloadApp) Execute(args []string) error {
 	conn, err := NewConnection()
 	if err != nil {
-		return fmt.Errorf("failed to establish gRPC connection: %v", err)
+		return fmt.Errorf("failed to establish gRPC connection: %w", err)
 	}
 	defer conn.Close()
 
 	client := extension.NewExtensionClient(conn)
 
-	// Build the AppOffloadConfig request
+	// Parse JSON input
+	var config extension.AppOffloadConfig
+	if err := json.Unmarshal([]byte(options.Args.Config), &config); err != nil {
+		return fmt.Errorf("failed to parse CONFIG as JSON: %w", err)
+	}
+
 	setValueRequest := &extension.SetValueRequest{
 		Request: &extension.SetValueRequest_AppOffloadConfig{
-			AppOffloadConfig: &options.Args.Config,
+			AppOffloadConfig: &config,
 		},
 	}
 
@@ -2224,24 +2239,39 @@ func (options *SetOffloadAppState) Execute(args []string) error {
 		Request:  setValueRequest,
 	}
 
-	// Make gRPC call
+	// Log the request object
+	logRequestAppOffloadConfig(singleSetValReq)
+
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
 	defer cancel()
 
 	resp, err := client.SetExtValue(ctx, singleSetValReq)
 	if err != nil {
-		return fmt.Errorf("failed to set AppOffloadConfig: %v", err)
+		return fmt.Errorf("failed to set AppOffloadConfig: %w", err)
 	}
 
 	if resp.Response.Status != extension.SetValueResponse_OK {
-		return fmt.Errorf("failed with status %v: %s", resp.Response.Status, resp.Response.ErrReason)
+		return fmt.Errorf("operation failed with status %v: %s", resp.Response.Status, resp.Response.ErrReason)
 	}
 
 	fmt.Printf("AppOffloadConfig successfully set for OLT ID: %s\n", options.Args.OltId)
 	return nil
 }
 
-func (options *SetOnuOffloadState) Execute(args []string) error {
+func logRequestAppOffloadConfig(req *extension.SingleSetValueRequest) {
+	fmt.Printf("Request details:\n")
+	fmt.Printf("TargetId: %s\n", req.TargetId)
+	if config, ok := req.Request.Request.(*extension.SetValueRequest_AppOffloadConfig); ok {
+		fmt.Printf("AppOffloadConfig:\n")
+		fmt.Printf("  EnableDHCPv4RA: %t\n", config.AppOffloadConfig.EnableDHCPv4RA)
+		fmt.Printf("  EnableDHCPv6RA: %t\n", config.AppOffloadConfig.EnableDHCPv6RA)
+		fmt.Printf("  EnablePPPoEIA: %t\n", config.AppOffloadConfig.EnablePPPoEIA)
+		fmt.Printf("  AccessNodeID: %s\n", config.AppOffloadConfig.AccessNodeID)
+	}
+}
+
+func (options *SetOnuOffload) Execute(args []string) error {
+	// Create the gRPC client connection
 	conn, err := NewConnection()
 	if err != nil {
 		return fmt.Errorf("failed to establish gRPC connection: %v", err)
@@ -2250,15 +2280,26 @@ func (options *SetOnuOffloadState) Execute(args []string) error {
 
 	client := extension.NewExtensionClient(conn)
 
-	// Convert PerUniInfo to []*extension.AppOffloadOnuConfig_PerUniConfig
-	var perUniInfo []*extension.AppOffloadOnuConfig_PerUniConfig
-	for i := range options.Args.PerUniInfo {
-		perUniInfo = append(perUniInfo, &options.Args.PerUniInfo[i])
+	// Parse PerUniInfo into a slice of PerUniConfig
+	var perUniConfigs []AppOffloadOnuConfig
+	if err := json.Unmarshal([]byte(options.Args.PerUniInfo), &perUniConfigs); err != nil {
+		return fmt.Errorf("failed to parse PerUniInfo as JSON: %v", err)
 	}
+
+	// Convert to []*AppOffloadOnuConfig_PerUniConfig for gRPC
+	var grpcPerUniInfo []*extension.AppOffloadOnuConfig_PerUniConfig
+	for _, config := range perUniConfigs {
+		grpcPerUniInfo = append(grpcPerUniInfo, &extension.AppOffloadOnuConfig_PerUniConfig{
+			AgentRemoteID:  config.AgentRemoteID,
+			AgentCircuitID: config.AgentCircuitID,
+			OnuUniId:       config.OnuUniId,
+		})
+	}
+
 	// Build the AppOffloadOnuConfig request
 	onuConfig := &extension.AppOffloadOnuConfig{
 		OnuDeviceId: options.Args.OnuDeviceId,
-		PerUniInfo:  perUniInfo,
+		PerUniInfo:  grpcPerUniInfo,
 	}
 
 	setValueRequest := &extension.SetValueRequest{
@@ -2268,11 +2309,14 @@ func (options *SetOnuOffloadState) Execute(args []string) error {
 	}
 
 	singleSetValReq := &extension.SingleSetValueRequest{
-		TargetId: options.Args.OnuDeviceId,
+		TargetId: string(options.Args.OltId),
 		Request:  setValueRequest,
 	}
 
-	// Make gRPC call
+	// Log the request object
+	logRequestAppOffloadOnuConfig(singleSetValReq)
+
+	// Make the gRPC call
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
 	defer cancel()
 
@@ -2282,11 +2326,27 @@ func (options *SetOnuOffloadState) Execute(args []string) error {
 	}
 
 	if resp.Response.Status != extension.SetValueResponse_OK {
-		return fmt.Errorf("failed with status %v: %s", resp.Response.Status, resp.Response.ErrReason)
+		return fmt.Errorf("operation failed with status %v: %s", resp.Response.Status, resp.Response.ErrReason)
 	}
 
 	fmt.Printf("AppOffloadOnuConfig successfully set for ONU ID: %s\n", options.Args.OnuDeviceId)
 	return nil
+}
+
+// Debugging helper to log the gRPC request details
+func logRequestAppOffloadOnuConfig(req *extension.SingleSetValueRequest) {
+	fmt.Printf("Request details:\n")
+	fmt.Printf("TargetId: %s\n", req.TargetId)
+	fmt.Printf("OnuDeviceId: %s\n", req.Request.GetAppOffloadOnuConfig().OnuDeviceId)
+	if config, ok := req.Request.Request.(*extension.SetValueRequest_AppOffloadOnuConfig); ok {
+		fmt.Printf("AppOffloadOnuConfig:\n")
+		for i, uniInfo := range config.AppOffloadOnuConfig.PerUniInfo {
+			fmt.Printf("  UniInfo %d:\n", i+1)
+			fmt.Printf("    AgentRemoteID: %s\n", uniInfo.AgentRemoteID)
+			fmt.Printf("    AgentCircuitID: %s\n", uniInfo.AgentCircuitID)
+			fmt.Printf("    OnuUniId: %d\n", uniInfo.OnuUniId)
+		}
+	}
 }
 
 func (options *GetOnuEthernetFrameExtendedPmCounters) Execute(args []string) error {
