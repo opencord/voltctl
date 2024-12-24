@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2c657d61_b1d40a11",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 1000537
+      },
+      "writtenOn": "2024-12-24T10:43:31Z",
+      "side": 1,
+      "message": "this is for OLT or ONT ?",
+      "revId": "6e879c25dbb6df90b956fd5f3b3726637fe0c570",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4778e834_b177316e",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 1000537
+      },
+      "writtenOn": "2024-12-24T10:43:31Z",
+      "side": 1,
+      "message": "do we still accept json ?",
+      "revId": "6e879c25dbb6df90b956fd5f3b3726637fe0c570",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
