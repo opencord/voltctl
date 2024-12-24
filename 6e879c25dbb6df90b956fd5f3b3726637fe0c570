@@ -36,6 +36,24 @@
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bdb1b167_8a09a9b2",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 1000537
+      },
+      "writtenOn": "2024-12-24T11:01:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0b535631_ec7914c0",
+      "revId": "6e879c25dbb6df90b956fd5f3b3726637fe0c570",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4778e834_b177316e",
@@ -67,6 +85,24 @@
       "side": 1,
       "message": "Yes, we still accept JSON input since PerUniInfo is a list, and it would not be practical to expect commands for the list from the CLI. Both the OLT and ONU configuration data will be parsed as JSON to handle the set of data effectively. This approach ensures scalability and ease of use.\n\nthe accepted json request format has been updated to the jira ticket https://lf-broadband.atlassian.net/browse/VOL-5378",
       "parentUuid": "4778e834_b177316e",
+      "revId": "6e879c25dbb6df90b956fd5f3b3726637fe0c570",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d34d849_d466e09f",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 1000537
+      },
+      "writtenOn": "2024-12-24T11:01:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a310f6a7_a5b6f6cf",
       "revId": "6e879c25dbb6df90b956fd5f3b3726637fe0c570",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
