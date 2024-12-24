@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0b535631_ec7914c0",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 1000957
+      },
+      "writtenOn": "2024-12-24T10:57:59Z",
+      "side": 1,
+      "message": "This is to get all the stats based on the request \n\t1: \"PPPoeIA\",\n\t2: \"DHCPv4RA\",\n\t3: \"DHCPv6RA\",",
+      "parentUuid": "2c657d61_b1d40a11",
+      "revId": "6e879c25dbb6df90b956fd5f3b3726637fe0c570",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4778e834_b177316e",
         "filename": "internal/pkg/commands/devices.go",
         "patchSetId": 2
@@ -31,6 +49,24 @@
       "writtenOn": "2024-12-24T10:43:31Z",
       "side": 1,
       "message": "do we still accept json ?",
+      "revId": "6e879c25dbb6df90b956fd5f3b3726637fe0c570",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a310f6a7_a5b6f6cf",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 1000957
+      },
+      "writtenOn": "2024-12-24T10:57:59Z",
+      "side": 1,
+      "message": "Yes, we still accept JSON input since PerUniInfo is a list, and it would not be practical to expect commands for the list from the CLI. Both the OLT and ONU configuration data will be parsed as JSON to handle the set of data effectively. This approach ensures scalability and ease of use.\n\nthe accepted json request format has been updated to the jira ticket https://lf-broadband.atlassian.net/browse/VOL-5378",
+      "parentUuid": "4778e834_b177316e",
       "revId": "6e879c25dbb6df90b956fd5f3b3726637fe0c570",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
