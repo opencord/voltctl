@@ -15,8 +15,8 @@ require (
 	github.com/imdario/mergo v0.3.7 // indirect
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/jhump/protoreflect v1.10.2
-	github.com/opencord/voltha-lib-go/v7 v7.5.3
-	github.com/opencord/voltha-protos/v5 v5.6.0
+	github.com/opencord/voltha-lib-go/v7 v7.6.3
+	github.com/opencord/voltha-protos/v5 v5.6.2
 	github.com/stretchr/testify v1.7.0
 	google.golang.org/appengine v1.6.1 // indirect
 	google.golang.org/grpc v1.44.0

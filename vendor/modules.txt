@@ -139,14 +139,14 @@ github.com/klauspost/compress/zstd/internal/xxhash
 github.com/modern-go/concurrent
 # github.com/modern-go/reflect2 v1.0.1
 github.com/modern-go/reflect2
-# github.com/opencord/voltha-lib-go/v7 v7.5.3
+# github.com/opencord/voltha-lib-go/v7 v7.6.3
 ## explicit
 github.com/opencord/voltha-lib-go/v7/pkg/config
 github.com/opencord/voltha-lib-go/v7/pkg/db
 github.com/opencord/voltha-lib-go/v7/pkg/db/kvstore
 github.com/opencord/voltha-lib-go/v7/pkg/log
 github.com/opencord/voltha-lib-go/v7/pkg/meters
-# github.com/opencord/voltha-protos/v5 v5.6.0
+# github.com/opencord/voltha-protos/v5 v5.6.2
 ## explicit
 github.com/opencord/voltha-protos/v5/go/common
 github.com/opencord/voltha-protos/v5/go/ext/config
