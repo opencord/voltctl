@@ -21,7 +21,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/user"
@@ -32,8 +31,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/protobuf/jsonpb"
-	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/jsonpb" //nolint:staticcheck
+	"github.com/golang/protobuf/proto"  //nolint:staticcheck
 	configv1 "github.com/opencord/voltctl/internal/pkg/apis/config/v1"
 	configv2 "github.com/opencord/voltctl/internal/pkg/apis/config/v2"
 	configv3 "github.com/opencord/voltctl/internal/pkg/apis/config/v3"
@@ -234,7 +233,7 @@ func ProcessGlobalOptions() {
 	}
 
 	if info, err := os.Stat(GlobalOptions.CommandOptions); err == nil && !info.IsDir() {
-		optionsFile, err := ioutil.ReadFile(GlobalOptions.CommandOptions)
+		optionsFile, err := os.ReadFile(GlobalOptions.CommandOptions)
 		if err != nil {
 			Error.Fatalf("Unable to read command options configuration file '%s' : %s",
 				GlobalOptions.CommandOptions, err.Error())
@@ -350,7 +349,7 @@ func ReadConfig() {
 	}
 
 	if info, err := os.Stat(GlobalOptions.Config); err == nil && !info.IsDir() {
-		configFile, err := ioutil.ReadFile(GlobalOptions.Config)
+		configFile, err := os.ReadFile(GlobalOptions.Config)
 		if err != nil {
 			Error.Fatalf("Unable to read the configuration file '%s': %s",
 				GlobalOptions.Config, err.Error())

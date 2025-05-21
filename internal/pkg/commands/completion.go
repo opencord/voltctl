@@ -17,6 +17,7 @@ package commands
 
 import (
 	"fmt"
+
 	flags "github.com/jessevdk/go-flags"
 	"github.com/opencord/voltctl/internal/pkg/completion"
 )
@@ -34,6 +35,6 @@ func RegisterCompletionCommands(parent *flags.Parser) {
 }
 
 func (options *BashOptions) Execute(args []string) error {
-	fmt.Println(completion.Bash)
+	fmt.Print(completion.Bash)
 	return nil
 }

@@ -86,7 +86,7 @@ RELEASE_NAME    ?= voltctl
 RELEASE_OS_ARCH ?= linux-amd64 linux-arm64 windows-amd64 darwin-amd64
 
 # tool containers
-VOLTHA_TOOLS_VERSION ?= 2.4.0
+VOLTHA_TOOLS_VERSION ?= 3.1.1
 
 docker-run = docker run --rm --user $$(id -u):$$(id -g)#     # Docker command stem
 docker-run-app = $(docker-run) -v ${CURDIR}:/app#            # w/filesystem mount
@@ -180,7 +180,7 @@ sca:
 	@$(RM) -r ./sca-report
 	@mkdir -p ./sca-report
 	@echo "Running static code analysis..."
-	@${GOLANGCI_LINT} run --deadline=20m --out-format junit-xml ./... \
+	@${GOLANGCI_LINT} run  --out-format junit-xml ./... \
 	    | tee ./sca-report/sca-report.xml
 	@echo ""
 	@echo "Static code analysis OK"
