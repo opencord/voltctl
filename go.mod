@@ -10,16 +10,15 @@ replace (
 
 require (
 	github.com/Shopify/sarama v1.29.1
-	github.com/golang/protobuf v1.5.2
+	github.com/golang/protobuf v1.5.3
 	github.com/googleapis/gnostic v0.3.0 // indirect
 	github.com/imdario/mergo v0.3.7 // indirect
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/jhump/protoreflect v1.10.2
 	github.com/opencord/voltha-lib-go/v7 v7.6.3
-	github.com/opencord/voltha-protos/v5 v5.6.2
-	github.com/stretchr/testify v1.7.0
-	google.golang.org/appengine v1.6.1 // indirect
-	google.golang.org/grpc v1.44.0
+	github.com/opencord/voltha-protos/v5 v5.6.5
+	github.com/stretchr/testify v1.8.1
+	google.golang.org/grpc v1.56.2
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.0.0-20190819141258-3544db3b9e44
