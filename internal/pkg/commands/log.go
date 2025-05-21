@@ -97,7 +97,7 @@ type ListLogPackagesOpts struct {
 	} `positional-args:"yes" required:"yes"`
 }
 
-//  EnableLogTracingOpts represents the supported CLI arguments for the log tracing enable command
+// EnableLogTracingOpts represents the supported CLI arguments for the log tracing enable command
 type EnableLogTracingOpts struct {
 	OutputOptions
 	Args struct {
@@ -105,7 +105,7 @@ type EnableLogTracingOpts struct {
 	} `positional-args:"yes" required:"yes"`
 }
 
-//  DisableLogTracingOpts represents the supported CLI arguments for the log tracing disable command
+// DisableLogTracingOpts represents the supported CLI arguments for the log tracing disable command
 type DisableLogTracingOpts struct {
 	OutputOptions
 	Args struct {
@@ -113,7 +113,7 @@ type DisableLogTracingOpts struct {
 	} `positional-args:"yes" required:"yes"`
 }
 
-//  ListLogTracingOpts represents the supported CLI arguments for the log tracing list command
+// ListLogTracingOpts represents the supported CLI arguments for the log tracing list command
 type ListLogTracingOpts struct {
 	ListOutputOptions
 	Args struct {
@@ -575,7 +575,7 @@ func (options *SetLogLevelOpts) Execute(args []string) error {
 
 	logLevelConfig, err = processComponentListArgs(toStringArray(options.Args.Component))
 	if err != nil {
-		return fmt.Errorf(err.Error())
+		return err
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().KvStoreConfig.Timeout)

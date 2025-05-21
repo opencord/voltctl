@@ -16,12 +16,13 @@
 package commands
 
 import (
-	"github.com/golang/protobuf/proto"
+	"io"
+
+	"github.com/golang/protobuf/proto" //nolint:staticcheck
 	"github.com/jhump/protoreflect/desc"
 	"github.com/jhump/protoreflect/dynamic"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	"io"
 )
 
 type RpcEventHandler struct {
@@ -54,7 +55,7 @@ func (h *RpcEventHandler) GetParams(msg proto.Message) error {
 		return err
 	}
 
-	if h.Fields == nil || len(h.Fields) == 0 {
+	if len(h.Fields) == 0 {
 		return io.EOF
 	}
 

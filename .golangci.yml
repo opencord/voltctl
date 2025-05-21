@@ -13,6 +13,7 @@
 # limitations under the License.
 
 run:
+  timeout: 5m
   modules-download-mode: vendor
 
 linters:

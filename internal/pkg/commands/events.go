@@ -26,8 +26,8 @@ import (
 	"time"
 
 	"github.com/Shopify/sarama"
-	"github.com/golang/protobuf/jsonpb"
-	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/jsonpb" //nolint:staticcheck
+	"github.com/golang/protobuf/proto"  //nolint:staticcheck
 	"github.com/golang/protobuf/ptypes/timestamp"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/opencord/voltctl/pkg/filter"
