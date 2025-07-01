@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "92b06e8a_b0af3337",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1001025
+      },
+      "writtenOn": "2025-07-01T08:54:30Z",
+      "side": 1,
+      "message": "\u003e Patch Set 8: Verified-1\n\u003e \n\u003e Build Failed \n\u003e \n\u003e https://jenkins.opencord.org/job/verify_voltctl_unit-test/696/ : FAILURE\n\u003e \n\u003e https://jenkins.opencord.org/job/verify_voltctl_sanity-test/575/ : SUCCESS\n\u003e \n\u003e https://jenkins.opencord.org/job/verify_voltctl_licensed/684/ : SUCCESS\n\nrecheck",
+      "revId": "d30f9a1c45be90701a64ee9f517e0f3ef4284ae1",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
