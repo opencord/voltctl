@@ -586,15 +586,47 @@ type GetOnuDistance struct {
 	} `positional-args:"yes"` //onu device id
 }
 
+type DisableChildDevice struct {
+	Args struct {
+		Ids []DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+	} `positional-args:"yes"`
+}
+
+type EnableChildDevice struct {
+	Args struct {
+		Ids []DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+	} `positional-args:"yes"`
+}
+
+type DisableChildSerialNumber struct {
+	Args struct {
+		SerialNumber string   `positional-arg-name:"IMAGE_VERSION" required:"yes"`
+		Port         PortNum  `positional-arg-name:"IMAGE_COMMIT_ON_SUCCESS"`
+		OltDeviceId  DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+	} `positional-args:"yes"`
+}
+
+type EnableChildSerialNumber struct {
+	Args struct {
+		SerialNumber string   `positional-arg-name:"IMAGE_VERSION" required:"yes"`
+		Port         PortNum  `positional-arg-name:"IMAGE_COMMIT_ON_SUCCESS"`
+		OltDeviceId  DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+	} `positional-args:"yes"`
+}
+
 type DeviceOpts struct {
-	List    DeviceList          `command:"list"`
-	Create  DeviceCreate        `command:"create"`
-	Delete  DeviceDelete        `command:"delete"`
-	Enable  DeviceEnable        `command:"enable"`
-	Disable DeviceDisable       `command:"disable"`
-	Flows   DeviceFlowList      `command:"flows"`
-	Groups  DeviceFlowGroupList `command:"groups"`
-	Port    struct {
+	List                     DeviceList               `command:"list"`
+	Create                   DeviceCreate             `command:"create"`
+	Delete                   DeviceDelete             `command:"delete"`
+	Enable                   DeviceEnable             `command:"enable"`
+	Disable                  DeviceDisable            `command:"disable"`
+	DisableChildDevice       DisableChildDevice       `command:"disable_child"`
+	EnableChildDevice        EnableChildDevice        `command:"enable_child"`
+	DisableChildSerialNumber DisableChildSerialNumber `command:"disable_child_serial"`
+	EnableChildSerialNumber  EnableChildSerialNumber  `command:"enable_child_serial"`
+	Flows                    DeviceFlowList           `command:"flows"`
+	Groups                   DeviceFlowGroupList      `command:"groups"`
+	Port                     struct {
 		List    DevicePortList    `command:"list"`
 		Enable  DevicePortEnable  `command:"enable"`
 		Disable DevicePortDisable `command:"disable"`
@@ -3133,5 +3165,127 @@ func (options *GetOnuAllocGemStatsFromOlt) Execute(args []string) error {
 		GenerateOutput(&result)
 	}
 
+	return nil
+}
+
+func (options *DisableChildDevice) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	var lastErr error
+	for _, i := range options.Args.Ids {
+		ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+		defer cancel()
+
+		id := voltha.ID{Id: string(i)}
+
+		_, err := client.DisableChildDevice(ctx, &id)
+		if err != nil {
+			Error.Printf("Error while disabling the onu serial number'%s': %s\n", i, err)
+			lastErr = err
+			continue
+		}
+		fmt.Printf("%s\n", i)
+	}
+
+	if lastErr != nil {
+		return NoReportErr
+	}
+	return nil
+}
+
+func (options *EnableChildDevice) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	var lastErr error
+	for _, i := range options.Args.Ids {
+		ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+		defer cancel()
+
+		id := voltha.ID{Id: string(i)}
+
+		_, err := client.EnableChildDevice(ctx, &id)
+		if err != nil {
+			Error.Printf("Error while enabling the onu serial number'%s': %s\n", i, err)
+			lastErr = err
+			continue
+		}
+		fmt.Printf("%s\n", i)
+	}
+
+	if lastErr != nil {
+		return NoReportErr
+	}
+	return nil
+}
+
+func (options *DisableChildSerialNumber) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	id := common.ID{Id: string(options.Args.OltDeviceId)}
+	port := voltha.Port{PortNo: uint32(options.Args.Port)}
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+	defer cancel()
+
+	req := &voltha.OnuSerialNumberOfOLTPon{
+		OltDeviceId:  &id,
+		SerialNumber: options.Args.SerialNumber,
+		Port:         &port,
+	}
+
+	_, err = client.DisableChildSerialNumber(ctx, req)
+	if err != nil {
+		Error.Printf("Error disabling ONU serial '%s' on OLT '%s': %v\n", options.Args.SerialNumber, options.Args.OltDeviceId, err)
+		return err
+	}
+	fmt.Printf("Disabled ONU serial '%s' on OLT '%s'\n", options.Args.SerialNumber, options.Args.OltDeviceId)
+	return nil
+}
+
+func (options *EnableChildSerialNumber) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := voltha.NewVolthaServiceClient(conn)
+
+	id := common.ID{Id: string(options.Args.OltDeviceId)}
+	port := voltha.Port{PortNo: uint32(options.Args.Port)}
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+	defer cancel()
+
+	req := &voltha.OnuSerialNumberOfOLTPon{
+		OltDeviceId:  &id,
+		SerialNumber: options.Args.SerialNumber,
+		Port:         &port,
+	}
+
+	_, err = client.EnableChildSerialNumber(ctx, req)
+	if err != nil {
+		Error.Printf("Error enabling ONU serial '%s' on OLT '%s': %v\n", options.Args.SerialNumber, options.Args.OltDeviceId, err)
+		return err
+	}
+	fmt.Printf("Enabled ONU serial '%s' on OLT '%s'\n", options.Args.SerialNumber, options.Args.OltDeviceId)
 	return nil
 }
