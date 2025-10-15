@@ -171,6 +171,11 @@ AllocRxBytes:   {{.AllocRxBytes}}
  RxBytes:        {{.RxBytes}}
  TxPackets:      {{.TxPackets}}
  TxBytes:        {{.TxBytes}}{{end}}`
+	DEFAULT_ONU_FEC_HISTORY_FORMAT = `CorrectedBytes:       {{.CorrectedBytes}}
+CorrectedCodewords:   {{.CorrectedCodewords}}
+FecSeconds:           {{.FecSeconds}}
+TotalCodeWords:       {{.TotalCodeWords}}
+UncorrectedCodewords: {{.UncorrectedCodewords}}`
 
 	DEFAULT_ONU_DISTANCE_FORMAT          = `Distance`
 	DEFAULT_DEVICE_ALARMS_FORMAT         = "table{{ .ClassId }}\t{{.InstanceId}}\t{{.Name}}\t{{.Description}}"
@@ -578,6 +583,12 @@ type GetOnuGEMStats struct {
 	} `positional-args:"yes"`
 }
 
+type GetOnuFecHistory struct {
+	ListOutputOptions
+	Args struct {
+		Id DeviceId `positional-arg-name:"DEVICE_ID" required:"yes"`
+	} `positional-args:"yes"`
+}
 type GetOnuDistance struct {
 	ListOutputOptions
 	Args struct {
@@ -656,6 +667,7 @@ type DeviceOpts struct {
 		NniStats                GetNniPortStats                       `command:"nni_statistics"`
 		OnuGEMStats             GetOnuGEMStats                        `command:"onu_gem_stats"`
 		OnuAllocGemStats        GetOnuAllocGemStatsFromOlt            `command:"onu_alloc_gem_from_olt"`
+		onuFecHistory           GetOnuFecHistory                      `command:"onu_fec_history"`
 	} `command:"getextval"`
 	SetExtVal struct {
 		OffloadAppStatsSet SetOffloadApp `command:"set_offload_app"`
@@ -3073,6 +3085,47 @@ func (options *GetOnuGEMStats) Execute(args []string) error {
 		}
 		GenerateOutput(&result)
 	}
+	return nil
+
+}
+
+func (options *GetOnuFecHistory) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	client := extension.NewExtensionClient(conn)
+	singleGetValReq := extension.SingleGetValueRequest{
+		TargetId: string(options.Args.Id),
+		Request: &extension.GetValueRequest{
+			Request: &extension.GetValueRequest_FecHistory{
+				FecHistory: &extension.GetOnuFecHistory{},
+			},
+		},
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+	defer cancel()
+	rv, err := client.GetExtValue(ctx, &singleGetValReq)
+	if err != nil {
+		Error.Printf("Error getting value on device Id %s,err=%s\n", options.Args.Id, ErrorToString(err))
+		return err
+	}
+	if rv.Response.Status != extension.GetValueResponse_OK {
+		return fmt.Errorf("failed to get onu alloc gem stats from olt %v", rv.Response.ErrReason.String())
+	}
+
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("device-get-onu-fec-History", "format", DEFAULT_ONU_FEC_HISTORY_FORMAT)
+	}
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      rv.GetResponse().GetFecHistory(),
+	}
+	GenerateOutput(&result)
 	return nil
 
 }
