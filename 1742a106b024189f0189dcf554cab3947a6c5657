@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6785d4c0_afc3002b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1001024
+      },
+      "writtenOn": "2025-11-07T09:24:12Z",
+      "side": 1,
+      "message": "\u003e Patch Set 3: Verified-1\n\u003e \n\u003e Build Failed \n\u003e \n\u003e https://jenkins.opencord.org/job/verify_voltctl_unit-test/701/ : FAILURE\n\u003e \n\u003e https://jenkins.opencord.org/job/verify_voltctl_sanity-test/581/ : SUCCESS\n\u003e \n\u003e https://jenkins.opencord.org/job/verify_voltctl_licensed/689/ : SUCCESS\n\nrecheck",
+      "revId": "1742a106b024189f0189dcf554cab3947a6c5657",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
