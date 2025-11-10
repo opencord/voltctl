@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e847077a_ad6e2ad8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1001024
+      },
+      "writtenOn": "2025-11-10T06:21:25Z",
+      "side": 1,
+      "message": "\u003e Patch Set 6: Verified-1\n\u003e \n\u003e Build Failed \n\u003e \n\u003e https://jenkins.lfbroadband.org/job/verify_voltctl_sanity-test/586/ : FAILURE\n\u003e \n\u003e https://jenkins.lfbroadband.org/job/verify_voltctl_unit-test/706/ : SUCCESS\n\u003e \n\u003e https://jenkins.lfbroadband.org/job/verify_voltctl_licensed/694/ : SUCCESS\n\nrecheck",
+      "revId": "35b90e6cf87686a89f4d6bfc69e3ad06212b509d",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
