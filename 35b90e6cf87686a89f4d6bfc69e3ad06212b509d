@@ -50,6 +50,23 @@
       "message": "\u003e Patch Set 6:\n\u003e \n\u003e Build Failed \n\u003e \n\u003e https://jenkins.lfbroadband.org/job/verify_voltctl_sanity-test/588/ : FAILURE\n\u003e \n\u003e https://jenkins.lfbroadband.org/job/verify_voltctl_unit-test/708/ : SUCCESS\n\u003e \n\u003e https://jenkins.lfbroadband.org/job/verify_voltctl_licensed/696/ : SUCCESS\n\nrecheck",
       "revId": "35b90e6cf87686a89f4d6bfc69e3ad06212b509d",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd92bc56_6e6bdc7e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1001024
+      },
+      "writtenOn": "2025-12-04T10:13:24Z",
+      "side": 1,
+      "message": "\u003e Patch Set 6:\n\u003e \n\u003e Build Failed \n\u003e \n\u003e https://jenkins.lfbroadband.org/job/github-release_voltctl/208/ : FAILURE\n\u003e \n\u003e https://jenkins.lfbroadband.org/job/version-tag_wildcard/891/ : SUCCESS\n\nremerge",
+      "revId": "35b90e6cf87686a89f4d6bfc69e3ad06212b509d",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
   ]
 }
