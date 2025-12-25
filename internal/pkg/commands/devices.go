@@ -37,14 +37,14 @@ const (
 	DEFAULT_DEVICE_ORDER          = "Type,Id"
 	DEFAULT_DEVICE_PORTS_FORMAT   = "table{{.PortNo}}\t{{.Label}}\t{{.Type}}\t{{.AdminState}}\t{{.OperStatus}}\t{{.DeviceId}}\t{{.Peers}}"
 	DEFAULT_DEVICE_INSPECT_FORMAT = `ID: {{.Id}}
-  TYPE:          {{.Type}}
-  ROOT:          {{.Root}}
-  PARENTID:      {{.ParentId}}
-  SERIALNUMBER:  {{.SerialNumber}}
-  VLAN:          {{.Vlan}}
-  ADMINSTATE:    {{.AdminState}}
-  OPERSTATUS:    {{.OperStatus}}
-  CONNECTSTATUS: {{.ConnectStatus}}`
+   TYPE:          {{.Type}}
+   ROOT:          {{.Root}}
+   PARENTID:      {{.ParentId}}
+   SERIALNUMBER:  {{.SerialNumber}}
+   VLAN:          {{.Vlan}}
+   ADMINSTATE:    {{.AdminState}}
+   OPERSTATUS:    {{.OperStatus}}
+   CONNECTSTATUS: {{.ConnectStatus}}`
 	DEFAULT_DEVICE_PM_CONFIG_GET_FORMAT         = "table{{.DefaultFreq}}\t{{.Grouped}}\t{{.FreqOverride}}"
 	DEFAULT_DEVICE_PM_CONFIG_METRIC_LIST_FORMAT = "table{{.Name}}\t{{.Type}}\t{{.Enabled}}\t{{.SampleFreq}}"
 	DEFAULT_DEVICE_PM_CONFIG_GROUP_LIST_FORMAT  = "table{{.GroupName}}\t{{.Enabled}}\t{{.GroupFreq}}"
@@ -53,138 +53,138 @@ const (
 	ONU_IMAGE_LIST_FORMAT                       = "table{{.Version}}\t{{.IsCommited}}\t{{.IsActive}}\t{{.IsValid}}\t{{.ProductCode}}\t{{.Hash}}"
 	ONU_IMAGE_STATUS_FORMAT                     = "table{{.DeviceId}}\t{{.ImageState.Version}}\t{{.ImageState.DownloadState}}\t{{.ImageState.Reason}}\t{{.ImageState.ImageState}}\t"
 	DEFAULT_DEVICE_GET_PORT_STATUS_FORMAT       = `
-  TXBYTES:		{{.TxBytes}}
-  TXPACKETS:		{{.TxPackets}}
-  TXERRPACKETS:		{{.TxErrorPackets}}
-  TXBCASTPACKETS:	{{.TxBcastPackets}}
-  TXUCASTPACKETS:	{{.TxUcastPackets}}
-  TXMCASTPACKETS:	{{.TxMcastPackets}}
-  RXBYTES:		{{.RxBytes}}
-  RXPACKETS:		{{.RxPackets}}
-  RXERRPACKETS:		{{.RxErrorPackets}}
-  RXBCASTPACKETS:	{{.RxBcastPackets}}
-  RXUCASTPACKETS:	{{.RxUcastPackets}}
-  RXMCASTPACKETS:	{{.RxMcastPackets}}`
+   TXBYTES:		{{.TxBytes}}
+   TXPACKETS:		{{.TxPackets}}
+   TXERRPACKETS:		{{.TxErrorPackets}}
+   TXBCASTPACKETS:	{{.TxBcastPackets}}
+   TXUCASTPACKETS:	{{.TxUcastPackets}}
+   TXMCASTPACKETS:	{{.TxMcastPackets}}
+   RXBYTES:		{{.RxBytes}}
+   RXPACKETS:		{{.RxPackets}}
+   RXERRPACKETS:		{{.RxErrorPackets}}
+   RXBCASTPACKETS:	{{.RxBcastPackets}}
+   RXUCASTPACKETS:	{{.RxUcastPackets}}
+   RXMCASTPACKETS:	{{.RxMcastPackets}}`
 	DEFAULT_DEVICE_GET_UNI_STATUS_FORMAT = `
-  ADMIN_STATE:          {{.AdmState}}
-  OPERATIONAL_STATE:    {{.OperState}}
-  CONFIG_IND:           {{.ConfigInd}}`
+   ADMIN_STATE:          {{.AdmState}}
+   OPERATIONAL_STATE:    {{.OperState}}
+   CONFIG_IND:           {{.ConfigInd}}`
 	DEFAULT_ONU_PON_OPTICAL_INFO_STATUS_FORMAT = `
-  POWER_FEED_VOLTAGE__VOLTS:      {{.PowerFeedVoltage}}
-  RECEIVED_OPTICAL_POWER__dBm:    {{.ReceivedOpticalPower}}
-  MEAN_OPTICAL_LAUNCH_POWER__dBm: {{.MeanOpticalLaunchPower}}
-  LASER_BIAS_CURRENT__mA:         {{.LaserBiasCurrent}}
-  TEMPERATURE__Celsius:           {{.Temperature}}`
+   POWER_FEED_VOLTAGE__VOLTS:      {{.PowerFeedVoltage}}
+   RECEIVED_OPTICAL_POWER__dBm:    {{.ReceivedOpticalPower}}
+   MEAN_OPTICAL_LAUNCH_POWER__dBm: {{.MeanOpticalLaunchPower}}
+   LASER_BIAS_CURRENT__mA:         {{.LaserBiasCurrent}}
+   TEMPERATURE__Celsius:           {{.Temperature}}`
 	DEFAULT_RX_POWER_STATUS_FORMAT = `
-	INTF_ID: {{.IntfId}}
-	ONU_ID: {{.OnuId}}
-	STATUS: {{.Status}}
-	FAIL_REASON: {{.FailReason}}
-	RX_POWER : {{.RxPower}}`
+	 INTF_ID: {{.IntfId}}
+	 ONU_ID: {{.OnuId}}
+	 STATUS: {{.Status}}
+	 FAIL_REASON: {{.FailReason}}
+	 RX_POWER : {{.RxPower}}`
 	DEFAULT_ETHERNET_FRAME_EXTENDED_PM_COUNTERS_FORMAT = `Upstream_Drop_Events:	        {{.UDropEvents}}
-Upstream_Octets:	        {{.UOctets}}
-UFrames:	                {{.UFrames}}
-UBroadcastFrames:	        {{.UBroadcastFrames}}
-UMulticastFrames:	        {{.UMulticastFrames}}
-UCrcErroredFrames:	        {{.UCrcErroredFrames}}
-UUndersizeFrames:	        {{.UUndersizeFrames}}
-UOversizeFrames:	        {{.UOversizeFrames}}
-UFrames_64Octets:	        {{.UFrames_64Octets}}
-UFrames_65To_127Octets:	        {{.UFrames_65To_127Octets}}
-UFrames_128To_255Octets:	{{.UFrames_128To_255Octets}}
-UFrames_256To_511Octets:	{{.UFrames_256To_511Octets}}
-UFrames_512To_1023Octets:	{{.UFrames_512To_1023Octets}}
-UFrames_1024To_1518Octets:	{{.UFrames_1024To_1518Octets}}
-DDropEvents:	                {{.DDropEvents}}
-DOctets:	                {{.DOctets}}
-DFrames:	                {{.DFrames}}
-DBroadcastFrames:	        {{.DBroadcastFrames}}
-DMulticastFrames:	        {{.DMulticastFrames}}
-DCrcErroredFrames:	        {{.DCrcErroredFrames}}
-DUndersizeFrames:	        {{.DUndersizeFrames}}
-DOversizeFrames:	        {{.DOversizeFrames}}
-DFrames_64Octets:	        {{.DFrames_64Octets}}
-DFrames_65To_127Octets:	        {{.DFrames_65To_127Octets}}
-DFrames_128To_255Octets:	{{.DFrames_128To_255Octets}}
-DFrames_256To_511Octets:	{{.DFrames_256To_511Octets}}
-DFrames_512To_1023Octets:	{{.DFrames_512To_1023Octets}}
-DFrames_1024To_1518Octets:	{{.DFrames_1024To_1518Octets}}
-PmFormat:	                {{.PmFormat}}`
+ Upstream_Octets:	        {{.UOctets}}
+ UFrames:	                {{.UFrames}}
+ UBroadcastFrames:	        {{.UBroadcastFrames}}
+ UMulticastFrames:	        {{.UMulticastFrames}}
+ UCrcErroredFrames:	        {{.UCrcErroredFrames}}
+ UUndersizeFrames:	        {{.UUndersizeFrames}}
+ UOversizeFrames:	        {{.UOversizeFrames}}
+ UFrames_64Octets:	        {{.UFrames_64Octets}}
+ UFrames_65To_127Octets:	        {{.UFrames_65To_127Octets}}
+ UFrames_128To_255Octets:	{{.UFrames_128To_255Octets}}
+ UFrames_256To_511Octets:	{{.UFrames_256To_511Octets}}
+ UFrames_512To_1023Octets:	{{.UFrames_512To_1023Octets}}
+ UFrames_1024To_1518Octets:	{{.UFrames_1024To_1518Octets}}
+ DDropEvents:	                {{.DDropEvents}}
+ DOctets:	                {{.DOctets}}
+ DFrames:	                {{.DFrames}}
+ DBroadcastFrames:	        {{.DBroadcastFrames}}
+ DMulticastFrames:	        {{.DMulticastFrames}}
+ DCrcErroredFrames:	        {{.DCrcErroredFrames}}
+ DUndersizeFrames:	        {{.DUndersizeFrames}}
+ DOversizeFrames:	        {{.DOversizeFrames}}
+ DFrames_64Octets:	        {{.DFrames_64Octets}}
+ DFrames_65To_127Octets:	        {{.DFrames_65To_127Octets}}
+ DFrames_128To_255Octets:	{{.DFrames_128To_255Octets}}
+ DFrames_256To_511Octets:	{{.DFrames_256To_511Octets}}
+ DFrames_512To_1023Octets:	{{.DFrames_512To_1023Octets}}
+ DFrames_1024To_1518Octets:	{{.DFrames_1024To_1518Octets}}
+ PmFormat:	                {{.PmFormat}}`
 	DEFAULT_PON_PORT_STATS_FORMAT = `Pon Port:                   {{.PonPort}}
-Bip Units:                  {{.BipUnits}}
-Bip Errors:                 {{.BipErrors}}
-RxPackets:                  {{.RxPackets}}
-RxGem:                      {{.RxGem}}
-RxGemDropped:               {{.RxGemDropped}}
-RxGemIdle:                  {{.RxGemIdle}}
-RxGemCorrected:             {{.RxGemCorrected}}
-RxGemIllegal:               {{.RxGemIllegal}}
-RxCrcError:                 {{.RxCrcErrors}}
-RxFragmentError:            {{.RxFragmentError}}
-RxPacketsDropped:           {{.RxPacketsDropped}}
-RxCpuOmciPacketsDropped:    {{.RxCpuOmciPacketsDropped}}
-RxCpu:                      {{.RxCpu}}
-RxOmci:                     {{.RxOmci}}
-RxOmciPacketsCrcError:      {{.RxOmciPacketsCrcError}}
-TxPackets:                  {{.TxPackets}}
-TxGem:                      {{.TxGem}}
-TxCpu:                      {{.TxCpu}}
-TxOmci:                     {{.TxOmci}}
-TxDroppedIllegalLength:     {{.TxDroppedIllegalLength}}
-TxDroppedTpidMiss:          {{.TxDroppedTpidMiss}}
-TxDroppedVidMiss:           {{.TxDroppedVidMiss}}
-TxDroppedTotal:             {{.TxDroppedTotal}}`
+ Bip Units:                  {{.BipUnits}}
+ Bip Errors:                 {{.BipErrors}}
+ RxPackets:                  {{.RxPackets}}
+ RxGem:                      {{.RxGem}}
+ RxGemDropped:               {{.RxGemDropped}}
+ RxGemIdle:                  {{.RxGemIdle}}
+ RxGemCorrected:             {{.RxGemCorrected}}
+ RxGemIllegal:               {{.RxGemIllegal}}
+ RxCrcError:                 {{.RxCrcErrors}}
+ RxFragmentError:            {{.RxFragmentError}}
+ RxPacketsDropped:           {{.RxPacketsDropped}}
+ RxCpuOmciPacketsDropped:    {{.RxCpuOmciPacketsDropped}}
+ RxCpu:                      {{.RxCpu}}
+ RxOmci:                     {{.RxOmci}}
+ RxOmciPacketsCrcError:      {{.RxOmciPacketsCrcError}}
+ TxPackets:                  {{.TxPackets}}
+ TxGem:                      {{.TxGem}}
+ TxCpu:                      {{.TxCpu}}
+ TxOmci:                     {{.TxOmci}}
+ TxDroppedIllegalLength:     {{.TxDroppedIllegalLength}}
+ TxDroppedTpidMiss:          {{.TxDroppedTpidMiss}}
+ TxDroppedVidMiss:           {{.TxDroppedVidMiss}}
+ TxDroppedTotal:             {{.TxDroppedTotal}}`
 	DEFAULT_NNI_PORT_STATS_FORMAT = `Nni Port:               {{.NniPort}}
-RxBytes:                {{.RxBytes}}
-RxPackets:              {{.RxPackets}}
-RxUcastPackets:         {{.RxUcastPackets}}
-RxMcastPackets:         {{.RxMcastPackets}}
-RxBcastPackets:         {{.RxBcastPackets}}
-RxErrorPackets:         {{.RxErrorPackets}}
-RxFcsErrorPackets:      {{.RxFcsErrorPackets}}
-RxUndersizePackets:     {{.RxUndersizePackets}}
-RxOversizePackets:      {{.RxOversizePackets}}
-TxBytes:                {{.TxBytes}}
-TxPackets:              {{.TxPackets}}
-TxUcastPackets:         {{.TxUcastPackets}}
-TxMcastPackets:         {{.TxMcastPackets}}
-TxBcastPackets:         {{.TxBcastPackets}}
-TxErrorPackets:         {{.TxErrorPackets}}
-TxUndersizePackets:     {{.TxUndersizePackets}}
-TxOversizePackets:      {{.TxOversizePackets}}`
+ RxBytes:                {{.RxBytes}}
+ RxFrames:               {{.RxFrames}}
+ RxUcastFrames:          {{.RxUcastFrames}}
+ RxMcastFrames:          {{.RxMcastFrames}}
+ RxBcastFrames:          {{.RxBcastFrames}}
+ RxErrorFrames:          {{.RxErrorFrames}}
+ RxFcsErrorPackets:      {{.RxFcsErrorPackets}}
+ RxUndersizePackets:     {{.RxUndersizePackets}}
+ RxOversizePackets:      {{.RxOversizePackets}}
+ TxBytes:                {{.TxBytes}}
+ TxFrames:               {{.TxFrames}}
+ TxUcastFrames:          {{.TxUcastFrames}}
+ TxMcastFrames:          {{.TxMcastFrames}}
+ TxBcastFrames:          {{.TxBcastFrames}}
+ TxErrorFrames:          {{.TxErrorFrames}}
+ TxUndersizePackets:     {{.TxUndersizePackets}}
+ TxOversizePackets:      {{.TxOversizePackets}}`
 
 	DEFAULT_ONU_OMCI_TX_RX_STATS_FORMAT = `BaseTxArFrames:        {{.BaseTxArFrames}}
-BaseRxAkFrames:        {{.BaseRxAkFrames}}
-BaseTxNoArFrames:      {{.BaseTxNoArFrames}}
-BaseRxNoAkFrames:      {{.BaseRxNoAkFrames}}
-ExtTxArFrames:         {{.ExtTxArFrames}}
-ExtRxAkFrames:         {{.ExtRxAkFrames}}
-ExtTxNoArFrames:       {{.ExtTxNoArFrames}}
-ExtRxNoAkFrames:       {{.ExtRxNoAkFrames}}
-TxOmciCounterRetries:  {{.TxOmciCounterRetries}}
-TxOmciCounterTimeouts: {{.TxOmciCounterTimeouts}}`
+ BaseRxAkFrames:        {{.BaseRxAkFrames}}
+ BaseTxNoArFrames:      {{.BaseTxNoArFrames}}
+ BaseRxNoAkFrames:      {{.BaseRxNoAkFrames}}
+ ExtTxArFrames:         {{.ExtTxArFrames}}
+ ExtRxAkFrames:         {{.ExtRxAkFrames}}
+ ExtTxNoArFrames:       {{.ExtTxNoArFrames}}
+ ExtRxNoAkFrames:       {{.ExtRxNoAkFrames}}
+ TxOmciCounterRetries:  {{.TxOmciCounterRetries}}
+ TxOmciCounterTimeouts: {{.TxOmciCounterTimeouts}}`
 	DEFAULT_ONU_STATS_FROM_OLT_FORMAT = `AllocId:        {{.AllocId}}
-AllocRxBytes:   {{.AllocRxBytes}}
-{{range .GemPortStats}}
--GemId:          {{.GemId}}
- RxPackets:      {{.RxPackets}}
- RxBytes:        {{.RxBytes}}
- TxPackets:      {{.TxPackets}}
- TxBytes:        {{.TxBytes}}{{end}}`
+ AllocRxBytes:   {{.AllocRxBytes}}
+ {{range .GemPortStats}}
+ -GemId:          {{.GemId}}
+  RxPackets:      {{.RxPackets}}
+  RxBytes:        {{.RxBytes}}
+  TxPackets:      {{.TxPackets}}
+  TxBytes:        {{.TxBytes}}{{end}}`
 
 	DEFAULT_ONU_DISTANCE_FORMAT          = `Distance`
 	DEFAULT_DEVICE_ALARMS_FORMAT         = "table{{ .ClassId }}\t{{.InstanceId}}\t{{.Name}}\t{{.Description}}"
 	DEFAULT_DEVICE_ALARMS_ORDER          = "ClassId,InstanceId"
 	DEFAULT_PON_RX_POWER_STATUS_FORMAT   = "table{{.OnuSn}}\t{{.Status}}\t{{.FailReason}}\t{{.RxPower}}\t"
 	DEFAULT_DEVICE_VALUE_GEM_PORT_FORMAT = `AllocId:                {{.AllocId}}
- AllocRxBytes:           {{.AllocRxBytes}}
- {{range .GemHistoryStats}}
--GemId:                  {{.GemId}}
- TransmittedGEMFrames:   {{.TransmittedGEMFrames}}
- ReceivedGEMFrames:      {{.ReceivedGEMFrames}}
- ReceivedPayloadBytes:   {{.ReceivedPayloadBytes}}
- TransmittedPayloadBytes:{{.TransmittedPayloadBytes}}
- EncryptionKeyErrors:    {{.EncryptionKeyErrors}}{{end}}`
+  AllocRxBytes:           {{.AllocRxBytes}}
+  {{range .GemHistoryStats}}
+ -GemId:                  {{.GemId}}
+  TransmittedGEMFrames:   {{.TransmittedGEMFrames}}
+  ReceivedGEMFrames:      {{.ReceivedGEMFrames}}
+  ReceivedPayloadBytes:   {{.ReceivedPayloadBytes}}
+  TransmittedPayloadBytes:{{.TransmittedPayloadBytes}}
+  EncryptionKeyErrors:    {{.EncryptionKeyErrors}}{{end}}`
 )
 
 type DeviceList struct {
