@@ -136,20 +136,20 @@ TxDroppedVidMiss:           {{.TxDroppedVidMiss}}
 TxDroppedTotal:             {{.TxDroppedTotal}}`
 	DEFAULT_NNI_PORT_STATS_FORMAT = `Nni Port:               {{.NniPort}}
 RxBytes:                {{.RxBytes}}
-RxPackets:              {{.RxPackets}}
-RxUcastPackets:         {{.RxUcastPackets}}
-RxMcastPackets:         {{.RxMcastPackets}}
-RxBcastPackets:         {{.RxBcastPackets}}
-RxErrorPackets:         {{.RxErrorPackets}}
+RxFrames:               {{.RxFrames}}
+RxUcastFrames:          {{.RxUcastFrames}}
+RxMcastFrames:          {{.RxMcastFrames}}
+RxBcastFrames:          {{.RxBcastFrames}}
+RxErrorFrames:          {{.RxErrorFrames}}
 RxFcsErrorPackets:      {{.RxFcsErrorPackets}}
 RxUndersizePackets:     {{.RxUndersizePackets}}
 RxOversizePackets:      {{.RxOversizePackets}}
 TxBytes:                {{.TxBytes}}
-TxPackets:              {{.TxPackets}}
-TxUcastPackets:         {{.TxUcastPackets}}
-TxMcastPackets:         {{.TxMcastPackets}}
-TxBcastPackets:         {{.TxBcastPackets}}
-TxErrorPackets:         {{.TxErrorPackets}}
+TxFrames:               {{.TxFrames}}
+TxUcastFrames:          {{.TxUcastFrames}}
+TxMcastFrames:          {{.TxMcastFrames}}
+TxBcastFrames:          {{.TxBcastFrames}}
+TxErrorFrames:          {{.TxErrorFrames}}
 TxUndersizePackets:     {{.TxUndersizePackets}}
 TxOversizePackets:      {{.TxOversizePackets}}`
 
