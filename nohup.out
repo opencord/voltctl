@@ -1,0 +1,3 @@
+Forwarding from 0.0.0.0:55555 -> 50057
+Handling connection for 55555
+E0129 12:55:00.309211 2573774 portforward.go:398] "Unhandled Error" err="error copying from local connection to remote stream: writeto tcp4 127.0.0.1:55555->127.0.0.1:40552: read tcp4 127.0.0.1:55555->127.0.0.1:40552: read: connection reset by peer"
