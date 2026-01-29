@@ -136,22 +136,34 @@ TxDroppedVidMiss:           {{.TxDroppedVidMiss}}
 TxDroppedTotal:             {{.TxDroppedTotal}}`
 	DEFAULT_NNI_PORT_STATS_FORMAT = `Nni Port:               {{.NniPort}}
 RxBytes:                {{.RxBytes}}
+RxFrames:               {{.RxFrames}}
+RxUcastFrames:          {{.RxUcastFrames}}
+RxMcastFrames:          {{.RxMcastFrames}}
+RxBcastFrames:          {{.RxBcastFrames}}
+RxErrorFrames:          {{.RxErrorFrames}}
+RxFcsErrorPackets:      {{.RxFcsErrorPackets}}
+RxUndersizePackets:     {{.RxUndersizePackets}}
+RxOversizePackets:      {{.RxOversizePackets}}
+TxBytes:                {{.TxBytes}}
+TxFrames:               {{.TxFrames}}
+TxUcastFrames:          {{.TxUcastFrames}}
+TxMcastFrames:          {{.TxMcastFrames}}
+TxBcastFrames:          {{.TxBcastFrames}}
+TxErrorFrames:          {{.TxErrorFrames}}
+TxUndersizePackets:     {{.TxUndersizePackets}}
+TxOversizePackets:      {{.TxOversizePackets}}
+
+# Deprecated packet counters to be removed in future releases
 RxPackets:              {{.RxPackets}}
 RxUcastPackets:         {{.RxUcastPackets}}
 RxMcastPackets:         {{.RxMcastPackets}}
 RxBcastPackets:         {{.RxBcastPackets}}
 RxErrorPackets:         {{.RxErrorPackets}}
-RxFcsErrorPackets:      {{.RxFcsErrorPackets}}
-RxUndersizePackets:     {{.RxUndersizePackets}}
-RxOversizePackets:      {{.RxOversizePackets}}
-TxBytes:                {{.TxBytes}}
 TxPackets:              {{.TxPackets}}
 TxUcastPackets:         {{.TxUcastPackets}}
 TxMcastPackets:         {{.TxMcastPackets}}
 TxBcastPackets:         {{.TxBcastPackets}}
-TxErrorPackets:         {{.TxErrorPackets}}
-TxUndersizePackets:     {{.TxUndersizePackets}}
-TxOversizePackets:      {{.TxOversizePackets}}`
+TxErrorPackets:         {{.TxErrorPackets}}`
 
 	DEFAULT_ONU_OMCI_TX_RX_STATS_FORMAT = `BaseTxArFrames:        {{.BaseTxArFrames}}
 BaseRxAkFrames:        {{.BaseRxAkFrames}}
@@ -728,8 +740,8 @@ type gemHistoryStats struct {
 	GemId                   uint32
 	TransmittedGEMFrames    uint32
 	ReceivedGEMFrames       uint32
-	ReceivedPayloadBytes    uint32
-	TransmittedPayloadBytes uint32
+	ReceivedPayloadBytes    uint64
+	TransmittedPayloadBytes uint64
 	EncryptionKeyErrors     uint32
 }
 
@@ -3104,8 +3116,8 @@ func (options *GetOnuGEMStats) Execute(args []string) error {
 				GemId:                   gemStatsInfo.GemId,
 				TransmittedGEMFrames:    gemStatsInfo.TransmittedGEMFrames,
 				ReceivedGEMFrames:       gemStatsInfo.ReceivedGEMFrames,
-				ReceivedPayloadBytes:    gemStatsInfo.ReceivedPayloadBytes,
-				TransmittedPayloadBytes: gemStatsInfo.TransmittedPayloadBytes,
+				ReceivedPayloadBytes:    gemStatsInfo.ReceivedPayloadBytes_64,
+				TransmittedPayloadBytes: gemStatsInfo.TransmittedPayloadBytes_64,
 				EncryptionKeyErrors:     gemStatsInfo.EncryptionKeyErrors,
 			})
 		}
