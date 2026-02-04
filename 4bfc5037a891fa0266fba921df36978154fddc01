@@ -34,6 +34,24 @@
       "parentUuid": "be84105d_79638832",
       "revId": "4bfc5037a891fa0266fba921df36978154fddc01",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6fc030d9_be6a2433",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 6
+      },
+      "lineNbr": 3147,
+      "author": {
+        "id": 1000959
+      },
+      "writtenOn": "2026-02-04T07:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3ccd5a0f_e622dbee",
+      "revId": "4bfc5037a891fa0266fba921df36978154fddc01",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
   ]
 }
