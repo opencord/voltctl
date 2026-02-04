@@ -16,6 +16,24 @@
       "message": "The error string to be changed to Failed to get onu FEC history stats from ONT",
       "revId": "4bfc5037a891fa0266fba921df36978154fddc01",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3ccd5a0f_e622dbee",
+        "filename": "internal/pkg/commands/devices.go",
+        "patchSetId": 6
+      },
+      "lineNbr": 3147,
+      "author": {
+        "id": 1001025
+      },
+      "writtenOn": "2026-02-04T06:58:20Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "be84105d_79638832",
+      "revId": "4bfc5037a891fa0266fba921df36978154fddc01",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
   ]
 }
