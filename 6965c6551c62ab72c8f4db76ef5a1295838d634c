@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "62d2580d_0e104981",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1001025
+      },
+      "writtenOn": "2026-02-04T08:25:27Z",
+      "side": 1,
+      "message": "\u003e Patch Set 7:\n\u003e \n\u003e Build Failed \n\u003e \n\u003e https://jenkins.lfbroadband.org/job/github-release_voltctl/210/ : FAILURE\n\u003e \n\u003e https://jenkins.lfbroadband.org/job/version-tag_wildcard/934/ : SUCCESS\n\nremerge",
+      "revId": "6965c6551c62ab72c8f4db76ef5a1295838d634c",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
