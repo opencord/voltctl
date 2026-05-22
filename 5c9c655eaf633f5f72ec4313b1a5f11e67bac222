@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "50789529_eab1fe6d",
+        "filename": "internal/pkg/commands/stats.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 1000404
+      },
+      "writtenOn": "2026-05-22T21:58:56Z",
+      "side": 1,
+      "message": "I realized there is a mapping bug here.",
+      "revId": "5c9c655eaf633f5f72ec4313b1a5f11e67bac222",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e780651f_454c06d4",
+        "filename": "internal/pkg/commands/stats.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 1000404
+      },
+      "writtenOn": "2026-05-22T21:58:56Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "5c9c655eaf633f5f72ec4313b1a5f11e67bac222",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    }
+  ]
+}
