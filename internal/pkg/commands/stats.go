@@ -196,7 +196,6 @@ func buildOnuStatsOutputFormat(counters *extension.GetOnuCountersResponse) (mode
 
 func buildOffloadAppStatsOutputFormat(stats *extension.GetOffloadedAppsStatisticsResponse) (map[string]interface{}, string) {
 	formatStr := "table" // Default format
-
 	if stats == nil {
 		return map[string]interface{}{
 			"error": "No stats available in response",
@@ -216,7 +215,7 @@ func buildOffloadAppStatsOutputFormat(stats *extension.GetOffloadedAppsStatistic
 			"option_82_removed_packets_to_client":  data.Dhcpv4RaStats.Option_82RemovedPacketsToClient,
 			"option_82_not_inserted_to_server":     data.Dhcpv4RaStats.Option_82NotInsertedToServer,
 			"additional_stats":                     convertMapStringToInterface(data.Dhcpv4RaStats.AdditionalStats),
-		}, formatStr
+		}, DEFAULT_OFFLOAD_APP_STATS_DHCPv4_FORMAT
 
 	case *extension.GetOffloadedAppsStatisticsResponse_Dhcpv6RaStats:
 		return map[string]interface{}{
@@ -230,7 +229,7 @@ func buildOffloadAppStatsOutputFormat(stats *extension.GetOffloadedAppsStatistic
 			"option_37_removed_packets_to_client":       data.Dhcpv6RaStats.Option_18RemovedPacketsToClient,
 			"outgoing_mtu_exceeded_packets_from_client": data.Dhcpv6RaStats.OutgoingMtuExceededPacketsFromClient,
 			"additional_stats":                          convertMapStringToInterface(data.Dhcpv6RaStats.AdditionalStats),
-		}, formatStr
+		}, DEFAULT_OFFLOAD_APP_STATS_DHCPv6_FORMAT
 
 	case *extension.GetOffloadedAppsStatisticsResponse_PppoeIaStats:
 		return map[string]interface{}{
@@ -244,7 +243,7 @@ func buildOffloadAppStatsOutputFormat(stats *extension.GetOffloadedAppsStatistic
 			"vendor_specific_tag_removed_packets_to_client":  data.PppoeIaStats.VendorSpecificTagRemovedPacketsToClient,
 			"outgoing_mtu_exceeded_packets_from_client":      data.PppoeIaStats.OutgoingMtuExceededPacketsFromClient,
 			"additional_stats":                               convertMapStringToInterface(data.PppoeIaStats.AdditionalStats),
-		}, formatStr
+		}, DEFAULT_OFFLOAD_APP_STATS_PPPOE_IA_FORMAT
 
 	default:
 		return map[string]interface{}{
