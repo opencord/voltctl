@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -202,6 +203,39 @@ UncorrectableCodeWords: {{.UncorrectableCodeWords}}`
  ReceivedPayloadBytes:   {{.ReceivedPayloadBytes}}
  TransmittedPayloadBytes:{{.TransmittedPayloadBytes}}
  EncryptionKeyErrors:    {{.EncryptionKeyErrors}}{{end}}`
+	DEFAULT_OFFLOAD_APP_STATS_DHCPv4_FORMAT = `AdditionalStats:
+{{index . "additional_stats"}}
+InBadPacketsFromClient: {{index . "in_bad_packets_from_client"}}
+InBadPacketsFromServer: {{index . "in_bad_packets_from_server"}}
+InPacketsFromClient: {{index . "in_packets_from_client"}}
+InPacketsFromServer: {{index . "in_packets_from_server"}}
+OutPacketsToServer: {{index . "out_packets_to_server"}}
+OutPacketsToClient: {{index . "out_packets_to_client"}}
+Option_82InsertedPacketsToServer: {{index . "option_82_inserted_packets_to_server"}}
+Option_82RemovedPacketsToClient: {{index . "option_82_removed_packets_to_client"}}
+Option_82NotInsertedToServer: {{index . "option_82_not_inserted_to_server"}}`
+	DEFAULT_OFFLOAD_APP_STATS_DHCPv6_FORMAT = `AdditionalStats:
+{{index . "additional_stats"}}
+InBadPacketsFromClient: {{index . "in_bad_packets_from_client"}}
+InBadPacketsFromServer: {{index . "in_bad_packets_from_server"}}
+Option_17InsertedPacketsToServer: {{index . "option_17_inserted_packets_to_server"}}
+Option_17RemovedPacketsToClient: {{index . "option_17_removed_packets_to_client"}}
+Option_18InsertedPacketsToServer: {{index . "option_18_inserted_packets_to_server"}}
+Option_18RemovedPacketsToClient: {{index . "option_18_removed_packets_to_client"}}
+Option_37InsertedPacketsToServer: {{index . "option_37_inserted_packets_to_server"}}
+Option_37RemovedPacketsToClient: {{index . "option_37_removed_packets_to_client"}}
+OutgoingMtuExceededPacketsFromClient: {{index . "outgoing_mtu_exceeded_packets_from_client"}}`
+	DEFAULT_OFFLOAD_APP_STATS_PPPOE_IA_FORMAT = `AdditionalStats:
+{{index . "additional_stats"}}
+InErrorPacketsFromClient: {{index . "in_error_packets_from_client"}}
+InErrorPacketsFromServer: {{index . "in_error_packets_from_server"}}
+InPacketsFromClient: {{index . "in_packets_from_client"}}
+InPacketsFromServer: {{index . "in_packets_from_server"}}
+OutPacketsToServer: {{index . "out_packets_to_server"}}
+OutPacketsToClient: {{index . "out_packets_to_client"}}
+VendorSpecificTagInsertedPacketsToServer: {{index . "vendor_specific_tag_inserted_packets_to_server"}}
+VendorSpecificTagRemovedPacketsToClient: {{index . "vendor_specific_tag_removed_packets_to_client"}}
+OutgoingMtuExceededPacketsFromClient: {{index . "outgoing_mtu_exceeded_packets_from_client"}}`
 )
 
 type DeviceList struct {
@@ -2380,6 +2414,8 @@ func (options *GetOffloadApp) Execute(args []string) error {
 
 	// Process the response data
 	stats, formatStr := buildOffloadAppStatsOutputFormat(rv.GetResponse().GetOffloadedAppsStats())
+
+	formatAdditionalStats(stats)
 	outputFormat := CharReplacer.Replace(options.Format)
 	if outputFormat == "" {
 		outputFormat = GetCommandOptionWithDefault("device-get-offload-app-stats", "format", formatStr)
@@ -2395,6 +2431,32 @@ func (options *GetOffloadApp) Execute(args []string) error {
 	GenerateOutput(&result)
 
 	return nil
+}
+
+func formatAdditionalStats(stats map[string]interface{}) {
+	if v, ok := stats["additional_stats"]; ok {
+		if m, ok := v.(map[string]interface{}); ok {
+
+			keys := make([]string, 0, len(m))
+			for k := range m {
+				keys = append(keys, k)
+			}
+
+			sort.Strings(keys)
+
+			var b strings.Builder
+
+			for _, k := range keys {
+				b.WriteString(fmt.Sprintf(
+					"  %-65s : %v\n",
+					k,
+					m[k],
+				))
+			}
+
+			stats["additional_stats"] = b.String()
+		}
+	}
 }
 
 func (options *SetOffloadApp) Execute(args []string) error {
