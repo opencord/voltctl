@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f0d6ea43_93d85813",
+        "filename": "internal/pkg/commands/stats.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 1001023
+      },
+      "writtenOn": "2026-05-27T10:08:22Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "50789529_eab1fe6d",
+      "revId": "5c9c655eaf633f5f72ec4313b1a5f11e67bac222",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e780651f_454c06d4",
         "filename": "internal/pkg/commands/stats.go",
         "patchSetId": 2
@@ -31,6 +49,24 @@
       "writtenOn": "2026-05-22T21:58:56Z",
       "side": 1,
       "message": "same here",
+      "revId": "5c9c655eaf633f5f72ec4313b1a5f11e67bac222",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6aa06463_45122a30",
+        "filename": "internal/pkg/commands/stats.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 1001023
+      },
+      "writtenOn": "2026-05-27T10:08:22Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "e780651f_454c06d4",
       "revId": "5c9c655eaf633f5f72ec4313b1a5f11e67bac222",
       "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
     }
