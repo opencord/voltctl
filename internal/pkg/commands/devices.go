@@ -236,6 +236,12 @@ OutPacketsToClient: {{index . "out_packets_to_client"}}
 VendorSpecificTagInsertedPacketsToServer: {{index . "vendor_specific_tag_inserted_packets_to_server"}}
 VendorSpecificTagRemovedPacketsToClient: {{index . "vendor_specific_tag_removed_packets_to_client"}}
 OutgoingMtuExceededPacketsFromClient: {{index . "outgoing_mtu_exceeded_packets_from_client"}}`
+	DEFAULT_SUB_APPS_PPPOE_IA_STATS_FORMAT = `TotalPppoePackets: {{.PppoeIaStats.TotalPppoePackets}}
+PadiPackets:       {{.PppoeIaStats.PadiPackets}}
+PadoPackets:       {{.PppoeIaStats.PadoPackets}}
+PadrPackets:       {{.PppoeIaStats.PadrPackets}}
+PadsPackets:       {{.PppoeIaStats.PadsPackets}}
+PadtPackets:       {{.PppoeIaStats.PadtPackets}}`
 )
 
 type DeviceList struct {
@@ -629,6 +635,14 @@ type GetOnuGEMStats struct {
 	} `positional-args:"yes"`
 }
 
+type GetSubAppsStats struct {
+	ListOutputOptions
+	Args struct {
+		StatsFor extension.GetSubscriberAppsStatisticsRequest_AppStat `positional-arg-name:"APP_STATS_FOR" required:"yes"`
+		Id       DeviceId                                             `positional-arg-name:"ONU_DEVICE_ID" required:"yes"`
+	} `positional-args:"yes"`
+}
+
 type GetOnuFecHistory struct {
 	ListOutputOptions
 	Args struct {
@@ -746,6 +760,7 @@ type DeviceOpts struct {
 		OnuGEMStats             GetOnuGEMStats                        `command:"onu_gem_stats"`
 		OnuAllocGemStats        GetOnuAllocGemStatsFromOlt            `command:"onu_alloc_gem_from_olt"`
 		OnuFecHistory           GetOnuFecHistory                      `command:"onu_fec_history"`
+		SubAppsStats            GetSubAppsStats                       `command:"sub_apps_stats"`
 	} `command:"getextval"`
 	SetExtVal struct {
 		OffloadAppStatsSet SetOffloadApp `command:"set_offload_app"`
@@ -783,6 +798,10 @@ type PortStats struct {
 	PonPort uint32 // use this for PON
 	NniPort uint32 // use this for NNI
 	*common.PortStatistics
+}
+
+type SubAppsStats struct {
+	PppoeIaStats *extension.GetSubscriberAppsStatisticsResponse_SubPPPoeIAStats
 }
 
 var deviceOpts = DeviceOpts{}
@@ -3292,6 +3311,69 @@ func (options *GetOnuAllocGemStatsFromOlt) Execute(args []string) error {
 		GenerateOutput(&result)
 	}
 
+	return nil
+}
+
+func (options *GetSubAppsStats) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	client := extension.NewExtensionClient(conn)
+
+	//validate the requested stats type
+	switch options.Args.StatsFor {
+	case extension.GetSubscriberAppsStatisticsRequest_PPPoeIA:
+		// supported
+	default:
+		return fmt.Errorf("unsupported subscriber apps stats type %s, expected: pppoeia (1)", options.Args.StatsFor)
+	}
+
+	singleGetValReq := extension.SingleGetValueRequest{
+		TargetId: string(options.Args.Id),
+		Request: &extension.GetValueRequest{
+			Request: &extension.GetValueRequest_SubAppsStats{
+				SubAppsStats: &extension.GetSubscriberAppsStatisticsRequest{
+					StatsFor:    options.Args.StatsFor,
+					OnuDeviceId: string(options.Args.Id),
+				},
+			},
+		},
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+	defer cancel()
+	rv, err := client.GetExtValue(ctx, &singleGetValReq)
+	if err != nil {
+		Error.Printf("Error getting value on device Id %s,err=%s\n", options.Args.Id, ErrorToString(err))
+		return err
+	}
+
+	if rv.Response.Status != extension.GetValueResponse_OK {
+		return fmt.Errorf("failed to get subscriber apps stats %v", rv.Response.ErrReason.String())
+	}
+
+	outputFormat := CharReplacer.Replace(options.Format)
+	if outputFormat == "" {
+		outputFormat = GetCommandOptionWithDefault("device-get-sub-apps-stats", "format", DEFAULT_SUB_APPS_PPPOE_IA_STATS_FORMAT)
+	}
+
+	var data any
+	switch options.Args.StatsFor {
+	case extension.GetSubscriberAppsStatisticsRequest_PPPoeIA:
+		data = SubAppsStats{
+			PppoeIaStats: rv.GetResponse().GetSubAppsStatsResponse().GetPppoeIaStats(),
+		}
+	}
+
+	result := CommandResult{
+		Format:    format.Format(outputFormat),
+		OutputAs:  toOutputType(options.OutputAs),
+		NameLimit: options.NameLimit,
+		Data:      data,
+	}
+	GenerateOutput(&result)
 	return nil
 }
 
