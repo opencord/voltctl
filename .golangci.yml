@@ -12,22 +12,51 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# run:
+#   timeout: 5m
+#   modules-download-mode: vendor
+
+# linters:
+#   enable:
+#     #- gochecknoglobals
+#     #- gochecknoinits
+#     #- gocritic
+#     - gofmt
+#     #- golint
+#     #- unparam
+#     - errcheck
+
+# issues:
+#   exclude:
+#     - "Package github.com/golang/protobuf/proto is deprecated"
+#     - "Package github.com/golang/protobuf/jsonpb is deprecated"
+#     - "SA1019: voltha.ImageDownload is deprecated"
+
+version: "2"
 run:
   timeout: 5m
   modules-download-mode: vendor
-
 linters:
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - path: (.+)\.go$
+        text: 'SA1019: voltha.ImageDownload is deprecated'
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
   enable:
-    #- gochecknoglobals
-    #- gochecknoinits
-    #- gocritic
     - gofmt
-    #- golint
-    #- unparam
-    - errcheck
-
-issues:
-  exclude:
-    - "Package github.com/golang/protobuf/proto is deprecated"
-    - "Package github.com/golang/protobuf/jsonpb is deprecated"
-    - "SA1019: voltha.ImageDownload is deprecated"
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$    
