@@ -115,6 +115,8 @@ PmFormat:	                {{.PmFormat}}`
 Bip Units:                  {{.BipUnits}}
 Bip Errors:                 {{.BipErrors}}
 RxPackets:                  {{.RxPackets}}
+RxFrames:                   {{.RxFrames}}
+RxBytes:                    {{.RxBytes}}
 RxGem:                      {{.RxGem}}
 RxGemDropped:               {{.RxGemDropped}}
 RxGemIdle:                  {{.RxGemIdle}}
@@ -127,7 +129,13 @@ RxCpuOmciPacketsDropped:    {{.RxCpuOmciPacketsDropped}}
 RxCpu:                      {{.RxCpu}}
 RxOmci:                     {{.RxOmci}}
 RxOmciPacketsCrcError:      {{.RxOmciPacketsCrcError}}
+RxErrorPackets:             {{.RxErrorPackets}}
+RxErrorFrames:              {{.RxErrorFrames}}
+RxDiscardedFrames:	        {{.RxDiscardedFrames}}
 TxPackets:                  {{.TxPackets}}
+TxFrames:                   {{.TxFrames}}
+TxBytes:                    {{.TxBytes}}
+TxErrorFrames:              {{.TxErrorFrames}}
 TxGem:                      {{.TxGem}}
 TxCpu:                      {{.TxCpu}}
 TxOmci:                     {{.TxOmci}}
@@ -145,6 +153,9 @@ RxErrorFrames:          {{.RxErrorFrames}}
 RxFcsErrorPackets:      {{.RxFcsErrorPackets}}
 RxUndersizePackets:     {{.RxUndersizePackets}}
 RxOversizePackets:      {{.RxOversizePackets}}
+RxRightFrames:          {{.RxRightFrames}}
+RxCRCErrorFrames:       {{.RxCrcErrors}}
+RxDiscardedFrames:	    {{.RxDiscardedFrames}}
 TxBytes:                {{.TxBytes}}
 TxFrames:               {{.TxFrames}}
 TxUcastFrames:          {{.TxUcastFrames}}
@@ -153,6 +164,7 @@ TxBcastFrames:          {{.TxBcastFrames}}
 TxErrorFrames:          {{.TxErrorFrames}}
 TxUndersizePackets:     {{.TxUndersizePackets}}
 TxOversizePackets:      {{.TxOversizePackets}}
+TxDroppedTotal:         {{.TxDroppedTotal}}
 
 # Deprecated packet counters to be removed in future releases
 RxPackets:              {{.RxPackets}}
@@ -185,10 +197,14 @@ AllocRxBytes:   {{.AllocRxBytes}}
  TxPackets:      {{.TxPackets}}
  TxBytes:        {{.TxBytes}}{{end}}`
 	DEFAULT_ONU_FEC_HISTORY_FORMAT = `CorrectedBytes:         {{.CorrectedBytes}}
-CorrectedCodeWords:     {{.CorrectedCodeWords}}
-FecSeconds:             {{.FecSeconds}}
-TotalCodeWords:         {{.TotalCodeWords}}
-UncorrectableCodeWords: {{.UncorrectableCodeWords}}`
+CorrectedCodeWords:        {{.CorrectedCodeWords}}
+FecSeconds:                {{.FecSeconds}}
+TotalCodeWords:            {{.TotalCodeWords}}
+UncorrectableCodeWords:    {{.UncorrectableCodeWords}}
+FecCorrectedBytes_64:      {{.FecCorrectedBytes_64}}
+FecCorrectedCodeWords_64:  {{.FecCorrectedCodeWords_64}}
+TotalCodeWords_64:	       {{.TotalCodeWords_64}}
+UncorrectableCodeWords_64: {{.UncorrectableCodeWords_64}}`
 
 	DEFAULT_ONU_DISTANCE_FORMAT          = `Distance`
 	DEFAULT_DEVICE_ALARMS_FORMAT         = "table{{ .ClassId }}\t{{.InstanceId}}\t{{.Name}}\t{{.Description}}"
@@ -197,12 +213,12 @@ UncorrectableCodeWords: {{.UncorrectableCodeWords}}`
 	DEFAULT_DEVICE_VALUE_GEM_PORT_FORMAT = `AllocId:                {{.AllocId}}
  AllocRxBytes:           {{.AllocRxBytes}}
  {{range .GemHistoryStats}}
--GemId:                  {{.GemId}}
- TransmittedGEMFrames:   {{.TransmittedGEMFrames}}
- ReceivedGEMFrames:      {{.ReceivedGEMFrames}}
- ReceivedPayloadBytes:   {{.ReceivedPayloadBytes}}
- TransmittedPayloadBytes:{{.TransmittedPayloadBytes}}
- EncryptionKeyErrors:    {{.EncryptionKeyErrors}}{{end}}`
+-GemId:                      {{.GemId}}
+ TransmittedGEMFrames:       {{.TransmittedGEMFrames}}
+ ReceivedGEMFrames:          {{.ReceivedGEMFrames}}
+ ReceivedPayloadBytes:       {{.ReceivedPayloadBytes}}
+ TransmittedPayloadBytes:    {{.TransmittedPayloadBytes}}
+ EncryptionKeyErrors:        {{.EncryptionKeyErrors}}{{end}}`
 	DEFAULT_OFFLOAD_APP_STATS_DHCPv4_FORMAT = `AdditionalStats:
 {{index . "additional_stats"}}
 InBadPacketsFromClient: {{index . "in_bad_packets_from_client"}}
