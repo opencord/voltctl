@@ -258,6 +258,15 @@ type DeviceList struct {
 	ListOutputOptions
 }
 
+type DeviceUpdate struct {
+	ListOutputOptions
+	Args struct {
+		Id          string `positional-arg-name:"DEVICE_ID" required:"yes"`
+		AddressType string `positional-arg-name:"ADDRESS_TYPE" required:"yes" choice:"IPV4" choice:"IPV6" choice:"HOST_AND_PORT"`
+		Address     string `positional-arg-name:"HOST_AND_PORT" required:"yes"`
+	} `positional-args:"yes"`
+}
+
 type DeviceCreate struct {
 	DeviceType  string `short:"t" required:"true" long:"devicetype" description:"Device type"`
 	MACAddress  string `short:"m" long:"macaddress" default:"" description:"MAC Address"`
@@ -699,6 +708,7 @@ type DeviceOpts struct {
 	EnableOnuSerialNumber  EnableOnuSerialNumber  `command:"enable_onu_serial"`
 	Flows                  DeviceFlowList         `command:"flows"`
 	Groups                 DeviceFlowGroupList    `command:"groups"`
+	Update                 DeviceUpdate           `command:"update"`
 	Port                   struct {
 		List    DevicePortList    `command:"list"`
 		Enable  DevicePortEnable  `command:"enable"`
@@ -3431,4 +3441,36 @@ func (options *EnableOnuSerialNumber) Execute(args []string) error {
 	}
 	fmt.Printf("Enabled ONU serial '%s' on OLT '%s'\n", options.Args.SerialNumber, options.Args.OltDeviceId)
 	return nil
+}
+
+func (options *DeviceUpdate) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	client := voltha.NewVolthaServiceClient(conn)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+	defer cancel()
+	var deviceConfig voltha.UpdateDevice
+	switch options.Args.AddressType {
+	case "IPV4":
+		deviceConfig.Id = options.Args.Id
+		deviceConfig.Address = &voltha.UpdateDevice_Ipv4Address{Ipv4Address: options.Args.Address}
+	case "IPV6":
+		deviceConfig.Id = options.Args.Id
+		deviceConfig.Address = &voltha.UpdateDevice_Ipv6Address{Ipv6Address: options.Args.Address}
+	case "HOST_AND_PORT":
+		deviceConfig.Id = options.Args.Id
+		deviceConfig.Address = &voltha.UpdateDevice_HostAndPort{HostAndPort: options.Args.Address}
+	default:
+		return fmt.Errorf("invalid address type %s, supported types are IPV4, IPV6, HOST_AND_PORT", options.Args.AddressType)
+	}
+	_, err = client.UpdateDevice(ctx, &deviceConfig)
+	if err != nil {
+		Error.Printf("Error updating device Id %s,err=%s\n", options.Args.Id, ErrorToString(err))
+		return err
+	}
+	return nil
+
 }
