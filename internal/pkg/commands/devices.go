@@ -165,7 +165,7 @@ TxErrorFrames:          {{.TxErrorFrames}}
 TxUndersizePackets:     {{.TxUndersizePackets}}
 TxOversizePackets:      {{.TxOversizePackets}}
 TxDroppedTotal:         {{.TxDroppedTotal}}
-
+ 
 # Deprecated packet counters to be removed in future releases
 RxPackets:              {{.RxPackets}}
 RxUcastPackets:         {{.RxUcastPackets}}
@@ -192,10 +192,10 @@ TxOmciCounterTimeouts: {{.TxOmciCounterTimeouts}}`
 AllocRxBytes:   {{.AllocRxBytes}}
 {{range .GemPortStats}}
 -GemId:          {{.GemId}}
- RxPackets:      {{.RxPackets}}
- RxBytes:        {{.RxBytes}}
- TxPackets:      {{.TxPackets}}
- TxBytes:        {{.TxBytes}}{{end}}`
+RxPackets:      {{.RxPackets}}
+RxBytes:        {{.RxBytes}}
+TxPackets:      {{.TxPackets}}
+TxBytes:        {{.TxBytes}}{{end}}`
 	DEFAULT_ONU_FEC_HISTORY_FORMAT = `CorrectedBytes:         {{.CorrectedBytes}}
 CorrectedCodeWords:        {{.CorrectedCodeWords}}
 FecSeconds:                {{.FecSeconds}}
@@ -211,14 +211,14 @@ UncorrectableCodeWords_64: {{.UncorrectableCodeWords_64}}`
 	DEFAULT_DEVICE_ALARMS_ORDER          = "ClassId,InstanceId"
 	DEFAULT_PON_RX_POWER_STATUS_FORMAT   = "table{{.OnuSn}}\t{{.Status}}\t{{.FailReason}}\t{{.RxPower}}\t"
 	DEFAULT_DEVICE_VALUE_GEM_PORT_FORMAT = `AllocId:                {{.AllocId}}
- AllocRxBytes:           {{.AllocRxBytes}}
- {{range .GemHistoryStats}}
+AllocRxBytes:           {{.AllocRxBytes}}
+{{range .GemHistoryStats}}
 -GemId:                      {{.GemId}}
- TransmittedGEMFrames:       {{.TransmittedGEMFrames}}
- ReceivedGEMFrames:          {{.ReceivedGEMFrames}}
- ReceivedPayloadBytes:       {{.ReceivedPayloadBytes}}
- TransmittedPayloadBytes:    {{.TransmittedPayloadBytes}}
- EncryptionKeyErrors:        {{.EncryptionKeyErrors}}{{end}}`
+TransmittedGEMFrames:       {{.TransmittedGEMFrames}}
+ReceivedGEMFrames:          {{.ReceivedGEMFrames}}
+ReceivedPayloadBytes:       {{.ReceivedPayloadBytes}}
+TransmittedPayloadBytes:    {{.TransmittedPayloadBytes}}
+EncryptionKeyErrors:        {{.EncryptionKeyErrors}}{{end}}`
 	DEFAULT_OFFLOAD_APP_STATS_DHCPv4_FORMAT = `AdditionalStats:
 {{index . "additional_stats"}}
 InBadPacketsFromClient: {{index . "in_bad_packets_from_client"}}
@@ -256,6 +256,15 @@ OutgoingMtuExceededPacketsFromClient: {{index . "outgoing_mtu_exceeded_packets_f
 
 type DeviceList struct {
 	ListOutputOptions
+}
+
+type DeviceUpdate struct {
+	ListOutputOptions
+	Args struct {
+		Id          string `positional-arg-name:"DEVICE_ID" required:"yes"`
+		AddressType string `positional-arg-name:"ADDRESS_TYPE" required:"yes" choice:"IPV4" choice:"IPV6" choice:"HOST_AND_PORT"`
+		Address     string `positional-arg-name:"HOST_AND_PORT" required:"yes"`
+	} `positional-args:"yes"`
 }
 
 type DeviceCreate struct {
@@ -699,6 +708,7 @@ type DeviceOpts struct {
 	EnableOnuSerialNumber  EnableOnuSerialNumber  `command:"enable_onu_serial"`
 	Flows                  DeviceFlowList         `command:"flows"`
 	Groups                 DeviceFlowGroupList    `command:"groups"`
+	Update                 DeviceUpdate           `command:"update"`
 	Port                   struct {
 		List    DevicePortList    `command:"list"`
 		Enable  DevicePortEnable  `command:"enable"`
@@ -3431,4 +3441,36 @@ func (options *EnableOnuSerialNumber) Execute(args []string) error {
 	}
 	fmt.Printf("Enabled ONU serial '%s' on OLT '%s'\n", options.Args.SerialNumber, options.Args.OltDeviceId)
 	return nil
+}
+
+func (options *DeviceUpdate) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	client := voltha.NewVolthaServiceClient(conn)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+	defer cancel()
+	var deviceConfig voltha.UpdateDeviceConfig
+	switch options.Args.AddressType {
+	case "IPV4":
+		deviceConfig.Id = options.Args.Id
+		deviceConfig.Address = &voltha.UpdateDeviceConfig_Ipv4Address{Ipv4Address: options.Args.Address}
+	case "IPV6":
+		deviceConfig.Id = options.Args.Id
+		deviceConfig.Address = &voltha.UpdateDeviceConfig_Ipv6Address{Ipv6Address: options.Args.Address}
+	case "HOST_AND_PORT":
+		deviceConfig.Id = options.Args.Id
+		deviceConfig.Address = &voltha.UpdateDeviceConfig_HostAndPort{HostAndPort: options.Args.Address}
+	default:
+		return fmt.Errorf("invalid address type %s, supported types are IPV4, IPV6, HOST_AND_PORT", options.Args.AddressType)
+	}
+	_, err = client.UpdateDevice(ctx, &deviceConfig)
+	if err != nil {
+		Error.Printf("Error updating device Id %s,err=%s\n", options.Args.Id, ErrorToString(err))
+		return err
+	}
+	return nil
+
 }
