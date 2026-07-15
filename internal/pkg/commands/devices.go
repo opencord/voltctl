@@ -38,14 +38,14 @@ const (
 	DEFAULT_DEVICE_ORDER          = "Type,Id"
 	DEFAULT_DEVICE_PORTS_FORMAT   = "table{{.PortNo}}\t{{.Label}}\t{{.Type}}\t{{.AdminState}}\t{{.OperStatus}}\t{{.DeviceId}}\t{{.Peers}}"
 	DEFAULT_DEVICE_INSPECT_FORMAT = `ID: {{.Id}}
-  TYPE:          {{.Type}}
-  ROOT:          {{.Root}}
-  PARENTID:      {{.ParentId}}
-  SERIALNUMBER:  {{.SerialNumber}}
-  VLAN:          {{.Vlan}}
-  ADMINSTATE:    {{.AdminState}}
-  OPERSTATUS:    {{.OperStatus}}
-  CONNECTSTATUS: {{.ConnectStatus}}`
+   TYPE:          {{.Type}}
+   ROOT:          {{.Root}}
+   PARENTID:      {{.ParentId}}
+   SERIALNUMBER:  {{.SerialNumber}}
+   VLAN:          {{.Vlan}}
+   ADMINSTATE:    {{.AdminState}}
+   OPERSTATUS:    {{.OperStatus}}
+   CONNECTSTATUS: {{.ConnectStatus}}`
 	DEFAULT_DEVICE_PM_CONFIG_GET_FORMAT         = "table{{.DefaultFreq}}\t{{.Grouped}}\t{{.FreqOverride}}"
 	DEFAULT_DEVICE_PM_CONFIG_METRIC_LIST_FORMAT = "table{{.Name}}\t{{.Type}}\t{{.Enabled}}\t{{.SampleFreq}}"
 	DEFAULT_DEVICE_PM_CONFIG_GROUP_LIST_FORMAT  = "table{{.GroupName}}\t{{.Enabled}}\t{{.GroupFreq}}"
@@ -54,208 +54,217 @@ const (
 	ONU_IMAGE_LIST_FORMAT                       = "table{{.Version}}\t{{.IsCommited}}\t{{.IsActive}}\t{{.IsValid}}\t{{.ProductCode}}\t{{.Hash}}"
 	ONU_IMAGE_STATUS_FORMAT                     = "table{{.DeviceId}}\t{{.ImageState.Version}}\t{{.ImageState.DownloadState}}\t{{.ImageState.Reason}}\t{{.ImageState.ImageState}}\t"
 	DEFAULT_DEVICE_GET_PORT_STATUS_FORMAT       = `
-  TXBYTES:		{{.TxBytes}}
-  TXPACKETS:		{{.TxPackets}}
-  TXERRPACKETS:		{{.TxErrorPackets}}
-  TXBCASTPACKETS:	{{.TxBcastPackets}}
-  TXUCASTPACKETS:	{{.TxUcastPackets}}
-  TXMCASTPACKETS:	{{.TxMcastPackets}}
-  RXBYTES:		{{.RxBytes}}
-  RXPACKETS:		{{.RxPackets}}
-  RXERRPACKETS:		{{.RxErrorPackets}}
-  RXBCASTPACKETS:	{{.RxBcastPackets}}
-  RXUCASTPACKETS:	{{.RxUcastPackets}}
-  RXMCASTPACKETS:	{{.RxMcastPackets}}`
+   TXBYTES:		{{.TxBytes}}
+   TXPACKETS:		{{.TxPackets}}
+   TXERRPACKETS:		{{.TxErrorPackets}}
+   TXBCASTPACKETS:	{{.TxBcastPackets}}
+   TXUCASTPACKETS:	{{.TxUcastPackets}}
+   TXMCASTPACKETS:	{{.TxMcastPackets}}
+   RXBYTES:		{{.RxBytes}}
+   RXPACKETS:		{{.RxPackets}}
+   RXERRPACKETS:		{{.RxErrorPackets}}
+   RXBCASTPACKETS:	{{.RxBcastPackets}}
+   RXUCASTPACKETS:	{{.RxUcastPackets}}
+   RXMCASTPACKETS:	{{.RxMcastPackets}}`
 	DEFAULT_DEVICE_GET_UNI_STATUS_FORMAT = `
-  ADMIN_STATE:          {{.AdmState}}
-  OPERATIONAL_STATE:    {{.OperState}}
-  CONFIG_IND:           {{.ConfigInd}}`
+   ADMIN_STATE:          {{.AdmState}}
+   OPERATIONAL_STATE:    {{.OperState}}
+   CONFIG_IND:           {{.ConfigInd}}`
 	DEFAULT_ONU_PON_OPTICAL_INFO_STATUS_FORMAT = `
-  POWER_FEED_VOLTAGE__VOLTS:      {{.PowerFeedVoltage}}
-  RECEIVED_OPTICAL_POWER__dBm:    {{.ReceivedOpticalPower}}
-  MEAN_OPTICAL_LAUNCH_POWER__dBm: {{.MeanOpticalLaunchPower}}
-  LASER_BIAS_CURRENT__mA:         {{.LaserBiasCurrent}}
-  TEMPERATURE__Celsius:           {{.Temperature}}`
+   POWER_FEED_VOLTAGE__VOLTS:      {{.PowerFeedVoltage}}
+   RECEIVED_OPTICAL_POWER__dBm:    {{.ReceivedOpticalPower}}
+   MEAN_OPTICAL_LAUNCH_POWER__dBm: {{.MeanOpticalLaunchPower}}
+   LASER_BIAS_CURRENT__mA:         {{.LaserBiasCurrent}}
+   TEMPERATURE__Celsius:           {{.Temperature}}`
 	DEFAULT_RX_POWER_STATUS_FORMAT = `
-	INTF_ID: {{.IntfId}}
-	ONU_ID: {{.OnuId}}
-	STATUS: {{.Status}}
-	FAIL_REASON: {{.FailReason}}
-	RX_POWER : {{.RxPower}}`
+	 INTF_ID: {{.IntfId}}
+	 ONU_ID: {{.OnuId}}
+	 STATUS: {{.Status}}
+	 FAIL_REASON: {{.FailReason}}
+	 RX_POWER : {{.RxPower}}`
 	DEFAULT_ETHERNET_FRAME_EXTENDED_PM_COUNTERS_FORMAT = `Upstream_Drop_Events:	        {{.UDropEvents}}
-Upstream_Octets:	        {{.UOctets}}
-UFrames:	                {{.UFrames}}
-UBroadcastFrames:	        {{.UBroadcastFrames}}
-UMulticastFrames:	        {{.UMulticastFrames}}
-UCrcErroredFrames:	        {{.UCrcErroredFrames}}
-UUndersizeFrames:	        {{.UUndersizeFrames}}
-UOversizeFrames:	        {{.UOversizeFrames}}
-UFrames_64Octets:	        {{.UFrames_64Octets}}
-UFrames_65To_127Octets:	        {{.UFrames_65To_127Octets}}
-UFrames_128To_255Octets:	{{.UFrames_128To_255Octets}}
-UFrames_256To_511Octets:	{{.UFrames_256To_511Octets}}
-UFrames_512To_1023Octets:	{{.UFrames_512To_1023Octets}}
-UFrames_1024To_1518Octets:	{{.UFrames_1024To_1518Octets}}
-DDropEvents:	                {{.DDropEvents}}
-DOctets:	                {{.DOctets}}
-DFrames:	                {{.DFrames}}
-DBroadcastFrames:	        {{.DBroadcastFrames}}
-DMulticastFrames:	        {{.DMulticastFrames}}
-DCrcErroredFrames:	        {{.DCrcErroredFrames}}
-DUndersizeFrames:	        {{.DUndersizeFrames}}
-DOversizeFrames:	        {{.DOversizeFrames}}
-DFrames_64Octets:	        {{.DFrames_64Octets}}
-DFrames_65To_127Octets:	        {{.DFrames_65To_127Octets}}
-DFrames_128To_255Octets:	{{.DFrames_128To_255Octets}}
-DFrames_256To_511Octets:	{{.DFrames_256To_511Octets}}
-DFrames_512To_1023Octets:	{{.DFrames_512To_1023Octets}}
-DFrames_1024To_1518Octets:	{{.DFrames_1024To_1518Octets}}
-PmFormat:	                {{.PmFormat}}`
+ Upstream_Octets:	        {{.UOctets}}
+ UFrames:	                {{.UFrames}}
+ UBroadcastFrames:	        {{.UBroadcastFrames}}
+ UMulticastFrames:	        {{.UMulticastFrames}}
+ UCrcErroredFrames:	        {{.UCrcErroredFrames}}
+ UUndersizeFrames:	        {{.UUndersizeFrames}}
+ UOversizeFrames:	        {{.UOversizeFrames}}
+ UFrames_64Octets:	        {{.UFrames_64Octets}}
+ UFrames_65To_127Octets:	        {{.UFrames_65To_127Octets}}
+ UFrames_128To_255Octets:	{{.UFrames_128To_255Octets}}
+ UFrames_256To_511Octets:	{{.UFrames_256To_511Octets}}
+ UFrames_512To_1023Octets:	{{.UFrames_512To_1023Octets}}
+ UFrames_1024To_1518Octets:	{{.UFrames_1024To_1518Octets}}
+ DDropEvents:	                {{.DDropEvents}}
+ DOctets:	                {{.DOctets}}
+ DFrames:	                {{.DFrames}}
+ DBroadcastFrames:	        {{.DBroadcastFrames}}
+ DMulticastFrames:	        {{.DMulticastFrames}}
+ DCrcErroredFrames:	        {{.DCrcErroredFrames}}
+ DUndersizeFrames:	        {{.DUndersizeFrames}}
+ DOversizeFrames:	        {{.DOversizeFrames}}
+ DFrames_64Octets:	        {{.DFrames_64Octets}}
+ DFrames_65To_127Octets:	        {{.DFrames_65To_127Octets}}
+ DFrames_128To_255Octets:	{{.DFrames_128To_255Octets}}
+ DFrames_256To_511Octets:	{{.DFrames_256To_511Octets}}
+ DFrames_512To_1023Octets:	{{.DFrames_512To_1023Octets}}
+ DFrames_1024To_1518Octets:	{{.DFrames_1024To_1518Octets}}
+ PmFormat:	                {{.PmFormat}}`
 	DEFAULT_PON_PORT_STATS_FORMAT = `Pon Port:                   {{.PonPort}}
-Bip Units:                  {{.BipUnits}}
-Bip Errors:                 {{.BipErrors}}
-RxPackets:                  {{.RxPackets}}
-RxFrames:                   {{.RxFrames}}
-RxBytes:                    {{.RxBytes}}
-RxGem:                      {{.RxGem}}
-RxGemDropped:               {{.RxGemDropped}}
-RxGemIdle:                  {{.RxGemIdle}}
-RxGemCorrected:             {{.RxGemCorrected}}
-RxGemIllegal:               {{.RxGemIllegal}}
-RxCrcError:                 {{.RxCrcErrors}}
-RxFragmentError:            {{.RxFragmentError}}
-RxPacketsDropped:           {{.RxPacketsDropped}}
-RxCpuOmciPacketsDropped:    {{.RxCpuOmciPacketsDropped}}
-RxCpu:                      {{.RxCpu}}
-RxOmci:                     {{.RxOmci}}
-RxOmciPacketsCrcError:      {{.RxOmciPacketsCrcError}}
-RxErrorPackets:             {{.RxErrorPackets}}
-RxErrorFrames:              {{.RxErrorFrames}}
-RxDiscardedFrames:	        {{.RxDiscardedFrames}}
-TxPackets:                  {{.TxPackets}}
-TxFrames:                   {{.TxFrames}}
-TxBytes:                    {{.TxBytes}}
-TxErrorFrames:              {{.TxErrorFrames}}
-TxGem:                      {{.TxGem}}
-TxCpu:                      {{.TxCpu}}
-TxOmci:                     {{.TxOmci}}
-TxDroppedIllegalLength:     {{.TxDroppedIllegalLength}}
-TxDroppedTpidMiss:          {{.TxDroppedTpidMiss}}
-TxDroppedVidMiss:           {{.TxDroppedVidMiss}}
-TxDroppedTotal:             {{.TxDroppedTotal}}`
+ Bip Units:                  {{.BipUnits}}
+ Bip Errors:                 {{.BipErrors}}
+ RxPackets:                  {{.RxPackets}}
+ RxFrames:                   {{.RxFrames}}
+ RxBytes:                    {{.RxBytes}}
+ RxGem:                      {{.RxGem}}
+ RxGemDropped:               {{.RxGemDropped}}
+ RxGemIdle:                  {{.RxGemIdle}}
+ RxGemCorrected:             {{.RxGemCorrected}}
+ RxGemIllegal:               {{.RxGemIllegal}}
+ RxCrcError:                 {{.RxCrcErrors}}
+ RxFragmentError:            {{.RxFragmentError}}
+ RxPacketsDropped:           {{.RxPacketsDropped}}
+ RxCpuOmciPacketsDropped:    {{.RxCpuOmciPacketsDropped}}
+ RxCpu:                      {{.RxCpu}}
+ RxOmci:                     {{.RxOmci}}
+ RxOmciPacketsCrcError:      {{.RxOmciPacketsCrcError}}
+ RxErrorPackets:             {{.RxErrorPackets}}
+ RxErrorFrames:              {{.RxErrorFrames}}
+ RxDiscardedFrames:	        {{.RxDiscardedFrames}}
+ TxPackets:                  {{.TxPackets}}
+ TxFrames:                   {{.TxFrames}}
+ TxBytes:                    {{.TxBytes}}
+ TxErrorFrames:              {{.TxErrorFrames}}
+ TxGem:                      {{.TxGem}}
+ TxCpu:                      {{.TxCpu}}
+ TxOmci:                     {{.TxOmci}}
+ TxDroppedIllegalLength:     {{.TxDroppedIllegalLength}}
+ TxDroppedTpidMiss:          {{.TxDroppedTpidMiss}}
+ TxDroppedVidMiss:           {{.TxDroppedVidMiss}}
+ TxDroppedTotal:             {{.TxDroppedTotal}}`
 	DEFAULT_NNI_PORT_STATS_FORMAT = `Nni Port:               {{.NniPort}}
-RxBytes:                {{.RxBytes}}
-RxFrames:               {{.RxFrames}}
-RxUcastFrames:          {{.RxUcastFrames}}
-RxMcastFrames:          {{.RxMcastFrames}}
-RxBcastFrames:          {{.RxBcastFrames}}
-RxErrorFrames:          {{.RxErrorFrames}}
-RxFcsErrorPackets:      {{.RxFcsErrorPackets}}
-RxUndersizePackets:     {{.RxUndersizePackets}}
-RxOversizePackets:      {{.RxOversizePackets}}
-RxRightFrames:          {{.RxRightFrames}}
-RxCRCErrorFrames:       {{.RxCrcErrors}}
-RxDiscardedFrames:	    {{.RxDiscardedFrames}}
-TxBytes:                {{.TxBytes}}
-TxFrames:               {{.TxFrames}}
-TxUcastFrames:          {{.TxUcastFrames}}
-TxMcastFrames:          {{.TxMcastFrames}}
-TxBcastFrames:          {{.TxBcastFrames}}
-TxErrorFrames:          {{.TxErrorFrames}}
-TxUndersizePackets:     {{.TxUndersizePackets}}
-TxOversizePackets:      {{.TxOversizePackets}}
-TxDroppedTotal:         {{.TxDroppedTotal}}
-
-# Deprecated packet counters to be removed in future releases
-RxPackets:              {{.RxPackets}}
-RxUcastPackets:         {{.RxUcastPackets}}
-RxMcastPackets:         {{.RxMcastPackets}}
-RxBcastPackets:         {{.RxBcastPackets}}
-RxErrorPackets:         {{.RxErrorPackets}}
-TxPackets:              {{.TxPackets}}
-TxUcastPackets:         {{.TxUcastPackets}}
-TxMcastPackets:         {{.TxMcastPackets}}
-TxBcastPackets:         {{.TxBcastPackets}}
-TxErrorPackets:         {{.TxErrorPackets}}`
+ RxBytes:                {{.RxBytes}}
+ RxFrames:               {{.RxFrames}}
+ RxUcastFrames:          {{.RxUcastFrames}}
+ RxMcastFrames:          {{.RxMcastFrames}}
+ RxBcastFrames:          {{.RxBcastFrames}}
+ RxErrorFrames:          {{.RxErrorFrames}}
+ RxFcsErrorPackets:      {{.RxFcsErrorPackets}}
+ RxUndersizePackets:     {{.RxUndersizePackets}}
+ RxOversizePackets:      {{.RxOversizePackets}}
+ RxRightFrames:          {{.RxRightFrames}}
+ RxCRCErrorFrames:       {{.RxCrcErrors}}
+ RxDiscardedFrames:	    {{.RxDiscardedFrames}}
+ TxBytes:                {{.TxBytes}}
+ TxFrames:               {{.TxFrames}}
+ TxUcastFrames:          {{.TxUcastFrames}}
+ TxMcastFrames:          {{.TxMcastFrames}}
+ TxBcastFrames:          {{.TxBcastFrames}}
+ TxErrorFrames:          {{.TxErrorFrames}}
+ TxUndersizePackets:     {{.TxUndersizePackets}}
+ TxOversizePackets:      {{.TxOversizePackets}}
+ TxDroppedTotal:         {{.TxDroppedTotal}}
+ 
+ # Deprecated packet counters to be removed in future releases
+ RxPackets:              {{.RxPackets}}
+ RxUcastPackets:         {{.RxUcastPackets}}
+ RxMcastPackets:         {{.RxMcastPackets}}
+ RxBcastPackets:         {{.RxBcastPackets}}
+ RxErrorPackets:         {{.RxErrorPackets}}
+ TxPackets:              {{.TxPackets}}
+ TxUcastPackets:         {{.TxUcastPackets}}
+ TxMcastPackets:         {{.TxMcastPackets}}
+ TxBcastPackets:         {{.TxBcastPackets}}
+ TxErrorPackets:         {{.TxErrorPackets}}`
 
 	DEFAULT_ONU_OMCI_TX_RX_STATS_FORMAT = `BaseTxArFrames:        {{.BaseTxArFrames}}
-BaseRxAkFrames:        {{.BaseRxAkFrames}}
-BaseTxNoArFrames:      {{.BaseTxNoArFrames}}
-BaseRxNoAkFrames:      {{.BaseRxNoAkFrames}}
-ExtTxArFrames:         {{.ExtTxArFrames}}
-ExtRxAkFrames:         {{.ExtRxAkFrames}}
-ExtTxNoArFrames:       {{.ExtTxNoArFrames}}
-ExtRxNoAkFrames:       {{.ExtRxNoAkFrames}}
-TxOmciCounterRetries:  {{.TxOmciCounterRetries}}
-TxOmciCounterTimeouts: {{.TxOmciCounterTimeouts}}`
+ BaseRxAkFrames:        {{.BaseRxAkFrames}}
+ BaseTxNoArFrames:      {{.BaseTxNoArFrames}}
+ BaseRxNoAkFrames:      {{.BaseRxNoAkFrames}}
+ ExtTxArFrames:         {{.ExtTxArFrames}}
+ ExtRxAkFrames:         {{.ExtRxAkFrames}}
+ ExtTxNoArFrames:       {{.ExtTxNoArFrames}}
+ ExtRxNoAkFrames:       {{.ExtRxNoAkFrames}}
+ TxOmciCounterRetries:  {{.TxOmciCounterRetries}}
+ TxOmciCounterTimeouts: {{.TxOmciCounterTimeouts}}`
 	DEFAULT_ONU_STATS_FROM_OLT_FORMAT = `AllocId:        {{.AllocId}}
-AllocRxBytes:   {{.AllocRxBytes}}
-{{range .GemPortStats}}
--GemId:          {{.GemId}}
- RxPackets:      {{.RxPackets}}
- RxBytes:        {{.RxBytes}}
- TxPackets:      {{.TxPackets}}
- TxBytes:        {{.TxBytes}}{{end}}`
+ AllocRxBytes:   {{.AllocRxBytes}}
+ {{range .GemPortStats}}
+ -GemId:          {{.GemId}}
+  RxPackets:      {{.RxPackets}}
+  RxBytes:        {{.RxBytes}}
+  TxPackets:      {{.TxPackets}}
+  TxBytes:        {{.TxBytes}}{{end}}`
 	DEFAULT_ONU_FEC_HISTORY_FORMAT = `CorrectedBytes:         {{.CorrectedBytes}}
-CorrectedCodeWords:        {{.CorrectedCodeWords}}
-FecSeconds:                {{.FecSeconds}}
-TotalCodeWords:            {{.TotalCodeWords}}
-UncorrectableCodeWords:    {{.UncorrectableCodeWords}}
-FecCorrectedBytes_64:      {{.FecCorrectedBytes_64}}
-FecCorrectedCodeWords_64:  {{.FecCorrectedCodeWords_64}}
-TotalCodeWords_64:	       {{.TotalCodeWords_64}}
-UncorrectableCodeWords_64: {{.UncorrectableCodeWords_64}}`
+ CorrectedCodeWords:        {{.CorrectedCodeWords}}
+ FecSeconds:                {{.FecSeconds}}
+ TotalCodeWords:            {{.TotalCodeWords}}
+ UncorrectableCodeWords:    {{.UncorrectableCodeWords}}
+ FecCorrectedBytes_64:      {{.FecCorrectedBytes_64}}
+ FecCorrectedCodeWords_64:  {{.FecCorrectedCodeWords_64}}
+ TotalCodeWords_64:	       {{.TotalCodeWords_64}}
+ UncorrectableCodeWords_64: {{.UncorrectableCodeWords_64}}`
 
 	DEFAULT_ONU_DISTANCE_FORMAT          = `Distance`
 	DEFAULT_DEVICE_ALARMS_FORMAT         = "table{{ .ClassId }}\t{{.InstanceId}}\t{{.Name}}\t{{.Description}}"
 	DEFAULT_DEVICE_ALARMS_ORDER          = "ClassId,InstanceId"
 	DEFAULT_PON_RX_POWER_STATUS_FORMAT   = "table{{.OnuSn}}\t{{.Status}}\t{{.FailReason}}\t{{.RxPower}}\t"
 	DEFAULT_DEVICE_VALUE_GEM_PORT_FORMAT = `AllocId:                {{.AllocId}}
- AllocRxBytes:           {{.AllocRxBytes}}
- {{range .GemHistoryStats}}
--GemId:                      {{.GemId}}
- TransmittedGEMFrames:       {{.TransmittedGEMFrames}}
- ReceivedGEMFrames:          {{.ReceivedGEMFrames}}
- ReceivedPayloadBytes:       {{.ReceivedPayloadBytes}}
- TransmittedPayloadBytes:    {{.TransmittedPayloadBytes}}
- EncryptionKeyErrors:        {{.EncryptionKeyErrors}}{{end}}`
+  AllocRxBytes:           {{.AllocRxBytes}}
+  {{range .GemHistoryStats}}
+ -GemId:                      {{.GemId}}
+  TransmittedGEMFrames:       {{.TransmittedGEMFrames}}
+  ReceivedGEMFrames:          {{.ReceivedGEMFrames}}
+  ReceivedPayloadBytes:       {{.ReceivedPayloadBytes}}
+  TransmittedPayloadBytes:    {{.TransmittedPayloadBytes}}
+  EncryptionKeyErrors:        {{.EncryptionKeyErrors}}{{end}}`
 	DEFAULT_OFFLOAD_APP_STATS_DHCPv4_FORMAT = `AdditionalStats:
-{{index . "additional_stats"}}
-InBadPacketsFromClient: {{index . "in_bad_packets_from_client"}}
-InBadPacketsFromServer: {{index . "in_bad_packets_from_server"}}
-InPacketsFromClient: {{index . "in_packets_from_client"}}
-InPacketsFromServer: {{index . "in_packets_from_server"}}
-OutPacketsToServer: {{index . "out_packets_to_server"}}
-OutPacketsToClient: {{index . "out_packets_to_client"}}
-Option_82InsertedPacketsToServer: {{index . "option_82_inserted_packets_to_server"}}
-Option_82RemovedPacketsToClient: {{index . "option_82_removed_packets_to_client"}}
-Option_82NotInsertedToServer: {{index . "option_82_not_inserted_to_server"}}`
+ {{index . "additional_stats"}}
+ InBadPacketsFromClient: {{index . "in_bad_packets_from_client"}}
+ InBadPacketsFromServer: {{index . "in_bad_packets_from_server"}}
+ InPacketsFromClient: {{index . "in_packets_from_client"}}
+ InPacketsFromServer: {{index . "in_packets_from_server"}}
+ OutPacketsToServer: {{index . "out_packets_to_server"}}
+ OutPacketsToClient: {{index . "out_packets_to_client"}}
+ Option_82InsertedPacketsToServer: {{index . "option_82_inserted_packets_to_server"}}
+ Option_82RemovedPacketsToClient: {{index . "option_82_removed_packets_to_client"}}
+ Option_82NotInsertedToServer: {{index . "option_82_not_inserted_to_server"}}`
 	DEFAULT_OFFLOAD_APP_STATS_DHCPv6_FORMAT = `AdditionalStats:
-{{index . "additional_stats"}}
-InBadPacketsFromClient: {{index . "in_bad_packets_from_client"}}
-InBadPacketsFromServer: {{index . "in_bad_packets_from_server"}}
-Option_17InsertedPacketsToServer: {{index . "option_17_inserted_packets_to_server"}}
-Option_17RemovedPacketsToClient: {{index . "option_17_removed_packets_to_client"}}
-Option_18InsertedPacketsToServer: {{index . "option_18_inserted_packets_to_server"}}
-Option_18RemovedPacketsToClient: {{index . "option_18_removed_packets_to_client"}}
-Option_37InsertedPacketsToServer: {{index . "option_37_inserted_packets_to_server"}}
-Option_37RemovedPacketsToClient: {{index . "option_37_removed_packets_to_client"}}
-OutgoingMtuExceededPacketsFromClient: {{index . "outgoing_mtu_exceeded_packets_from_client"}}`
+ {{index . "additional_stats"}}
+ InBadPacketsFromClient: {{index . "in_bad_packets_from_client"}}
+ InBadPacketsFromServer: {{index . "in_bad_packets_from_server"}}
+ Option_17InsertedPacketsToServer: {{index . "option_17_inserted_packets_to_server"}}
+ Option_17RemovedPacketsToClient: {{index . "option_17_removed_packets_to_client"}}
+ Option_18InsertedPacketsToServer: {{index . "option_18_inserted_packets_to_server"}}
+ Option_18RemovedPacketsToClient: {{index . "option_18_removed_packets_to_client"}}
+ Option_37InsertedPacketsToServer: {{index . "option_37_inserted_packets_to_server"}}
+ Option_37RemovedPacketsToClient: {{index . "option_37_removed_packets_to_client"}}
+ OutgoingMtuExceededPacketsFromClient: {{index . "outgoing_mtu_exceeded_packets_from_client"}}`
 	DEFAULT_OFFLOAD_APP_STATS_PPPOE_IA_FORMAT = `AdditionalStats:
-{{index . "additional_stats"}}
-InErrorPacketsFromClient: {{index . "in_error_packets_from_client"}}
-InErrorPacketsFromServer: {{index . "in_error_packets_from_server"}}
-InPacketsFromClient: {{index . "in_packets_from_client"}}
-InPacketsFromServer: {{index . "in_packets_from_server"}}
-OutPacketsToServer: {{index . "out_packets_to_server"}}
-OutPacketsToClient: {{index . "out_packets_to_client"}}
-VendorSpecificTagInsertedPacketsToServer: {{index . "vendor_specific_tag_inserted_packets_to_server"}}
-VendorSpecificTagRemovedPacketsToClient: {{index . "vendor_specific_tag_removed_packets_to_client"}}
-OutgoingMtuExceededPacketsFromClient: {{index . "outgoing_mtu_exceeded_packets_from_client"}}`
+ {{index . "additional_stats"}}
+ InErrorPacketsFromClient: {{index . "in_error_packets_from_client"}}
+ InErrorPacketsFromServer: {{index . "in_error_packets_from_server"}}
+ InPacketsFromClient: {{index . "in_packets_from_client"}}
+ InPacketsFromServer: {{index . "in_packets_from_server"}}
+ OutPacketsToServer: {{index . "out_packets_to_server"}}
+ OutPacketsToClient: {{index . "out_packets_to_client"}}
+ VendorSpecificTagInsertedPacketsToServer: {{index . "vendor_specific_tag_inserted_packets_to_server"}}
+ VendorSpecificTagRemovedPacketsToClient: {{index . "vendor_specific_tag_removed_packets_to_client"}}
+ OutgoingMtuExceededPacketsFromClient: {{index . "outgoing_mtu_exceeded_packets_from_client"}}`
 )
 
 type DeviceList struct {
 	ListOutputOptions
+}
+
+type DeviceUpdate struct {
+	ListOutputOptions
+	Args struct {
+		Id          string `positional-arg-name:"DEVICE_ID" required:"yes"`
+		AddressType string `positional-arg-name:"ADDRESS_TYPE" required:"yes" choice:"IPV4" choice:"IPV6" choice:"HOST_AND_PORT"`
+		Address     string `positional-arg-name:"HOST_AND_PORT" required:"yes"`
+	} `positional-args:"yes"`
 }
 
 type DeviceCreate struct {
@@ -699,6 +708,7 @@ type DeviceOpts struct {
 	EnableOnuSerialNumber  EnableOnuSerialNumber  `command:"enable_onu_serial"`
 	Flows                  DeviceFlowList         `command:"flows"`
 	Groups                 DeviceFlowGroupList    `command:"groups"`
+	Update                 DeviceUpdate           `command:"update"`
 	Port                   struct {
 		List    DevicePortList    `command:"list"`
 		Enable  DevicePortEnable  `command:"enable"`
@@ -3431,4 +3441,36 @@ func (options *EnableOnuSerialNumber) Execute(args []string) error {
 	}
 	fmt.Printf("Enabled ONU serial '%s' on OLT '%s'\n", options.Args.SerialNumber, options.Args.OltDeviceId)
 	return nil
+}
+
+func (options *DeviceUpdate) Execute(args []string) error {
+	conn, err := NewConnection()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	client := voltha.NewVolthaServiceClient(conn)
+	ctx, cancel := context.WithTimeout(context.Background(), GlobalConfig.Current().Grpc.Timeout)
+	defer cancel()
+	var deviceConfig voltha.UpdateDeviceConfig
+	switch options.Args.AddressType {
+	case "IPV4":
+		deviceConfig.Id = options.Args.Id
+		deviceConfig.Address = &voltha.UpdateDeviceConfig_Ipv4Address{Ipv4Address: options.Args.Address}
+	case "IPV6":
+		deviceConfig.Id = options.Args.Id
+		deviceConfig.Address = &voltha.UpdateDeviceConfig_Ipv6Address{Ipv6Address: options.Args.Address}
+	case "HOST_AND_PORT":
+		deviceConfig.Id = options.Args.Id
+		deviceConfig.Address = &voltha.UpdateDeviceConfig_HostAndPort{HostAndPort: options.Args.Address}
+	default:
+		return fmt.Errorf("invalid address type %s, supported types are IPV4, IPV6, HOST_AND_PORT", options.Args.AddressType)
+	}
+	_, err = client.UpdateDevice(ctx, &deviceConfig)
+	if err != nil {
+		Error.Printf("Error updating device Id %s,err=%s\n", options.Args.Id, ErrorToString(err))
+		return err
+	}
+	return nil
+
 }
