@@ -1,6 +1,29 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "f16151da_cc7d72d4",
+        "filename": ".github/workflows/gerrit-comment-handler.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 1000404
+      },
+      "writtenOn": "2026-07-21T19:03:15Z",
+      "side": 1,
+      "message": "I don\u0027t see this parameter is defined anywhere.",
+      "range": {
+        "startLine": 96,
+        "startChar": 29,
+        "endLine": 96,
+        "endChar": 39
+      },
+      "revId": "35c38147b0568dcf1c61b133e645c8ac8a2b2c26",
+      "serverId": "2a2bfe1b-c5c2-48ed-9ac8-16438ab24388"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "b0921e6c_5f95e2e8",
